@@ -2,6 +2,7 @@ import { Button } from '@nextui-org/button'
 import Image from 'next/image'
 import RegisterCard from './shared/components/RegisterCard'
 import LoginCard from './shared/components/LoginCard'
+import Sidemenu from './layouts/Sidemenu'
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
 		<div className="flex justify-center space-x-8">
 			<RegisterCard></RegisterCard>
 			<LoginCard></LoginCard>
+			<Sidemenu></Sidemenu>
 	  	</div>
 	</main>
   )
