@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react'
-import { Button } from "@nextui-org/react";
 import { Image } from "@nextui-org/react";
 
 export default function Sidemenu() {
@@ -22,8 +21,9 @@ export default function Sidemenu() {
             onMouseLeave={handleMouseExit}>
             <nav className='h-full flex flex-col border-r-1 shadow justify-start items-center py-5 px-3 gap-y-6'>
                 <div className='flex justify-center items-center'>
-                    <Button color='primary' className='rounded-full'>
-                    </Button>
+                    <button className='rounded-full overflow-hidden border-gray-200'>
+
+                    </button>
                 </div>
             </nav>
         </aside>
