@@ -40,6 +40,8 @@ export default function LoginCard() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                     />
+
+                    
                     <Input
                         type="password"
                         isInvalid={loginButtonPressed && (!isUserValid || !isPasswordCorrect)}
