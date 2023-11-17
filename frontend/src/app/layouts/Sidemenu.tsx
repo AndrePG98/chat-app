@@ -11,7 +11,7 @@ export default function Sidemenu() {
 
     const handleMouseExit = () => { setSideBarWidth('5%') }
 
-    //const image = <Image src='/icon.png' width={30} height={30} alt='image' />
+    const image = <Image src='/icon.png' width={30} height={30} alt='image' />
 
     return (
         <aside
@@ -22,7 +22,7 @@ export default function Sidemenu() {
             <nav className='h-full flex flex-col border-r-1 shadow justify-start items-center py-5 px-3 gap-y-6'>
                 <div className='flex justify-center items-center'>
                     <button className='rounded-full overflow-hidden border-gray-200'>
-
+                        {image}
                     </button>
                 </div>
             </nav>
