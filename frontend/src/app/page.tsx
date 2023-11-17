@@ -1,7 +1,3 @@
-import { Button } from '@nextui-org/button'
-import Image from 'next/image'
-import RegisterCard from './shared/components/RegisterCard'
-import LoginCard from './shared/components/LoginCard'
 import Sidemenu from './layouts/Sidemenu'
 
 export default function Home() {
