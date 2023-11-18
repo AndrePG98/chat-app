@@ -32,54 +32,6 @@ export default function Sidemenu() {
                     />
                     <Divider className='w-52'></Divider>
                     <div className="flex justify-center flex-col space-y-3">
-                        <Button 
-                            className="my-2"
-                            variant="ghost"
-                            onPress={onOpen}
-                            endContent={<span className="material-symbols-outlined">add</span>}>
-                            Create Text Channel
-                        </Button>
-                        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                            <ModalContent>
-                                {(onClose) => (
-                                    <>
-                                        <ModalHeader 
-                                            className="flex flex-col gap-1">
-                                            What should the channel be called?
-                                        </ModalHeader>
-                                        <ModalBody>
-                                            <Input
-                                                type="name"
-                                                label="Channel Name"
-                                                placeholder="Enter the desired channel name"
-                                                value={channelName}
-                                                onChange={(e) => setChannelName(e.target.value)}
-                                            />
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <Button 
-                                                color="danger" 
-                                                variant="light" 
-                                                onPress={onClose}>
-                                                Close
-                                            </Button>
-                                            <Button
-                                                className='w-full'
-                                                color="success"
-                                                onClick={() => {
-                                                    createButton();
-                                                    onClose();
-                                                    setChannelName('');
-                                                }}
-                                                endContent={<span className="material-symbols-outlined">add</span>}>
-                                                Create channel
-                                            </Button>
-                                        </ModalFooter>
-                                    </>
-                                )}
-                            </ModalContent>
-                        </Modal>
-                        {buttons.map((button) => button)}
                     </div>
                 </div>
             </nav>
