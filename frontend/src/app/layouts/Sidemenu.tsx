@@ -1,24 +1,27 @@
 'use client';
 
+import { Button, Divider, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, User, useDisclosure } from '@nextui-org/react';
 import React, { useState } from 'react';
-import Image from 'next/image';
-import { Button, Divider, User } from '@nextui-org/react';
 
 export default function Sidemenu() {
+    const [buttons, setButtons] = useState<React.ReactNode[]>([]);
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [channelName, setChannelName] = useState('');
 
-    const [isHovered, setIsHovered] = useState(false);
+    function createButton() {
+        if (channelName.trim() !== '') {
+            const newButton = (
+                <Button key={channelName} className='w-full' endContent={<span className="material-symbols-outlined ml-8">edit</span>}>
+                    {channelName}
+                </Button>
+            );
+            setButtons((prevButtons) => [...prevButtons, newButton]);
+        }
+    }
 
     return (
         <aside className='h-screen transition-all duration-300 ease-in-out py-5 px-4 border-r border-gray-700 flex flex-col absolute inset-y-0 left-0 w-60'>
             <nav className='flex justify-center items-center'>
-                {/* <Button isIconOnly className={`rounded-full transform ${isHovered ? 'scale-125' : 'scale-100'} transition-all ease-in-out`} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-                    <Image
-                        src="/user.svg"
-                        alt="User"
-                        width={15}
-                        height={15}
-                    />
-                </Button> */}
                 <div className='space-y-3'>
                     <User
                         name="Jane Doe"
@@ -29,15 +32,54 @@ export default function Sidemenu() {
                     />
                     <Divider className='w-52'></Divider>
                     <div className="flex justify-center flex-col space-y-3">
-                        <Button className='w-full' color="success" endContent={<span className="material-symbols-outlined ml-8">add</span>}>
-                            Create channel
+                        <Button 
+                            className="my-2"
+                            variant="ghost"
+                            onPress={onOpen}
+                            endContent={<span className="material-symbols-outlined">add</span>}>
+                            Create Text Channel
                         </Button>
-                        <Button className='w-full' endContent={<span className="material-symbols-outlined ml-8">volume_up</span>}>
-                            Voice Channel 1
-                        </Button>
-                        <Button className='w-full' endContent={<span className="material-symbols-outlined ml-8">edit</span>}>
-                            Text Channel 1
-                        </Button>
+                        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                            <ModalContent>
+                                {(onClose) => (
+                                    <>
+                                        <ModalHeader 
+                                            className="flex flex-col gap-1">
+                                            What should the channel be called?
+                                        </ModalHeader>
+                                        <ModalBody>
+                                            <Input
+                                                type="name"
+                                                label="Channel Name"
+                                                placeholder="Enter the desired channel name"
+                                                value={channelName}
+                                                onChange={(e) => setChannelName(e.target.value)}
+                                            />
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button 
+                                                color="danger" 
+                                                variant="light" 
+                                                onPress={onClose}>
+                                                Close
+                                            </Button>
+                                            <Button
+                                                className='w-full'
+                                                color="success"
+                                                onClick={() => {
+                                                    createButton();
+                                                    onClose();
+                                                    setChannelName('');
+                                                }}
+                                                endContent={<span className="material-symbols-outlined">add</span>}>
+                                                Create channel
+                                            </Button>
+                                        </ModalFooter>
+                                    </>
+                                )}
+                            </ModalContent>
+                        </Modal>
+                        {buttons.map((button) => button)}
                     </div>
                 </div>
             </nav>
