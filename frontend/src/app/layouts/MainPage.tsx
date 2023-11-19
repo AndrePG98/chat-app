@@ -15,11 +15,11 @@ export default function MainPage() {
 
     function createChannel() {
         if (channelName.trim() !== '') {
-            let channel : React.ReactNode = null;
-            if(channelType === 'voice'){
-                channel = <VoiceChannel name={channelName}/>
+            let channel: React.ReactNode = null;
+            if (channelType === 'voice') {
+                channel = <VoiceChannel name={channelName} />
             } else {
-                channel = <TextChannel name={channelName}/>
+                channel = <TextChannel name={channelName} />
             }
             setChannels((prevChannels) => [...prevChannels, channel]);
         }
@@ -29,9 +29,10 @@ export default function MainPage() {
 
     return (
         <div className='h-screen w-fit flex-1 flex flex-row'>
-            <div className='basis-52 shrink-0 grow-0 border-r flex flex-col items-stretch justify-start py-6 px-3'>
-                <div className='text-center mb-10'>Group Name</div>
-                <div className='flex flex-row mb-5'>
+            <div className='border-r w-64 flex-col justify-start py-6 px-3'>
+                <div className='text-center mb-7'>Group Name</div>
+                <Divider></Divider>
+                <div className='flex flex-row my-5 justify-center'>
                     <Button isIconOnly color="success" className='flex justify-center items-center' onPress={onOpen}>
                         {addIcon}
                     </Button>
@@ -44,7 +45,7 @@ export default function MainPage() {
                                         What's the channel type?
                                     </ModalHeader>
                                     <ModalBody>
-                                        <RadioGroup value={channelType} onValueChange={setChannelType} isInvalid={isInvalid}>
+                                        <RadioGroup value={channelType} onValueChange={setChannelType}>
                                             <Radio value="voice">Voice</Radio>
                                             <Radio value="text">Text</Radio>
                                         </RadioGroup>
@@ -86,7 +87,7 @@ export default function MainPage() {
                         </ModalContent>
                     </Modal>
                 </div>
-                <div className='channels-list flex flex-col gap-3'>
+                <div className='channels-list flex flex-col gap-3 w-full'>
                     {channels.map((channel, index) => (
                         <div key={index}>{channel}</div>
                     ))}

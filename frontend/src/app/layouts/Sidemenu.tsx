@@ -2,10 +2,8 @@ import { Divider,User} from '@nextui-org/react';
 import React from 'react';
 
 export default function Sidemenu() {
-
-
     return (
-        <aside className='h-screen w-60 py-5 px-4 border-r border-gray-700 flex flex-col'>
+        <aside className='h-screen w-64 py-5 px-4 border-r border-gray-700 flex flex-col'>
             <nav className='flex justify-center items-center'>
                 <div className='space-y-3'>
                     <User
