@@ -29,7 +29,7 @@ export default function MainPage() {
 
     return (
         <div className='h-screen w-fit flex-1 flex flex-row'>
-            <div className='border-r w-64 flex-col justify-start py-6 px-3'>
+            <div className='border-r w-64 flex-col justify-start py-6 px-2'>
                 <div className='text-center mb-7'>Group Name</div>
                 <Divider></Divider>
                 <div className='flex flex-row my-5 justify-center'>
@@ -87,10 +87,11 @@ export default function MainPage() {
                         </ModalContent>
                     </Modal>
                 </div>
-                <div className='channels-list flex flex-col gap-3 w-full'>
+                <div className='channels-list flex flex-col gap-0 w-full'>
                     {channels.map((channel, index) => (
                         <div key={index}>{channel}</div>
                     ))}
+
                 </div>
             </div>
             <Divider className='w-1' orientation='vertical'></Divider>

@@ -8,23 +8,28 @@ export default function (props: { name: String }) {
     const [channelUsers, setChannelUsers] = useState<React.ReactNode[]>([])
 
     function addChannelUser() {
-        let newUser = <User
+        let newUser = <User className='flex justify-start items-center py-.5 px-.5'
             name="Jane Doe"
             avatarProps={{
-                src: "https://i.pravatar.cc/150?u=a04258114e29026702d"
+                src: "https://source.unsplash.com/random/?avatar",
+                className: "text-tiny w-5 h-5"
             }}
         />
         setChannelUsers((prevChannelUsers) => [...prevChannelUsers, newUser]);
     }
 
     return (
-        <div>
-            <Button className="h-8 w-full" endContent={<span className="material-symbols-outlined ml-8">volume_up</span>} onClick={addChannelUser}>
+        <div className=''>
+            <Button className="h-8 w-full text-lg flex justify-start" startContent={<span className="material-symbols-outlined">volume_up</span>} onClick={addChannelUser} variant='light'>
                 {props.name}
             </Button>
-            <Listbox itemClasses={{
-                base : "ml-5"
-            }}>
+            <Listbox
+                className=''
+                variant='light'
+                emptyContent=""
+                itemClasses={{
+                    base: "w-1/2 left-[15%]"
+                }}>
                 {channelUsers.map((user, index) => (
                     <ListboxItem key={index}>{user}</ListboxItem>
                 ))}
