@@ -9,7 +9,9 @@ export default function MainPage() {
     const [channels, setChannels] = useState<React.ReactNode[]>([]);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [channelName, setChannelName] = useState('');
-    const [channelType, setChannelType] = React.useState("voice");
+    const [channelType, setChannelType] = React.useState("");
+    const validOptions = ["text", "voice"];
+    const isInvalid = !validOptions.includes(channelType);
 
     function createChannel() {
         if (channelName.trim() !== '') {
@@ -33,7 +35,7 @@ export default function MainPage() {
                     <Button isIconOnly color="success" className='flex justify-center items-center' onPress={onOpen}>
                         {addIcon}
                     </Button>
-                    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='center'>
                         <ModalContent>
                             {(onClose) => (
                                 <>
@@ -42,7 +44,7 @@ export default function MainPage() {
                                         What's the channel type?
                                     </ModalHeader>
                                     <ModalBody>
-                                        <RadioGroup value={channelType} onValueChange={setChannelType}>
+                                        <RadioGroup value={channelType} onValueChange={setChannelType} isInvalid={isInvalid}>
                                             <Radio value="voice">Voice</Radio>
                                             <Radio value="text">Text</Radio>
                                         </RadioGroup>
@@ -73,6 +75,7 @@ export default function MainPage() {
                                                 createChannel()
                                                 onClose();
                                                 setChannelName('');
+                                                setChannelType("");
                                             }}
                                             endContent={<span className="material-symbols-outlined">add</span>}>
                                             Create channel
