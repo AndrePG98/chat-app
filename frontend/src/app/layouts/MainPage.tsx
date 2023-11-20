@@ -16,21 +16,24 @@ export default function MainPage() {
 
     return (
         <div className='h-screen w-fit flex-1 flex flex-row'>
-            <div className='border-r w-64 h-full flex flex-col py-2'>
-                <div className='header flex flex-col justify-start items-center gap-3'>
+            <div className='border-r w-64 h-full flex flex-col pt-2'>
+                <div className='header flex flex-col justify-center items-center pb-5'>
                     <div className='text-2xl'>Group Name</div>
+                </div>
+                <Divider />
+                <div className='body flex flex-col py-5 flex-grow'>
+                    {channels.map((channel, index) => (
+                        <div key={index}>{channel}</div>
+                    ))}
+                </div>
+                <Divider />
+                <div className='footer '>
                     <ButtonGroup variant='light' className='flex flex-row' radius='none' size='sm' fullWidth>
                         <Button isIconOnly className='flex justify-center items-center w-full' onClick={onOpen}>
                             {addIcon}
                         </Button>
                     </ButtonGroup>
                     <CreateChannelModal onOpen={onOpen} isOpen={isOpen} onOpenChange={onOpenChange} setChannels={setChannel} />
-                </div>
-                <Divider/>
-                <div className='flex flex-col py-5'>
-                    {channels.map((channel, index) => (
-                        <div key={index}>{channel}</div>
-                    ))}
                 </div>
             </div>
             <div className='flex-1'></div>
