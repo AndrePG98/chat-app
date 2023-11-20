@@ -3,6 +3,7 @@
 import React, { ReactNode, useState } from 'react';
 import { Divider, Button, useDisclosure, ButtonGroup } from '@nextui-org/react';
 import CreateChannelModal from '../shared/components/CreateChannelModal';
+import ChatPage from './ChatPage';
 
 export default function MainPage() {
     const [channels, setChannels] = useState<React.ReactNode[]>([]);
@@ -16,7 +17,7 @@ export default function MainPage() {
 
     return (
         <div className='h-screen w-fit flex-1 flex flex-row'>
-            <div className='border-r w-64 h-full flex flex-col pt-2'>
+            <div className='w-64 h-full flex flex-col pt-2  border-r border-gray-700'>
                 <div className='header flex flex-col justify-center items-center pb-5'>
                     <div className='text-2xl'>Group Name</div>
                 </div>
@@ -36,7 +37,9 @@ export default function MainPage() {
                     <CreateChannelModal onOpen={onOpen} isOpen={isOpen} onOpenChange={onOpenChange} setChannels={setChannel} />
                 </div>
             </div>
-            <div className='flex-1'></div>
+            <div className='flex-1'>
+                <ChatPage></ChatPage>
+            </div>
         </div>
     );
 }
