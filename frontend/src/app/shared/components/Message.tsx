@@ -1,11 +1,17 @@
-import { Card, Avatar } from '@nextui-org/react'
-import React from 'react'
+import { Avatar } from '@nextui-org/react';
+import React from 'react';
 
-export default function Message() {
-    return (
-        <Card fullWidth className='h-12 text-sm bg-transparent flex flex-row gap-5 items-center py-3 px-2' radius='sm'>
-            <Avatar src="https://source.unsplash.com/random/?avatar"/>
-            <span>Example message testing out the component</span>
-        </Card>
-    )
-}
+export default function Message({ message }: { message: string }) {
+	return (
+	  <div className='message flex gap-4 max-w-full'>
+		<div>
+		  <Avatar src='https://source.unsplash.com/random/?avatar' />
+		</div>
+		<div className='flex-1 overflow-auto'>
+		  <div className='max-w-[90%]'>
+			<p className='text-sm break-words'>{message}</p>
+		  </div>
+		</div>
+	  </div>
+	);
+  }
