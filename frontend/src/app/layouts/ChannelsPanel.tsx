@@ -1,11 +1,10 @@
-'use client'
+"use client"
 
 import React, { useState } from 'react';
 import { Divider, Button, useDisclosure, ButtonGroup } from '@nextui-org/react';
 import CreateChannelModal from '../shared/components/CreateChannelModal';
 import ChatPage from './ChatPage';
-
-// ... (your existing imports)
+import Message from '../shared/components/Message';
 
 export default function ChannelsPanel() {
     const [channels, setChannels] = useState([
@@ -13,8 +12,10 @@ export default function ChannelsPanel() {
         { id: 2, name: 'Random' },
     ]);
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedChannel, setSelectedChannel] = useState(null);
+    const [channelMessages, setChannelMessages] = useState<{ [key: number]: React.ReactNode[] }>({});
+
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
     const handleChannelClick = (channelId: any) => {
         setSelectedChannel(channelId);
@@ -26,6 +27,16 @@ export default function ChannelsPanel() {
 
     const setChannel = (channel: { id: number; name: string }) => {
         setChannels((prevChannels) => [...prevChannels, channel]);
+        setChannelMessages((prevMessages) => ({ ...prevMessages, [channel.id]: [] }));
+    };
+
+    const addMessage = (message: string) => {
+        if (selectedChannel !== null && message !== "") {
+            setChannelMessages((prevMessages) => ({
+                ...prevMessages,
+                [selectedChannel]: [...(prevMessages[selectedChannel] || []), <Message message={message} key={Date.now()} />],
+            }));
+        }
     };
 
     const addIcon = <span className="material-symbols-outlined">add</span>;
@@ -39,32 +50,35 @@ export default function ChannelsPanel() {
                 <Divider />
                 <div className="body flex flex-col py-5 flex-grow">
                     {channels.map((channel) => (
-                        <div key={channel.id} onClick={() => handleChannelClick(channel.id)}>
+                        <Button className="m-1" radius="sm" key={channel.id} onClick={() => handleChannelClick(channel.id)}>
                             {channel.name}
-                        </div>
+                        </Button>
                     ))}
                 </div>
                 <Divider />
                 <div className="footer">
                     <ButtonGroup variant="light" className="flex flex-col" radius="none" size="sm" fullWidth>
+                        <Button isIconOnly className="flex justify-center items-center w-full" onClick={onOpen}>
+                            {addIcon}
+                        </Button>
                         {selectedChannel && (
                             <Button color="danger" onClick={leaveChannel}>
                                 Leave Channel
                             </Button>
                         )}
-                        <Button isIconOnly className="flex justify-center items-center w-full" onClick={onOpen}>
-                            {addIcon}
-                        </Button>
-
                     </ButtonGroup>
-                    <CreateChannelModal onOpen={onOpen} isOpen={isOpen} onOpenChange={onOpenChange} setChannels={setChannel} />
-
                 </div>
             </div>
             <div>
-
-                {selectedChannel && <ChatPage channelId={selectedChannel} />}
+                {selectedChannel && (
+                    <div>
+                        <h2>{channels.find((channel) => channel.id === selectedChannel)?.name}</h2>
+                        {channelMessages[selectedChannel] && channelMessages[selectedChannel].map((message) => message)}
+                        <ChatPage channelId={selectedChannel} addMessage={addMessage} />
+                    </div>
+                )}
             </div>
+            <CreateChannelModal onOpen={onOpen} isOpen={isOpen} onOpenChange={onOpenChange} setChannels={setChannel} />
         </div>
     );
 }
