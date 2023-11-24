@@ -1,11 +1,11 @@
-import Sidemenu from './layouts/Sidemenu'
-import MainPage from './layouts/MainPage'
+import ServersPanel from './layouts/ServersPanel'
+import ChannelsPanel from './layouts/ChannelsPanel'
 
 export default function Home() {
 	return (
 		<main className="flex h-screen flex-row justify-between">
-			<Sidemenu></Sidemenu>
-			<MainPage></MainPage>
+			<ServersPanel></ServersPanel>
+			<ChannelsPanel></ChannelsPanel>
 		</main>
 	)
 }

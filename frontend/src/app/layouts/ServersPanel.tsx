@@ -1,7 +1,7 @@
 import { Divider,User} from '@nextui-org/react';
 import React from 'react';
 
-export default function Sidemenu() {
+export default function ServersPanel() {
     return (
         <aside className='h-screen w-64 py-5 px-4 border-r border-gray-700 flex flex-col'>
             <nav className='flex justify-center items-center'>
