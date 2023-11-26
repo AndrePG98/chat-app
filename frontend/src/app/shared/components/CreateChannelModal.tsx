@@ -1,39 +1,33 @@
-import {
-    Button,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    Radio,
-    RadioGroup,
-} from "@nextui-org/react";
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup } from "@nextui-org/react";
 
 interface CreateChannelModalProps {
     isOpen: boolean;
     onOpen: () => void;
     onOpenChange: () => void;
-    setChannels: (channel: { id: number; name: string }) => void;
+    createNewChannel: (channelName: string) => void;
 }
 
-export default function CreateChannelModal(props: CreateChannelModalProps) {
+const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen, onOpen, onOpenChange, createNewChannel }) => {
     const [channelType, setChannelType] = React.useState("");
     const [channelName, setChannelName] = useState('');
 
-    function createChannel() {
-        if (channelName.trim() !== '') {
-            const newChannel = {
-                id: Math.floor(Math.random() * 1000) + 1, // Example: generate a random ID
-                name: channelName,
-            };
-            props.setChannels(newChannel);
-        }
-    }
+    const handleCreateChannel = (channelName: string) => {
+        createNewChannel(channelName);
+    };
+
+    // function createChannel() {
+    //     if (channelName.trim() !== '') {
+    //         const newChannel = {
+    //             id: Math.floor(Math.random() * 1000) + 1,
+    //             name: channelName,
+    //         };
+    //         props.createNewChannel(newChannel);
+    //     }
+    // }
 
     return (
-        <Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange} placement='center'>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='center'>
             <ModalContent>
                 {(onClose) => (
                     <>
@@ -69,10 +63,10 @@ export default function CreateChannelModal(props: CreateChannelModalProps) {
                                 className='w-full'
                                 color="success"
                                 onClick={() => {
-                                    createChannel()
                                     onClose();
                                     setChannelName('');
                                     setChannelType("");
+                                    handleCreateChannel("broooooo")
                                 }}
                                 endContent={<span className="material-symbols-outlined">add</span>}>
                                 Create channel
@@ -84,3 +78,4 @@ export default function CreateChannelModal(props: CreateChannelModalProps) {
         </Modal>
     )
 }
+export default CreateChannelModal;
