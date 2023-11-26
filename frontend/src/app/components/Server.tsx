@@ -2,31 +2,36 @@
 
 import React, { useState } from 'react';
 import TextChannel from '../shared/components/TextChannel';
+import VoiceChannel from '../shared/components/VoiceChannel';
 import ChannelsPanel from '../layouts/ChannelsPanel';
 
 const Server = () => {
-    const [channels, setChannels] = useState([
-        <TextChannel key={1} id={1} name="Channel 1" messages={[]} />,
-        <TextChannel key={2} id={2} name="Channel 2" messages={[]} />,
-    ]);
+    const [channels, setChannels] = useState<React.ReactNode[]>([]);
 
-    const createNewChannel = (name: string) => {
-        const newChannel = (
-            <TextChannel
-                key={channels.length + 1}
-                id={channels.length + 1}
-                name={name}
-                messages={[]}
-            />
-        );
-
+    const createNewChannel = (name: string, type: string) => {
+        var newChannel: React.ReactNode;
+        if(name.trim() === "") return
+        if (type === 'voice') {
+            newChannel =
+                <VoiceChannel
+                    name={name}
+                    id={channels.length + 1}
+                />
+        } else {
+            newChannel =
+                <TextChannel
+                    key={channels.length + 1}
+                    id={channels.length + 1}
+                    name={name}
+                    messages={[]}
+                />
+        }
         setChannels(prevChannels => [...prevChannels, newChannel]);
     };
 
     return (
         <div>
-            <ChannelsPanel createNewChannel={createNewChannel}></ChannelsPanel>
-            {channels}
+            <ChannelsPanel createNewChannel={createNewChannel} channels={channels}></ChannelsPanel>
         </div>
     );
 };

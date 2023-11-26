@@ -3,18 +3,13 @@ import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader
 
 interface CreateChannelModalProps {
     isOpen: boolean;
-    onOpen: () => void;
     onOpenChange: () => void;
-    createNewChannel: (channelName: string) => void;
+    createNewChannel: (channelName: string ,channelType : string) => void;
 }
 
-const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen, onOpen, onOpenChange, createNewChannel }) => {
+const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen,  onOpenChange, createNewChannel }) => {
     const [channelType, setChannelType] = React.useState("");
     const [channelName, setChannelName] = useState('');
-
-    const handleCreateChannel = (channelName: string) => {
-        createNewChannel(channelName);
-    };
 
     // function createChannel() {
     //     if (channelName.trim() !== '') {
@@ -64,9 +59,9 @@ const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen, onOpen,
                                 color="success"
                                 onClick={() => {
                                     onClose();
-                                    setChannelName('');
+                                    createNewChannel(channelName, channelType);
+                                    setChannelName("");
                                     setChannelType("");
-                                    handleCreateChannel("broooooo")
                                 }}
                                 endContent={<span className="material-symbols-outlined">add</span>}>
                                 Create channel

@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Listbox, ListboxItem, User } from '@nextui-org/react';
 
-export default function ChannelComponent(props: { name: string }) {
+
+interface VoiceChannelProps {
+    name: string;
+    id: number;
+}
+
+export default function VoiceChannel({name, id} : VoiceChannelProps) {
     const [channelUsers, setChannelUsers] = useState<React.ReactNode[]>([]);
 
     function addChannelUser() {
@@ -27,7 +33,7 @@ export default function ChannelComponent(props: { name: string }) {
                 variant='light'
                 radius='none'
             >
-                {props.name}
+                {name}
             </Button>
             {channelUsers.length > 0 && (
                 <Listbox

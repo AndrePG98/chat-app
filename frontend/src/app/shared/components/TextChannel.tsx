@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Button } from '@nextui-org/react';
 import Message from './Message';
 
-interface ChannelProps {
+interface TextChannelProps {
     name: string;
     id: number;
     messages: string[];
 }
 
-const TextChannel: React.FC<ChannelProps> = (props) => {
-    const [messages, setMessages] = useState<React.ReactNode[]>(props.messages.map((message, index) => (
-        <Message key={index} message={message} />
+const TextChannel: React.FC<TextChannelProps> = (props) => {
+
+    const [messages, setMessages] = useState<React.ReactNode[]>(props.messages.map((message) => (
+        <Message message={message} />
     )));
 
     const createNewMessage = () => {
@@ -29,7 +30,7 @@ const TextChannel: React.FC<ChannelProps> = (props) => {
                 {props.name}
             </Button>
             <div>
-                <h1>Channel List</h1>
+                <h1>Message List</h1>
                 {messages}
                 <button onClick={createNewMessage}>Create New Message</button>
             </div>
