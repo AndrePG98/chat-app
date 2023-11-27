@@ -5,18 +5,14 @@ import Message from './Message';
 interface TextChannelProps {
     name: string;
     id: number;
-    messages: string[];
 }
 
 const TextChannel: React.FC<TextChannelProps> = (props) => {
 
-    const [messages, setMessages] = useState<React.ReactNode[]>(props.messages.map((message) => (
-        <Message message={message} />
-    )));
+    const [messages, setMessages] = useState<string[]>([]);
 
     const createNewMessage = () => {
-        const newMessageComponent = <Message key={messages.length} message={'example message'} />;
-        setMessages((prevMessages) => [...prevMessages, newMessageComponent]);
+        setMessages((prevMessages) => [...prevMessages, "new messagge"]);
     };
 
     return (
@@ -31,7 +27,9 @@ const TextChannel: React.FC<TextChannelProps> = (props) => {
             </Button>
             <div>
                 <h1>Message List</h1>
-                {messages}
+                {messages.map((message) => (
+                    <Message message={message}></Message>
+                ))}
                 <button onClick={createNewMessage}>Create New Message</button>
             </div>
         </div>

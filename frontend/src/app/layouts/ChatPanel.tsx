@@ -6,7 +6,7 @@ interface ChatPageProps {
     addMessage: (message: string) => void;
 }
 
-export default function ChatPage({ channelId, addMessage }: ChatPageProps) {
+export default function ChatPanel({ channelId, addMessage }: ChatPageProps) {
     const [input, setInput] = React.useState('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
 

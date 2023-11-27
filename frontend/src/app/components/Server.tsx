@@ -23,7 +23,7 @@ const Server = () => {
                     key={channels.length + 1}
                     id={channels.length + 1}
                     name={name}
-                    messages={[]}
+
                 />
         }
         setChannels(prevChannels => [...prevChannels, newChannel]);
@@ -32,6 +32,7 @@ const Server = () => {
     return (
         <div>
             <ChannelsPanel createNewChannel={createNewChannel} channels={channels}></ChannelsPanel>
+            Chat
         </div>
     );
 };

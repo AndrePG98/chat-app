@@ -7,7 +7,7 @@ interface ChannelsPageProps {
     channels: React.ReactNode[]
 }
 
-const ChannelsPage: React.FC<ChannelsPageProps> = ({ createNewChannel, channels }) => {
+const ChannelsPanel: React.FC<ChannelsPageProps> = ({ createNewChannel, channels }) => {
     const [modalOpen, setModalOpen] = useState(false);
 
     const openModal = () => setModalOpen(true);
@@ -24,4 +24,4 @@ const ChannelsPage: React.FC<ChannelsPageProps> = ({ createNewChannel, channels 
     );
 };
 
-export default ChannelsPage;
+export default ChannelsPanel;
