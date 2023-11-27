@@ -7,13 +7,13 @@ import Message from '../shared/components/Message'
 export default function ChatPage() {
     const [input, setInput] = React.useState("")
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const [messages, setMessages] = useState<React.ReactNode[]>([])
+    const [messages, setMessages] = useState<string[]>([])
 
     function addMessage(message: string) {
-        if(message === ""){
+        if (message === "") {
             return;
         }
-        setMessages((prevMessages) => [...prevMessages, <Message message={message}></Message>])
+        setMessages((prevMessages) => [...prevMessages, message])
     }
 
 
@@ -27,17 +27,17 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-      }, [messages]);
-    
+    }, [messages]);
+
 
 
     return (
         <div className='flex flex-col h-full px-3'>
             <div ref={chatContainerRef} className='flex flex-col gap-10 message-container overflow-y-auto flex-1 w-full pt-5 px-3 pb-3'>
-                {messages.map((message) => (
-                    message
+                {messages.map((message, index) => (
+                    <Message key={index} message={message}/>
                 ))}
             </div>
             <div className='mx-5 mb-4 mt-1'>

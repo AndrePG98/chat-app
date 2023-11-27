@@ -4,6 +4,7 @@ import React, { ReactNode, useState } from 'react';
 import { Divider, Button, useDisclosure, ButtonGroup } from '@nextui-org/react';
 import CreateChannelModal from '../shared/components/CreateChannelModal';
 import ChatPage from './ChatPage';
+import MembersPanel from './MembersPanel';
 
 export default function MainPage() {
     const [channels, setChannels] = useState<React.ReactNode[]>([]);
@@ -40,6 +41,7 @@ export default function MainPage() {
             <div className='flex-1'>
                 <ChatPage></ChatPage>
             </div>
+            <MembersPanel users={["user1", "user2"]}></MembersPanel>
         </div>
     );
 }
