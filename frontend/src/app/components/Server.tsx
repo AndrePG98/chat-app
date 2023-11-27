@@ -1,40 +1,22 @@
 "use client"
 
-import React, { useState } from 'react';
-import TextChannel from '../shared/components/TextChannel';
-import VoiceChannel from '../shared/components/VoiceChannel';
+import { useState } from 'react';
 import ChannelsPanel from '../layouts/ChannelsPanel';
+import { Channel } from '../DTOs/Channel';
 
-const Server = () => {
-    const [channels, setChannels] = useState<React.ReactNode[]>([]);
+import React from 'react'
+
+export default function Server() {
+    const [channels, setChannels] = useState<Channel[]>([]);
 
     const createNewChannel = (name: string, type: string) => {
-        var newChannel: React.ReactNode;
-        if(name.trim() === "") return
-        if (type === 'voice') {
-            newChannel =
-                <VoiceChannel
-                    name={name}
-                    id={channels.length + 1}
-                />
-        } else {
-            newChannel =
-                <TextChannel
-                    key={channels.length + 1}
-                    id={channels.length + 1}
-                    name={name}
-
-                />
-        }
+        const newChannel = new Channel(channels.length+1, name, type);
         setChannels(prevChannels => [...prevChannels, newChannel]);
     };
 
     return (
-        <div>
+        <div className='relative bottom-0 left-0'>
             <ChannelsPanel createNewChannel={createNewChannel} channels={channels}></ChannelsPanel>
-            Chat
         </div>
     );
 };
-
-export default Server;

@@ -1,28 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup } from "@nextui-org/react";
 
-interface CreateChannelModalProps {
-    isOpen: boolean;
-    onOpenChange: () => void;
-    createNewChannel: (channelName: string ,channelType : string) => void;
-}
+export default function CreateChannelModal(props: { isOpen: boolean, 
+                                                    onOpenChange: ((isOpen: boolean) => void), 
+                                                    createNewChannel: (name: string, type: string) => void }) {
 
-const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen,  onOpenChange, createNewChannel }) => {
     const [channelType, setChannelType] = React.useState("");
     const [channelName, setChannelName] = useState('');
 
-    // function createChannel() {
-    //     if (channelName.trim() !== '') {
-    //         const newChannel = {
-    //             id: Math.floor(Math.random() * 1000) + 1,
-    //             name: channelName,
-    //         };
-    //         props.createNewChannel(newChannel);
-    //     }
-    // }
-
     return (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='center'>
+        <Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange} placement='center'>
             <ModalContent>
                 {(onClose) => (
                     <>
@@ -59,7 +46,7 @@ const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen,  onOpen
                                 color="success"
                                 onClick={() => {
                                     onClose();
-                                    createNewChannel(channelName, channelType);
+                                    props.createNewChannel(channelName, channelType);
                                     setChannelName("");
                                     setChannelType("");
                                 }}
@@ -73,4 +60,3 @@ const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ isOpen,  onOpen
         </Modal>
     )
 }
-export default CreateChannelModal;

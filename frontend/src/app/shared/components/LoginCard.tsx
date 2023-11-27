@@ -11,7 +11,8 @@ export default function LoginCard() {
     const isUserValid = true;
     const isPasswordCorrect = true;
 
-    const handleLogin = () => {
+
+    function handleLogin() {
         setLoginButtonPressed(true);
 
         if (isUserValid && isPasswordCorrect) {
@@ -40,8 +41,6 @@ export default function LoginCard() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                     />
-
-                    
                     <Input
                         type="password"
                         isInvalid={loginButtonPressed && (!isUserValid || !isPasswordCorrect)}

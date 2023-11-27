@@ -1,18 +1,14 @@
-import React, { useState } from 'react';
+import ChatPanel from '@/app/layouts/ChatPanel';
 import { Button } from '@nextui-org/react';
+import { useState } from 'react';
 import Message from './Message';
 
-interface TextChannelProps {
-    name: string;
-    id: number;
-}
-
-const TextChannel: React.FC<TextChannelProps> = (props) => {
+export default function TextChannel(props: { channelName: string, channelId: number }) {
 
     const [messages, setMessages] = useState<string[]>([]);
 
-    const createNewMessage = () => {
-        setMessages((prevMessages) => [...prevMessages, "new messagge"]);
+    function createNewMessage(message: string) {
+        setMessages((prevMessages) => [...prevMessages, message]);
     };
 
     return (
@@ -23,17 +19,15 @@ const TextChannel: React.FC<TextChannelProps> = (props) => {
                 variant='light'
                 radius='none'
             >
-                {props.name}
+                {props.channelName}
             </Button>
             <div>
                 <h1>Message List</h1>
                 {messages.map((message) => (
-                    <Message message={message}></Message>
+                    <Message message={message} key={messages.length}></Message>
                 ))}
-                <button onClick={createNewMessage}>Create New Message</button>
             </div>
+            <ChatPanel channelId={props.channelId} createNewMessage={createNewMessage}></ChatPanel>
         </div>
     );
 };
-
-export default TextChannel;

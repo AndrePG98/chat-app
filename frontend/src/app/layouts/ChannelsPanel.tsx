@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
-import { Button } from '@nextui-org/react';
+import { Button, ButtonGroup } from '@nextui-org/react';
+import { useState } from 'react';
+import { Channel } from '../DTOs/Channel';
 import CreateChannelModal from '../shared/components/CreateChannelModal';
+import TextChannel from '../shared/components/TextChannel';
+import VoiceChannel from '../shared/components/VoiceChannel';
 
-interface ChannelsPageProps {
-    createNewChannel: (channelName: string, channelType: string) => void,
-    channels: React.ReactNode[]
-}
-
-const ChannelsPanel: React.FC<ChannelsPageProps> = ({ createNewChannel, channels }) => {
+export default function ChannelsPanel(props: { createNewChannel: (name: string, type: string) => void, channels: Channel[] }) {
     const [modalOpen, setModalOpen] = useState(false);
 
-    const openModal = () => setModalOpen(true);
+    function openModal() {
+        setModalOpen(true);
+    }
 
-    const closeModal = () => setModalOpen(false);
+    function closeModal() {
+        setModalOpen(false);
+    }
+
+    const addIcon = <span className="material-symbols-outlined">add</span>;
 
     return (
         <div>
             <h2>Channel Page</h2>
-            <CreateChannelModal isOpen={modalOpen} onOpenChange={closeModal} createNewChannel={createNewChannel} />
-            <Button onClick={openModal}>Create New Channel</Button>
-            {channels}
+            <CreateChannelModal isOpen={modalOpen} onOpenChange={closeModal} createNewChannel={props.createNewChannel} />
+            <ButtonGroup variant="light" className="flex flex-row" radius="none" size="sm" fullWidth>
+                <Button isIconOnly className="flex justify-center items-center w-full" onClick={openModal}>
+                    {addIcon}
+                </Button>
+            </ButtonGroup>
+            {props.channels.map((channel) => (
+                <div key={channel.id}>
+                    {channel.type === 'text' && <TextChannel name={channel.name} id={channel.id} />}
+                    {channel.type === 'voice' && <VoiceChannel name={channel.name} id={channel.id} />}
+                </div>
+            ))}
         </div>
     );
 };
-
-export default ChannelsPanel;

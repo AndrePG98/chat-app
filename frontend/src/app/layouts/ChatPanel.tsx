@@ -1,12 +1,7 @@
 import { Button, Input } from '@nextui-org/react';
 import React, { useEffect, useRef } from 'react';
 
-interface ChatPageProps {
-    channelId: number;
-    addMessage: (message: string) => void;
-}
-
-export default function ChatPanel({ channelId, addMessage }: ChatPageProps) {
+export default function ChatPanel(props: { channelId: number, createNewMessage: (message: string) => void }) {
     const [input, setInput] = React.useState('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -14,12 +9,12 @@ export default function ChatPanel({ channelId, addMessage }: ChatPageProps) {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [channelId]);
+    }, [props.channelId]);
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && input !== '') {
             event.preventDefault();
-            addMessage(input);
+            props.createNewMessage(input);
             setInput('');
         }
     };
@@ -27,7 +22,7 @@ export default function ChatPanel({ channelId, addMessage }: ChatPageProps) {
     return (
         <div className="flex flex-col h-full px-3">
             <div ref={chatContainerRef} className="flex flex-col gap-10 message-container overflow-y-auto flex-1 w-full pt-5 px-3 pb-3">
-                {channelId !== null && (
+                {props.channelId !== null && (
                     <div>
                         <Input
                             className=""
@@ -45,7 +40,7 @@ export default function ChatPanel({ channelId, addMessage }: ChatPageProps) {
                                     disableRipple
                                     variant="flat"
                                     onPress={() => {
-                                        addMessage(input);
+                                        props.createNewMessage(input);
                                         setInput("");
                                     }}
                                 >

@@ -15,7 +15,7 @@ export default function RegisterCard() {
 
     const passwordMeetsReqs = isAtLeast8CharsLong && hasUpperCaseChar && hasLowerCaseChar && hasSpecialChar;
 
-    const handleRegister = () => {
+    function handleRegister() {
         setRegisterButtonPressed(true);
         console.log("here");
         console.log(!passwordMeetsReqs);
