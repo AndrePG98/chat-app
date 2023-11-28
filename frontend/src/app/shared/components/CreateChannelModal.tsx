@@ -1,38 +1,19 @@
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup, } from "@nextui-org/react";
-import React, { ReactNode, useState } from "react";
-import TextChannel from "./TextChannel";
-import VoiceChannel from "./VoiceChannel";
+import React, { useState } from 'react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup } from "@nextui-org/react";
 
-export default function CreateChannelModal(props: {
-    isOpen: boolean,
-    onOpen: () => void,
-    onOpenChange: () => void,
-    setChannels: (channel: ReactNode) => void
-}) {
+export default function CreateChannelModal(props: { isOpen: boolean, 
+                                                    onOpenChange: ((isOpen: boolean) => void), 
+                                                    createNewChannel: (name: string, type: string) => void }) {
 
     const [channelType, setChannelType] = React.useState("");
     const [channelName, setChannelName] = useState('');
-
-    function createChannel() {
-        if (channelName.trim() !== '') {
-            let channel: React.ReactNode = null;
-            if (channelType === 'voice') {
-                channel = <VoiceChannel name={channelName} />
-            } else {
-                channel = <TextChannel name={channelName} />
-            }
-            props.setChannels(channel);
-        }
-    }
-
 
     return (
         <Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange} placement='center'>
             <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader
-                            className="flex flex-col gap-1">
+                        <ModalHeader className="flex flex-col gap-1">
                             What's the channel type?
                         </ModalHeader>
                         <ModalBody>
@@ -64,9 +45,9 @@ export default function CreateChannelModal(props: {
                                 className='w-full'
                                 color="success"
                                 onClick={() => {
-                                    createChannel()
                                     onClose();
-                                    setChannelName('');
+                                    props.createNewChannel(channelName, channelType);
+                                    setChannelName("");
                                     setChannelType("");
                                 }}
                                 endContent={<span className="material-symbols-outlined">add</span>}>
