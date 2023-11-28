@@ -1,7 +1,8 @@
 import { Button, Input } from '@nextui-org/react';
 import React, { useEffect, useRef } from 'react';
+import Message from '../shared/components/Message';
 
-export default function ChatPanel(props: { channelId: number, createNewMessage: (message: string) => void }) {
+export default function ChatPanel(props: { messages: string[], channelId: number, createNewMessage: (message: string) => void }) {
     const [input, setInput] = React.useState('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -9,7 +10,7 @@ export default function ChatPanel(props: { channelId: number, createNewMessage: 
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [props.channelId]);
+    }, [props.messages]);
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && input !== '') {
@@ -20,9 +21,11 @@ export default function ChatPanel(props: { channelId: number, createNewMessage: 
     };
 
     return (
-        <div className="flex flex-col h-full px-3">
-            <div ref={chatContainerRef} className="flex flex-col gap-10 message-container overflow-y-auto flex-1 w-full pt-5 px-3 pb-3">
-                {props.channelId !== null && (
+        <div className="chat-panel flex flex-col h-full px-3 pb-5">
+            <div ref={chatContainerRef} className="message-container flex flex-col gap-10 overflow-y-auto flex-1 w-full pt-5 px-3 pb-3">
+                {props.messages.map((message, index) => (<Message message={message} key={index}></Message>))}
+            </div>
+            {props.channelId !== null && (
                     <div>
                         <Input
                             className=""
@@ -50,7 +53,6 @@ export default function ChatPanel(props: { channelId: number, createNewMessage: 
                         ></Input>
                     </div>
                 )}
-            </div>
         </div>
     );
 }
