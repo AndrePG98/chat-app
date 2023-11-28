@@ -1,10 +1,9 @@
-import { Button, ButtonGroup, Card } from '@nextui-org/react';
-import { useState, useContext } from 'react';
+import { Button, ButtonGroup } from '@nextui-org/react';
+import { useState } from 'react';
 import { Channel } from '../DTOs/Channel';
 import CreateChannelModal from '../shared/components/CreateChannelModal';
 import TextChannelBtn from '../shared/components/TextChannelBtn';
 import VoiceChannelBtn from '../shared/components/VoiceChannelBtn';
-import { SelectedChannelContext } from '../components/Server';
 
 export default function ChannelsPanel(props: {
     channels: Channel[],
@@ -34,8 +33,8 @@ export default function ChannelsPanel(props: {
                 ))}
             </div>
             <div className='user-buttons'>
+                <CreateChannelModal isOpen={modalOpen} onOpenChange={closeModal} />
                 <ButtonGroup variant="light" className="flex flex-row w-full" radius="none" size="sm" fullWidth>
-                    <CreateChannelModal isOpen={modalOpen} onOpenChange={closeModal} />
                     <Button isIconOnly className="flex justify-center items-center w-full" onClick={openModal}>
                         {addIcon}
                     </Button>

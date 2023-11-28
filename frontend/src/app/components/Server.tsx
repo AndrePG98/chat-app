@@ -1,17 +1,11 @@
 "use client"
 
-import { useState, createContext } from 'react';
-import ChannelsPanel from '../layouts/ChannelsPanel';
+import { createContext, useState } from 'react';
 import { Channel } from '../DTOs/Channel';
+import ChannelsPanel from '../layouts/ChannelsPanel';
 
-import React from 'react'
 import TextChannel from './TextChannel';
 import VoiceChannel from './VoiceChannel';
-import { Button } from '@nextui-org/react';
-import { Console } from 'console';
-
-
-
 
 export const SelectedChannelContext = createContext<{
     selectedChannel: Channel | undefined;
