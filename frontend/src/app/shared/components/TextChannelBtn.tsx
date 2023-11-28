@@ -17,4 +17,4 @@ export default function TextChannelBtn(props: { channelName: string, channelId: 
             {props.channelName}
         </Button>
     );
-};
+}

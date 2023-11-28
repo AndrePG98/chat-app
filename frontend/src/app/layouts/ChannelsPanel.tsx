@@ -22,7 +22,8 @@ export default function ChannelsPanel(props: {
     const addIcon = <span className="material-symbols-outlined">add</span>;
 
     return (
-        <div className='channel-list w-64 flex flex-col items-stretch'>
+
+        <div className='channel-list w-64 flex flex-col items-stretch' style={{border: "2px solid red"}}>
             <div className='title text-center p-3 mb-5'>SERVER NAME</div>
             <div className='channel-buttons flex-1'>
                 {props.channels.map((channel) => (
@@ -42,4 +43,4 @@ export default function ChannelsPanel(props: {
             </div>
         </div>
     );
-};
+}

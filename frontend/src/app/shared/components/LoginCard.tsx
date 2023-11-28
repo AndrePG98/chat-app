@@ -20,7 +20,7 @@ export default function LoginCard() {
         } else {
             console.error('Login failed. Please check your credentials.');
         }
-    };
+    }
 
     return (
         <Card className="py-4">

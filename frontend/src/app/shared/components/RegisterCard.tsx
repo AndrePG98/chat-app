@@ -26,7 +26,7 @@ export default function RegisterCard() {
         } else {
             console.error('Register failed. Please check your credentials.');
         }
-    };
+    }
 
     return (
         <Card className="py-4">
