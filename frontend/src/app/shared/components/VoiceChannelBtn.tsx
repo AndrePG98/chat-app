@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Listbox, ListboxItem, User } from '@nextui-org/react';
+import { SelectedChannelContext } from '@/app/components/Server';
 
 
-interface VoiceChannelProps {
-    name: string;
-    id: number;
-}
-
-export default function VoiceChannel({name, id} : VoiceChannelProps) {
+export default function VoiceChannelBtn(props: { channelName: string, channelId: number }) {
+    
     const [channelUsers, setChannelUsers] = useState<React.ReactNode[]>([]);
+    const { selectChannel } = useContext(SelectedChannelContext);
 
     function addChannelUser() {
         let newUser = (
@@ -27,13 +25,14 @@ export default function VoiceChannel({name, id} : VoiceChannelProps) {
     return (
         <div>
             <Button
+                onPress={() => selectChannel(props.channelId)}
                 className="h-8 w-full text-lg flex justify-start"
                 startContent={<span className="material-symbols-outlined">volume_up</span>}
                 onClick={addChannelUser}
                 variant='light'
                 radius='none'
             >
-                {name}
+                {props.channelName}
             </Button>
             {channelUsers.length > 0 && (
                 <Listbox

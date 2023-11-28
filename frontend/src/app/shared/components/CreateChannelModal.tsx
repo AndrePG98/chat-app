@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup } from "@nextui-org/react";
+import { SelectedChannelContext } from '@/app/components/Server';
 
-export default function CreateChannelModal(props: { isOpen: boolean, 
-                                                    onOpenChange: ((isOpen: boolean) => void), 
-                                                    createNewChannel: (name: string, type: string) => void }) {
+export default function CreateChannelModal(props: {
+    isOpen: boolean,
+    onOpenChange: ((isOpen: boolean) => void),
+}) {
 
     const [channelType, setChannelType] = React.useState("");
     const [channelName, setChannelName] = useState('');
+    const { createNewChannel } = useContext(SelectedChannelContext);
 
     return (
         <Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange} placement='center'>
@@ -46,7 +49,7 @@ export default function CreateChannelModal(props: { isOpen: boolean,
                                 color="success"
                                 onClick={() => {
                                     onClose();
-                                    props.createNewChannel(channelName, channelType);
+                                    createNewChannel(channelName, channelType);
                                     setChannelName("");
                                     setChannelType("");
                                 }}
