@@ -17,7 +17,7 @@ export default function CreateChannelModal(props: {
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex flex-col gap-1">
-                            What's the channel type?
+                            What&apos;s the channel type?
                         </ModalHeader>
                         <ModalBody>
                             <RadioGroup value={channelType} onValueChange={setChannelType}>

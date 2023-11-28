@@ -21,7 +21,7 @@ export default function ChatPanel(props: { messages: string[], channelId: number
     };
 
     return (
-        <div className="chat-panel flex flex-col h-full px-3 pb-5">
+        <div className="chat-panel flex flex-col h-full px-3 pb-5" style={{border: "2px solid blue"}}>
             <div ref={chatContainerRef} className="message-container flex flex-col gap-10 overflow-y-auto flex-1 w-full pt-5 px-3 pb-3">
                 {props.messages.map((message, index) => (<Message message={message} key={index}></Message>))}
             </div>
