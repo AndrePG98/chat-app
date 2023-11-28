@@ -14,11 +14,10 @@ This project is a chat application designed to explore and understand the archit
 
 ### Three-Layer Architecture
 
-The application follows a three-layer architecture, dividing the system into the following components:
-
-**Frontend (React):** The user interface is developed using React, providing an interactive and responsive user experience.
-**Backend (Go):** The backend, written in Go, manages the application's logic, handles requests from the frontend, and interacts with the database.
-**Database (SQL):** A SQL database stores and retrieves data, including information about servers, channels, messages, and user interactions.
+#### The application follows a three-layer architecture, dividing the system into the following components:
+* **Frontend (React):** The user interface is developed using React, providing an interactive and responsive user experience.
+* **Backend (Go):** The backend, written in Go, manages the application's logic, handles requests from the frontend, and interacts with the database.
+* **Database (SQL):** A SQL database stores and retrieves data, including information about servers, channels, messages, and user interactions.
 
 
 ### Project Goals
