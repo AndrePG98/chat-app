@@ -6,6 +6,7 @@ import ChannelsPanel from '../layouts/ChannelsPanel';
 
 import TextChannel from './TextChannel';
 import VoiceChannel from './VoiceChannel';
+import MembersPanel from '../layouts/MembersPanel';
 
 export const SelectedChannelContext = createContext<{
     selectedChannel: Channel | undefined;
@@ -35,8 +36,11 @@ export default function Server() {
             <SelectedChannelContext.Provider value={{ selectedChannel, selectChannel, createNewChannel }}>
                 <ChannelsPanel channels={channels}></ChannelsPanel>
             </SelectedChannelContext.Provider>
-            {selectedChannel?.type === "text" && <TextChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></TextChannel>}
-            {selectedChannel?.type === "voice" && <VoiceChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></VoiceChannel>}
+            <div className='selected-channel-div flex-1'>
+                {selectedChannel?.type === "text" && <TextChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></TextChannel>}
+                {selectedChannel?.type === "voice" && <VoiceChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></VoiceChannel>}
+            </div>
+            <MembersPanel></MembersPanel>
         </div>
     );
 };
