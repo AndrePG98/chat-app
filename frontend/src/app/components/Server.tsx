@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
 
 import { Channel } from '../DTOs/Channel';
@@ -8,7 +8,7 @@ import ChannelsPanel from '../layouts/ChannelsPanel';
 import TextChannel from './TextChannel';
 import VoiceChannel from './VoiceChannel';
 import MembersPanel from '../layouts/MembersPanel';
-import { WebSocketContext } from '../services/webSocket';
+import Message from '../shared/components/Message';
 
 export const SelectedChannelContext = createContext<{
     selectedChannel: Channel | undefined;
@@ -23,8 +23,6 @@ export const SelectedChannelContext = createContext<{
 export default function Server() {
     const [channels, setChannels] = useState<Channel[]>([]);
     const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(undefined);
-
-    const {ws} = useContext(WebSocketContext)
 
 
     const createNewChannel = (name: string, type: string) => {
@@ -46,7 +44,6 @@ export default function Server() {
                 {selectedChannel?.type === "voice" && <VoiceChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></VoiceChannel>}
             </div>
             <MembersPanel/>
-            <Button onPress={()=>{ws?.send("Test")} }></Button>
         </div>
     );
 };
