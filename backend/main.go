@@ -36,7 +36,6 @@ func ServeWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error after Upgrade :", err)
-		delete(server.clients, conn)
 	}
 
 	fmt.Printf("Estabilished Connection with: %s\n", conn.RemoteAddr())
@@ -45,9 +44,9 @@ func ServeWS(w http.ResponseWriter, r *http.Request) {
 
 	for {
 
-		/* for conn, isConnected := range server.clients {
+		for conn, isConnected := range server.clients {
 			fmt.Printf("%s : %t\n", conn.RemoteAddr(), isConnected)
-		} */
+		}
 
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
@@ -58,6 +57,9 @@ func ServeWS(w http.ResponseWriter, r *http.Request) {
 
 		if len(message) != 0 {
 			for c := range server.clients {
+				/* if c.RemoteAddr() == conn.RemoteAddr() {
+					continue
+				} */
 				err := c.WriteMessage(messageType, message)
 				if err != nil {
 					log.Println("Error in Broadcasting to :", c.RemoteAddr())
@@ -67,11 +69,11 @@ func ServeWS(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if err := conn.WriteMessage(messageType, message); err != nil {
+		/* if err := conn.WriteMessage(messageType, message); err != nil {
 			log.Println("Error after Writing :", err)
 			delete(server.clients, conn)
 			return
-		}
+		} */
 	}
 }
 
