@@ -4,13 +4,16 @@
 import React, { useState, useEffect } from 'react'
 import TextChannel from './TextChannel'
 import { Button } from '@nextui-org/react'
+import ChatPanel from '../layouts/ChatPanel'
+import Message from '../shared/components/Message'
 
 export default function WebSocketTester() {
     const [connected, setConnected] = useState(false)
     const [socket, setSocket] = useState<WebSocket | null>(null)
+    const [messages, setMessages] = useState<string[]>([])
+    
 
-    const sendMessage = () => {
-        var message = (document.getElementById("message") as HTMLInputElement).value
+    const sendMessage = (message : string) => {
         if(socket && socket.readyState === WebSocket.OPEN){
             socket.send(message)
         }
@@ -42,7 +45,7 @@ export default function WebSocketTester() {
             }
 
             ws.onmessage = (e) => {
-                alert(e.data)
+                setMessages((prevMessages) => [...prevMessages, e.data]);
             }
         }
     }
@@ -60,12 +63,7 @@ export default function WebSocketTester() {
     return (
         <div className='flex flex-col gap-2'>
             {!connected ? (<Button onPress={connectToSocket}>Connect</Button>) : (<Button onPress={disconnectFromSocket}>Disconnect</Button>)}
-            <br />
-            <input type="text" id='message' name='message' className='h-10'/>
-            <br />
-            <Button onPress={sendMessage}>Send</Button>
-            <br />
-            <div className='flex flex-col justify-start items-center p-5 bg-white' id='chat'></div>
+            <ChatPanel messages={messages} channelId={0} createNewMessage={sendMessage}></ChatPanel>
         </div>
     )
 }
