@@ -35,8 +35,8 @@ var server = NewServer()
 func ServeWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Error after Upgrade :", err.Error())
-		return
+		log.Println("Error after Upgrade :", err)
+		delete(server.clients, conn)
 	}
 
 	fmt.Printf("Estabilished Connection with: %s\n", conn.RemoteAddr())
@@ -44,20 +44,33 @@ func ServeWS(w http.ResponseWriter, r *http.Request) {
 	server.clients[conn] = true
 
 	for {
-		msgType, msg, err := conn.ReadMessage()
+
+		/* for conn, isConnected := range server.clients {
+			fmt.Printf("%s : %t\n", conn.RemoteAddr(), isConnected)
+		} */
+
+		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Error Reading:", err.Error())
+			log.Println("Error after Reading :", err)
+			delete(server.clients, conn)
 			return
 		}
-		fmt.Printf("%s sended : %s\n", conn.RemoteAddr(), string(msg))
 
-		//fmt.Println("Broadcasting message!")
-		fmt.Println("Number of clients:", len(server.clients))
-		for clientAddr := range server.clients {
-			if err := clientAddr.WriteMessage(msgType, msg); err != nil {
-				log.Println("Error broadcasting:", err)
-				return
+		if len(message) != 0 {
+			for c := range server.clients {
+				err := c.WriteMessage(messageType, message)
+				if err != nil {
+					log.Println("Error in Broadcasting to :", c.RemoteAddr())
+					delete(server.clients, c)
+					return
+				}
 			}
+		}
+
+		if err := conn.WriteMessage(messageType, message); err != nil {
+			log.Println("Error after Writing :", err)
+			delete(server.clients, conn)
+			return
 		}
 	}
 }
