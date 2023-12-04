@@ -6,7 +6,7 @@ interface WebSocketData {
 }
 
 const useWebSocket = () => {
-  const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type : "", payload : ""});
+  const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type: "", payload: "" });
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -28,11 +28,10 @@ const useWebSocket = () => {
     };
 
     socket.onmessage = (event) => {
-        const newReceivedData : WebSocketData = {
-            type :  "String",
-            payload : event.data
-        }
-      //const message: WebSocketData = JSON.parse(event.data);
+      const newReceivedData: WebSocketData = {
+        type: "String",
+        payload: event.data
+      }
       setReceivedMessage(newReceivedData);
     };
 
@@ -45,7 +44,8 @@ const useWebSocket = () => {
 
   const sendWebSocketMessage = (data: any) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify(data));
+      var message : string = JSON.stringify(data)
+      socketRef.current.send(message);
     } else {
       console.error('WebSocket is not open');
     }

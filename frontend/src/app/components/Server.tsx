@@ -40,7 +40,7 @@ export default function Server() {
                 <ChannelsPanel channels={channels}></ChannelsPanel>
             </SelectedChannelContext.Provider>
             <div className='selected-channel-div flex-1'>
-                {selectedChannel?.type === "text" && <TextChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></TextChannel>}
+                {selectedChannel?.type === "text" && <TextChannel channelName={selectedChannel.name} channelId={selectedChannel.id}></TextChannel>}
                 {selectedChannel?.type === "voice" && <VoiceChannel channelName={selectedChannel.name} channelId={selectedChannel.id} ></VoiceChannel>}
             </div>
             <MembersPanel/>
