@@ -1,6 +1,7 @@
 package main
 
 import (
+	httpserver "backend/httpServer"
 	ws "backend/wsServer"
 	"log"
 	"net/http"
@@ -15,6 +16,10 @@ func setUpRoutes(server *ws.WsServer) {
 func main() {
 
 	server := ws.NewWsServer()
+
+	httpserver := httpserver.NewHttpServer()
+
+	httpserver.Run()
 
 	go server.Run()
 
