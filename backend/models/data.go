@@ -1,4 +1,4 @@
-package websocket
+package models
 
 /*
 Message Types :
