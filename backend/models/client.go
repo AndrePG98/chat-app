@@ -10,13 +10,13 @@ import (
 type Client struct {
 	ID     string
 	Conn   *websocket.Conn
-	Server *Server
+	Server *Guild
 }
 
-func (client *Client) Listen() {
+func (client *Client) Read() {
 
 	defer func() {
-		client.Server.UnRegister <- client
+		client.Server.Unsubscribe <- client
 		client.Conn.Close()
 	}()
 
