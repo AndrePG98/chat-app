@@ -36,38 +36,48 @@ func ServeWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error after Upgrade :", err)
+		log.Println("Error with:", conn.RemoteAddr())
+		log.Println("Clients after Error :", len(server.clients))
+		return
 	}
 
 	fmt.Printf("Estabilished Connection with: %s\n", conn.RemoteAddr())
 
 	server.clients[conn] = true
 
+	log.Println("Clients after new Connection:", len(server.clients))
+
 	for {
-
-		for conn, isConnected := range server.clients {
-			fmt.Printf("%s : %t\n", conn.RemoteAddr(), isConnected)
-		}
-
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error after Reading :", err)
+			log.Println("Error with:", conn.RemoteAddr())
 			delete(server.clients, conn)
+			log.Println("Clients after Error :", len(server.clients))
 			return
 		}
 
-		if len(message) != 0 {
+		err = conn.WriteMessage(messageType, []byte("Messaged received"))
+		if err != nil {
+			log.Println("Error after Sending :", err)
+			log.Println("Error with:", conn.RemoteAddr())
+			delete(server.clients, conn)
+			log.Println("Clients after Error :", len(server.clients))
+		}
+
+		log.Println(string(message))
+
+		/* if len(message) != 0 {
 			for c := range server.clients {
-				/* if c.RemoteAddr() == conn.RemoteAddr() {
-					continue
-				} */
 				err := c.WriteMessage(messageType, message)
 				if err != nil {
 					log.Println("Error in Broadcasting to :", c.RemoteAddr())
 					delete(server.clients, c)
+					log.Println("Clients :", len(server.clients))
 					return
 				}
 			}
-		}
+		} */
 
 		/* if err := conn.WriteMessage(messageType, message); err != nil {
 			log.Println("Error after Writing :", err)

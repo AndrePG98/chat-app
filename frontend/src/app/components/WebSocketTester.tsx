@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react'
 import TextChannel from './TextChannel'
 import { Button } from '@nextui-org/react'
+
 import ChatPanel from '../layouts/ChatPanel'
 import Message from '../shared/components/Message'
 
