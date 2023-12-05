@@ -43,4 +43,4 @@ export default function Server() {
             <MembersPanel></MembersPanel>
         </div>
     );
-};
+}

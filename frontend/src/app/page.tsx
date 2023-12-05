@@ -2,8 +2,8 @@
 
 import Server from './components/Server'
 import ServersPanel from './layouts/ServersPanel'
-import { Skeleton } from "@nextui-org/react";
 import useConnectToServer from './services/connectService';
+import LoadingComponent from './components/LoadingComponent';
 
 export default function Home() {
 
@@ -11,14 +11,11 @@ export default function Home() {
 
 	return (
 		<main className="flex h-screen flex-row">
-			{/* Fetch servers and display server based on servers panel selection*/}
-			<Skeleton isLoaded={connected}>
-				<ServersPanel></ServersPanel>
-			</Skeleton>
-			<Skeleton isLoaded={connected}>
-				<Server></Server>
-			</Skeleton>
 
+			{!connected ? <LoadingComponent /> : (<>
+				<ServersPanel></ServersPanel>
+				<Server></Server>
+			</>)}
 		</main>
 	)
 }
