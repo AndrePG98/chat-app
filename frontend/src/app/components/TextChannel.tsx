@@ -4,11 +4,14 @@ import ChatPanel from "../layouts/ChatPanel";
 import useLoggedInUser from "../services/LoggedInUserService";
 import { ChatMessage } from "../services/WebSocketService";
 import { User } from "../DTOs/User";
+import useSendMessage from "../services/sendMessageService";
 
 export default function TextChannel(props: { channelName: string, channelId: number }) {
 
     const { user, login, sendWebSocketMessage, receivedMessage } = useWebSocketContext();
     const [messages, setMessages] = useState<string[]>([]);
+
+    const sendMessage = useSendMessage()
 
     function createNewMessage(message: string) {
         const jsonMessage = {

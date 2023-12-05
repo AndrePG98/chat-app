@@ -3,8 +3,9 @@
 import Server from './components/Server'
 import LoggedInUser from './contexts/LoggedInUserContext'
 import ServersPanel from './layouts/ServersPanel'
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from '@nextui-org/react'
 import useConnectToServer from './services/connectService';
+import LoadingComponent from './components/LoadingComponent';
 
 
 export default function Home() {

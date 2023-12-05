@@ -3,6 +3,7 @@
 
 import { NextUIProvider } from '@nextui-org/react'
 import { WebSocketProvider } from './contexts/WebsocketContext'
+import React from "react"
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	return (

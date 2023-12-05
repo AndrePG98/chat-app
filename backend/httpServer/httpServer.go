@@ -9,8 +9,11 @@ import (
 	"github.com/rs/cors"
 )
 
-type User struct {
-	UserID string `json:"userId"`
+type Message struct {
+	UserID    string `json:"userId"`
+	ServerId  string `json:"serverId"`
+	ChannelId string `json:"channelId"`
+	Message   string `json:"message"`
 }
 
 type HttpServer struct {
@@ -21,18 +24,19 @@ func NewHttpServer() *HttpServer {
 }
 
 func sendMessage(w http.ResponseWriter, req *http.Request) {
-	log.Println(req.Body)
+	var message Message
+	err := json.NewDecoder(req.Body).Decode(&message)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(message.Message)
 }
 
 func connect(w http.ResponseWriter, req *http.Request) {
-	var user User
-	err := json.NewDecoder(req.Body).Decode(&user)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	log.Println(user.UserID)
-	w.Write([]byte("Connected"))
+	userID := req.URL.Query().Get("id")
+	log.Println(userID)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Connected!"))
 }
 
 func (server *HttpServer) Run() {
@@ -49,7 +53,7 @@ func (server *HttpServer) Run() {
 		AllowCredentials: false,
 	})
 
-	router.HandleFunc("/connect", connect).Methods("POST")
+	router.HandleFunc("/connect", connect).Methods("GET")
 
 	router.HandleFunc("/message", sendMessage).Methods("POST")
 
