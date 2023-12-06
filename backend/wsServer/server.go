@@ -35,14 +35,12 @@ func NewWsServer() *WsServer {
 func (server *WsServer) Run() {
 	//go server.PubSub(context.Background())
 	for newConnection := range server.Connect {
-		log.Println("Top of connect loop")
 		log.Println("New Connection :", newConnection.Conn.RemoteAddr().String())
 		server.Clients[newConnection.ID] = newConnection
 		log.Println("Number of connections:", len(server.Clients))
 		go func(client *Client) {
 			client.Read()
 		}(newConnection)
-		log.Println("Middle of go func")
 		go func(client *Client) {
 			client.SendMessage()
 		}(newConnection)
@@ -87,6 +85,6 @@ func (server *WsServer) ServeWS(w http.ResponseWriter, r *http.Request) error {
 	ws.WriteJSON(models.Message{
 		Type: 0,
 	})
-	log.Println("Ending ServeWs")
+	log.Println("Ending ServeWS")
 	return nil
 }

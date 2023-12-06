@@ -44,6 +44,7 @@ func (client *Client) Read() {
 			log.Println(err)
 			return
 		}
+		log.Printf("%+v", newMessage)
 		switch newMessage.Type {
 		case 0:
 			body, _ := newMessage.Body.(map[string]interface{})

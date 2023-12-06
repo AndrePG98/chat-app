@@ -26,15 +26,17 @@ const useWebSocket = () => {
 	}, []);
 
 	const connectToWs = () => {
-		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${1}`);
+		var userId = Math.floor(Math.random() * 11)
+		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${userId}`);
 
 		const socket = socketRef.current;
 
 		socket.onopen = () => {
+			console.log("Websocket Open")
 			sendLogInData({
 				Type: 0,
 				Body: {
-					UserId: "1",
+					UserId: userId.toString(),
 					GuildIds: ["1"]
 				}
 			})
