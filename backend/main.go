@@ -1,13 +1,12 @@
 package main
 
-/* import (
+import (
+	ws "backend/wsServer"
 	"log"
 	"net/http"
-
-	"ws/websocket"
 )
 
-func setUpRoutes(server *websocket.Server) {
+func setUpRoutes(server *ws.WsServer) {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		server.ServeWS(w, r)
 	})
@@ -15,7 +14,7 @@ func setUpRoutes(server *websocket.Server) {
 
 func main() {
 
-	server := websocket.NewServer()
+	server := ws.NewWsServer()
 
 	go server.Run()
 
@@ -24,4 +23,4 @@ func main() {
 	log.Println("Server listenning on: 8080")
 
 	http.ListenAndServe(":8080", nil)
-} */
+}

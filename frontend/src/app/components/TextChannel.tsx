@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ChatPanel from "../layouts/ChatPanel";
 import { useWebSocketContext } from "../contexts/WebsocketContext";
+import { ChatMessage } from "../services/WebSocketService";
 
 export default function TextChannel(props: { channelName: string, channelId: number }) {
 
@@ -11,20 +12,24 @@ export default function TextChannel(props: { channelName: string, channelId: num
     function createNewMessage(message: string) {
         const jsonMessage = {
             type : 1,
-
             body : {
-                UserID : 1,
-                ServerID : 0,
-                ChannelID : props.channelId,
+                UserId : "1",
+                GuildId : "1",
+                ChannelId : "1",
                 Message : message
             }
         }
         sendWebSocketMessage(jsonMessage)
     };
 
+
     useEffect(() => {
-        if (receivedMessage.payload !== "" && receivedMessage.type !== "") {
-            setMessages((prevMessages) => [...prevMessages, receivedMessage.payload]);
+        console.log(receivedMessage)
+        if (receivedMessage.type !== -1 && receivedMessage.body != null) {
+            var body =receivedMessage.body as ChatMessage
+            if(receivedMessage.type === 1){
+                setMessages((prevMessages) => [...prevMessages, body.message]);   
+            }
         }
     }, [receivedMessage])
 

@@ -1,10 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import useWebSocket from '../services/WebSocketService';
-
-interface WebSocketData {
-    type: string;
-    payload: any;
-}
+import useWebSocket, { WebSocketData } from '../services/WebSocketService';
 
 interface WebSocketContextProps {
     sendWebSocketMessage: (data: any) => void;
