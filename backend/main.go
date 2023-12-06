@@ -1,5 +1,6 @@
 package main
 
+<<<<<<< HEAD
 import (
 	httpserver "backend/httpServer"
 	ws "backend/wsServer"
@@ -28,4 +29,12 @@ func main() {
 	log.Println("Server listenning on: 8080")
 
 	http.ListenAndServe(":8080", nil)
+=======
+import httpserver "backend/httpServer"
+
+func main() {
+	httpserver := httpserver.NewHttpServer()
+
+	httpserver.Run()
+>>>>>>> 403773d08c0472d0c4e9a6db391f3c39858671e8
 }
