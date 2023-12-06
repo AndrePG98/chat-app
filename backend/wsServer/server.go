@@ -37,7 +37,6 @@ func (server *WsServer) Run() {
 	for newConnection := range server.Connect {
 		log.Println("New Connection :", newConnection.Conn.RemoteAddr().String())
 		server.Clients[newConnection.ID] = newConnection
-		log.Println("Number of connections:", len(server.Clients))
 		go func(client *Client) {
 			client.Read()
 		}(newConnection)
@@ -85,6 +84,5 @@ func (server *WsServer) ServeWS(w http.ResponseWriter, r *http.Request) error {
 	ws.WriteJSON(models.Message{
 		Type: 0,
 	})
-	log.Println("Ending ServeWS")
 	return nil
 }

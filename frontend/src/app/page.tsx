@@ -1,5 +1,4 @@
 import Server from './components/Server'
-import WebSocketTester from './components/WebSocketTester'
 import ServersPanel from './layouts/ServersPanel'
 
 

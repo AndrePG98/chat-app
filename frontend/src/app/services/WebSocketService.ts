@@ -33,13 +33,13 @@ const useWebSocket = () => {
 
 		socket.onopen = () => {
 			console.log("Websocket Open")
-			sendLogInData({
+			/* sendLogInData({
 				Type: 0,
 				Body: {
 					UserId: userId.toString(),
 					GuildIds: ["1"]
 				}
-			})
+			}) */
 			//console.log('WebSocket connected');
 		};
 

@@ -10,7 +10,7 @@ export default function TextChannel(props: { channelName: string, channelId: num
     const [messages, setMessages] = useState<string[]>([]);
 
     function createNewMessage(message: string) {
-        const jsonMessage = {
+        /* const jsonMessage = {
             type : 1,
             body : {
                 UserId : "1",
@@ -19,7 +19,7 @@ export default function TextChannel(props: { channelName: string, channelId: num
                 Message : message
             }
         }
-        sendWebSocketMessage(jsonMessage)
+        sendWebSocketMessage(jsonMessage) */
     };
 
 
