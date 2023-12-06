@@ -7,20 +7,18 @@ import { User } from "../DTOs/User";
 
 export default function TextChannel(props: { channelName: string, channelId: number }) {
 
-    const { sendWebSocketMessage, receivedMessage } = useWebSocketContext();
+    const { user, login, sendWebSocketMessage, receivedMessage } = useWebSocketContext();
     const [messages, setMessages] = useState<string[]>([]);
-    const {userId, guilds }=useLoggedInUser()
-    
+
     function createNewMessage(message: string) {
-        const testUser = new User("2", "testName", "65")
         const jsonMessage = {
-            type : 1,
-            body : {
-                UserId : testUser.id,
-                GuildId : testUser.guilds,
-                ChannelId : "1",
-                Message : message
-            }
+            type: 1,
+            body: {
+                userId: user.id,
+                guildId: user.guilds[0],
+                channelId: "1",
+                message: message
+            } as ChatMessage
         }
         sendWebSocketMessage(jsonMessage)
     }
@@ -29,10 +27,10 @@ export default function TextChannel(props: { channelName: string, channelId: num
     useEffect(() => {
         console.log(receivedMessage)
         if (receivedMessage.type !== -1 && receivedMessage.body != null) {
-            var body =receivedMessage.body as ChatMessage
-            if(receivedMessage.type === 1){
+            var body = receivedMessage.body as ChatMessage
+            if (receivedMessage.type === 1) {
                 setMessages((prevMessages) => [...prevMessages, body.message]);
-                
+
             }
         }
     }, [receivedMessage])

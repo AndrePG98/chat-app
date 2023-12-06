@@ -1,48 +1,46 @@
 "use client"
 
 import { Button, Input } from '@nextui-org/react';
-import React, { createContext, useState } from 'react';
-import { User } from '../DTOs/User';
-import useLoggedInUser from '../services/LoggedInUserService';
+import React, { useState } from 'react';
+import { useWebSocketContext } from './WebsocketContext';
 
-export const UserContext = createContext<User | undefined>(undefined);
 
 export default function LoggedInUser() {
-    const [finalUser, setFinalUser] = useState<User>();
-    const {userId, setUserId, userName, setUserName, guilds, setGuilds}=useLoggedInUser()
+    const {login} = useWebSocketContext()
+    const [userIdInput, setUserIdInput] = useState("")
+    const [userNameInput, setUserNameInput] = useState("")
+    const [userGuildsInput, setUserGuildsInput] = useState("")
 
-    const createNewUser = (userId: string, userName: string, guilds: string) => {
+    /* const createNewUser = (userId: string, userName: string, guilds: string) => {
         const user = new User(userId, userName, guilds)
         setFinalUser(user)
         console.log("created user", finalUser);
         
-    }
-    
+    } */
+
     return (
-        <UserContext.Provider value={finalUser}>
-            <div>
-                <Input
-                    label="userId"
-                    value={userId}
-                    onValueChange={setUserId}>
-                </Input>
-                <Input
-                    label="userName"
-                    value={userName}
-                    onValueChange={setUserName}>
-                </Input>
-                <Input
-                    label="guilds"
-                    value={guilds}
-                    onValueChange={setGuilds}>
-                </Input>
-                <Button
-                    onPress={() => {
-                        createNewUser(userId, userName, guilds);
-                    }}>
-                        Create User
-                </Button>
-            </div>
-        </UserContext.Provider>
+        <div>
+            <Input
+                label="userId"
+                value={userIdInput}
+                onValueChange={setUserIdInput}>
+            </Input>
+            <Input
+                label="userName"
+                value={userNameInput}
+                onValueChange={setUserNameInput}>
+            </Input>
+            <Input
+                label="guilds"
+                value={userGuildsInput}
+                onValueChange={setUserGuildsInput}>
+            </Input>
+            <Button
+                onPress={() => {
+                    login(userIdInput, userNameInput, userGuildsInput.split(" "));
+                }}>
+                Create User
+            </Button>
+        </div>
     )
 }

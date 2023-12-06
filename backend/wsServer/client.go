@@ -39,8 +39,8 @@ func (client *Client) Read() {
 	var newMessage models.Message
 
 	for {
-		log.Printf("%+v\n", newMessage)
 		err := client.Conn.ReadJSON(&newMessage)
+		log.Printf("%+v\n", newMessage)
 		if err != nil {
 			log.Println(err)
 			return
@@ -48,7 +48,7 @@ func (client *Client) Read() {
 		switch newMessage.Type {
 		case 0:
 			body, _ := newMessage.Body.(map[string]interface{})
-			if guildIDs, ok := body["GuildIds"].([]interface{}); ok {
+			if guildIDs, ok := body["guildIds"].([]interface{}); ok {
 				for _, id := range guildIDs {
 					if guildID, ok := id.(string); ok {
 						client.Guilds = append(client.Guilds, guildID)
@@ -57,10 +57,10 @@ func (client *Client) Read() {
 			}
 		case 1:
 			if chatMessage, ok := newMessage.Body.(map[string]interface{}); ok {
-				userId := chatMessage["UserId"].(string)
-				guildId := chatMessage["GuildId"].(string)
-				channelId := chatMessage["ChannelId"].(string)
-				message := chatMessage["Message"].(string)
+				userId := chatMessage["userId"].(string)
+				guildId := chatMessage["guildId"].(string)
+				channelId := chatMessage["channelId"].(string)
+				message := chatMessage["message"].(string)
 
 				for _, user := range client.Server.Clients {
 					if user.isMemberOfGuild(guildId) {

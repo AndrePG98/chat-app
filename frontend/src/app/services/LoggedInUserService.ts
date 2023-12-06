@@ -1,19 +1,27 @@
-import { createContext } from 'react';
+import { createContext, useState } from 'react';
 import { User } from '../DTOs/User';
 import React from 'react';
 
-export const UserContext = createContext<User | undefined>(undefined);
+//export const UserContext = createContext<User>({id: "", name: "", guilds: []});
 
 export default function useLoggedInUser() {
-    const [userId, setUserId] = React.useState('');
+    const [user, setUser] = useState<User>({
+        id : "",
+        name : "",
+        guilds : []
+    })
+    /* const [userId, setUserId] = React.useState('');
     const [userName, setUserName] = React.useState('');
-    const [guilds, setGuilds] = React.useState('');
+    const [guilds, setGuilds] = React.useState(''); */
 
-    const createNewUser = (userId: string, userName: string, guilds: string) => {
-        const user = new User(userId, userName, guilds)
-        console.log(user);
+    const login = (userId: string, userName: string, guilds: string[]) => {
+        setUser({
+            id : userId,
+            name : userName,
+            guilds : guilds
+        })
     }
 
-    return {userId, setUserId, userName, setUserName, guilds, setGuilds, createNewUser}
+    return {user, login}
 
 }

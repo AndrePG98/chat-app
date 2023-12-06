@@ -16,7 +16,7 @@ export interface ChatMessage {
 const useWebSocket = () => {
 	const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type: -1, body: null });
 	const socketRef = useRef<WebSocket | null>(null);
-	const user = useLoggedInUser()
+	const {user, login} = useLoggedInUser()
 
 	useEffect(() => {
 		connectToWs()
@@ -25,10 +25,13 @@ const useWebSocket = () => {
 				socketRef.current.close();
 			}
 		};
-	}, []);
+	}, [user]);
 
 	const connectToWs = () => {
-		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.userId}`);
+		if(user.id === ""){
+			return
+		}
+		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.id}`);
 
 		const socket = socketRef.current;
 
@@ -40,8 +43,8 @@ const useWebSocket = () => {
 			sendLogInData({
 				Type: 0,
 				Body: {
-					UserId: user.userId,
-					GuildIds: user.guilds
+					userId: user.id,
+					guildIds: user.guilds
 				}
 			})
 		};
@@ -58,7 +61,7 @@ const useWebSocket = () => {
 		socket.onmessage = (event) => {
 			const newReceivedData = JSON.parse(event.data) as WebSocketData;
 			switch (newReceivedData.type){
-				case 1:
+				case 1: // Chat Message Type
 					setReceivedMessage({
 						type : newReceivedData.type,
 						body : newReceivedData.body as ChatMessage
@@ -70,8 +73,8 @@ const useWebSocket = () => {
 	const sendLogInData = (data: {
 		Type: number,
 		Body: {
-			UserId: string,
-			GuildIds: string
+			userId: string,
+			guildIds: string[]
 		}
 	}) => {
 		
@@ -91,7 +94,7 @@ const useWebSocket = () => {
 		}
 	};
 
-	return { connectToWs, sendLogInData, sendWebSocketMessage, receivedMessage };
+	return {  user, login,  sendWebSocketMessage, receivedMessage };
 };
 
 export default useWebSocket;

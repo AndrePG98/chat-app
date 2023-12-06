@@ -1,7 +1,10 @@
 import React, { createContext, useContext } from 'react';
 import useWebSocket, { WebSocketData } from '../services/WebSocketService';
+import { User } from '../DTOs/User';
 
 interface WebSocketContextProps {
+    user : User
+    login : (userId: string, userName: string, guilds: string[]) => void,
     sendWebSocketMessage: (data: any) => void;
     receivedMessage: WebSocketData;
 }
@@ -18,10 +21,10 @@ export const useWebSocketContext = () => {
 };
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { sendWebSocketMessage, receivedMessage } = useWebSocket();
+    const { user, login , sendWebSocketMessage, receivedMessage } = useWebSocket();
 
     return (
-        <WebSocketContext.Provider value={{ sendWebSocketMessage, receivedMessage }}>
+        <WebSocketContext.Provider value={{ user, login, sendWebSocketMessage, receivedMessage }}>
             {children}
         </WebSocketContext.Provider>
     );
