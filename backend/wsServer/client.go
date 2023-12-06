@@ -39,6 +39,7 @@ func (client *Client) Read() {
 	var newMessage models.Message
 
 	for {
+		log.Printf("%+v\n", newMessage)
 		err := client.Conn.ReadJSON(&newMessage)
 		if err != nil {
 			log.Println(err)

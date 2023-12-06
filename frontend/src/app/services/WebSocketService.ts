@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import useLoggedInUser from './LoggedInUserService';
 
 export interface WebSocketData {
 	type: number
@@ -15,6 +16,7 @@ export interface ChatMessage {
 const useWebSocket = () => {
 	const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type: -1, body: null });
 	const socketRef = useRef<WebSocket | null>(null);
+	const user = useLoggedInUser()
 
 	useEffect(() => {
 		connectToWs()
@@ -26,21 +28,22 @@ const useWebSocket = () => {
 	}, []);
 
 	const connectToWs = () => {
-		var userId = Math.floor(Math.random() * 11)
-		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${userId}`);
+		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.userId}`);
 
 		const socket = socketRef.current;
 
+		
 		socket.onopen = () => {
-			console.log("Websocket Open")
-			/* sendLogInData({
+			console.log("Websocket Opened");
+			
+			
+			sendLogInData({
 				Type: 0,
 				Body: {
-					UserId: userId.toString(),
-					GuildIds: ["1"]
+					UserId: user.userId,
+					GuildIds: user.guilds
 				}
-			}) */
-			//console.log('WebSocket connected');
+			})
 		};
 
 		socket.onclose = (event) => {
@@ -68,9 +71,10 @@ const useWebSocket = () => {
 		Type: number,
 		Body: {
 			UserId: string,
-			GuildIds: string[]
+			GuildIds: string
 		}
 	}) => {
+		
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			socketRef.current?.send(JSON.stringify(data))
 		} else {
