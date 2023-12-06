@@ -1,12 +1,13 @@
 "use client"
 
 import { Button, Input } from '@nextui-org/react';
-import React, { useState } from 'react';
-import { useWebSocketContext } from './WebsocketContext';
+import React, { useContext, useState } from 'react';
+import { useUserContext } from '../contexts/userContext';
+import { WebSocketData } from '../services/WebSocketService';
 
 
 export default function LoggedInUser() {
-    const {login} = useWebSocketContext()
+    const {login} = useUserContext()
     const [userIdInput, setUserIdInput] = useState("")
     const [userNameInput, setUserNameInput] = useState("")
     const [userGuildsInput, setUserGuildsInput] = useState("")
@@ -37,7 +38,7 @@ export default function LoggedInUser() {
             </Input>
             <Button
                 onPress={() => {
-                    login(userIdInput, userNameInput, userGuildsInput.split(" "));
+                    login(userIdInput, userNameInput);
                 }}>
                 Create User
             </Button>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import useLoggedInUser from './LoggedInUserService';
+import { User } from '../DTOs/User';
 
 export interface WebSocketData {
 	type: number
@@ -7,39 +7,32 @@ export interface WebSocketData {
 }
 
 export interface ChatMessage {
-	userId : string,
-	guildId : string
-	channelId : string
-	message : string
+	userId: string,
+	guildId: string
+	channelId: string
+	message: string
 }
 
 const useWebSocket = () => {
 	const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type: -1, body: null });
 	const socketRef = useRef<WebSocket | null>(null);
-	const {user, login} = useLoggedInUser()
 
-	useEffect(() => {
-		connectToWs()
+	/* useEffect(() => {
+		//connectToWs()
 		return () => {
 			if (socketRef.current) {
 				socketRef.current.close();
 			}
 		};
-	}, [user]);
+	}, []); */
 
-	const connectToWs = () => {
-		if(user.id === ""){
-			return
-		}
+	const connectToWs = (user: User) => {
+
 		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.id}`);
-
 		const socket = socketRef.current;
 
-		
+
 		socket.onopen = () => {
-			console.log("Websocket Opened");
-			
-			
 			sendLogInData({
 				Type: 0,
 				Body: {
@@ -60,11 +53,11 @@ const useWebSocket = () => {
 
 		socket.onmessage = (event) => {
 			const newReceivedData = JSON.parse(event.data) as WebSocketData;
-			switch (newReceivedData.type){
+			switch (newReceivedData.type) {
 				case 1: // Chat Message Type
 					setReceivedMessage({
-						type : newReceivedData.type,
-						body : newReceivedData.body as ChatMessage
+						type: newReceivedData.type,
+						body: newReceivedData.body as ChatMessage
 					})
 			}
 		};
@@ -77,7 +70,7 @@ const useWebSocket = () => {
 			guildIds: string[]
 		}
 	}) => {
-		
+
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			socketRef.current?.send(JSON.stringify(data))
 		} else {
@@ -94,7 +87,7 @@ const useWebSocket = () => {
 		}
 	};
 
-	return {  user, login,  sendWebSocketMessage, receivedMessage };
+	return { connectToWs, sendWebSocketMessage, receivedMessage };
 };
 
 export default useWebSocket;

@@ -1,38 +1,49 @@
 import { useState, useEffect, useRef } from 'react';
+import { User } from '../DTOs/User';
+import useWebSocket from './WebSocketService';
 
-const useConnectToServer = () => {
+const useConnectService = () => {
 
     // Optimize component so it only runs if missing inial state and not after refreshing
-
-    const [connected, setConnected] = useState(false);
+    const { connectToWs, sendWebSocketMessage, receivedMessage } = useWebSocket();
+    //const [connected, setConnected] = useState(false);
     const fetchedRef = useRef<boolean>(false);
+    const [loggedUser, setLoggedUser] = useState<User>({
+        id: "",
+        name: "",
+        guilds: []
+    })
 
-    const fetchDataAndConnect = async () => {
+    const login = async (userId: string, userName: string) => {
         try {
             if (!fetchedRef.current) {
-                const response = await fetch(`http://127.0.0.1:8090/connect?id=${"1"}`, {
+                const result = await fetch(`http://127.0.0.1:8090/connect?id=${userId}`, {
                     method: 'GET'
                 });
-                //const result = await response.text()
-                if (response.ok) {
+                if(result.ok){
+                    const response = await result.json()
                     fetchedRef.current = true
-                    setConnected(true);
-                } else {
-                    console.error('Failed to connect to server');
+                    const guildIds = response.body.guildIds as string[]
+                    connectToWs({ id: userId, name: userName, guilds: guildIds })
+                    setLoggedUser({
+                        id : userId,
+                        name : userName,
+                        guilds : guildIds
+
+                    })
                 }
             }
 
         } catch (error) {
             console.error('Error connecting:', error);
         }
-    };
+    }
 
+    /* useEffect(() => {
+        login();
+    }, []); */
 
-    useEffect(() => {
-        fetchDataAndConnect();
-    }, []);
-
-    return connected;
+    return {login, loggedUser, sendWebSocketMessage, receivedMessage};
 };
 
-export default useConnectToServer;
+export default useConnectService;

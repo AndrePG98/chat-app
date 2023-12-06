@@ -10,6 +10,8 @@ require (
 )
 
 require (
+	github.com/gorilla/mux v1.8.1
 	github.com/redis/go-redis/v9 v9.3.0
+	github.com/rs/cors v1.10.1
 	golang.org/x/net v0.17.0 // indirect
 )

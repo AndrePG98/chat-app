@@ -5,6 +5,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -32,10 +33,24 @@ func NewWsServer() *WsServer {
 	}
 }
 
-func (server *WsServer) Run() {
+func (wsServer *WsServer) setUpRoutes() {
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		wsServer.ServeWS(w, r)
+	})
+}
+
+func (wsServer *WsServer) Run(wg *sync.WaitGroup) {
+	defer wg.Done()
 	//go server.PubSub(context.Background())
+	go wsServer.RunClients()
+	wsServer.setUpRoutes()
+	log.Println("Websocket Server listenning on", 8080)
+	http.ListenAndServe(":8080", nil)
+}
+
+func (server *WsServer) RunClients() {
 	for newConnection := range server.Connect {
-		log.Println("New Connection :", newConnection.Conn.RemoteAddr().String())
+		log.Println("WS Server -> New Connection :", newConnection.Conn.RemoteAddr().String())
 		server.Clients[newConnection.ID] = newConnection
 		go func(client *Client) {
 			client.Read()
@@ -44,7 +59,6 @@ func (server *WsServer) Run() {
 			client.SendMessage()
 		}(newConnection)
 	}
-	log.Println("Server finished running")
 }
 
 func (server *WsServer) PubSub(ctx context.Context) {

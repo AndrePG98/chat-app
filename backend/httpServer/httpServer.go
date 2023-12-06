@@ -1,9 +1,11 @@
 package httpserver
 
 import (
+	"backend/models"
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -34,12 +36,27 @@ func sendMessage(w http.ResponseWriter, req *http.Request) {
 
 func connect(w http.ResponseWriter, req *http.Request) {
 	userID := req.URL.Query().Get("id")
-	log.Println(userID)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Connected!"))
+	log.Println("HttpServer -> Loggin Request done by:", req.RemoteAddr)
+	// fetch user data from db
+	connectResponse := models.Message{
+		Type: 0,
+		Body: models.InitialConnect{
+			UserId:   userID,
+			GuildIds: []string{"1"},
+		},
+	}
+	jsonResponse, err := json.Marshal(connectResponse)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		w.Header().Set("Content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonResponse)
+	}
 }
 
-func (server *HttpServer) Run() {
+func (server *HttpServer) Run(wg *sync.WaitGroup) {
+	defer wg.Done()
 
 	router := mux.NewRouter()
 

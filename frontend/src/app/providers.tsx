@@ -2,15 +2,15 @@
 'use client'
 
 import { NextUIProvider } from '@nextui-org/react'
-import { WebSocketProvider } from './contexts/WebsocketContext'
+import UserContextProvider from './contexts/userContext'
 import React from "react"
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<NextUIProvider>
-			<WebSocketProvider>
+			<UserContextProvider>
 				{children}
-			</WebSocketProvider>
+			</UserContextProvider>
 		</NextUIProvider>
 	)
 }
