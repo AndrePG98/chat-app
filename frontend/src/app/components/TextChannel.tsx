@@ -1,16 +1,13 @@
 import { useState } from "react";
 import ChatPanel from "../layouts/ChatPanel";
-import useSendMessage from "../services/sendMessageService";
+import sendData from "../services/sendMessageService";
 
 export default function TextChannel(props: { channelName: string, channelId: number }) {
 
     const [messages, setMessages] = useState<string[]>([]);
 
-    const sendMessage = useSendMessage()
-
     function createNewMessage(message: string) {
-        sendMessage("1", props.channelId.toString(), message)
-        setMessages((prevMessages) => [...prevMessages, message]);
+        sendData("1", props.channelId.toString(), message)
     }
 
     return (
