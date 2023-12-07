@@ -1,8 +1,9 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true
-    },
-    "eslint.validate": [
-        "javascript"
-    ]
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true
+	},
+	"prettier.tabWidth": 4,
+	"prettier.printWidth": 100,
+	"prettier.useTabs": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode"
 }
