@@ -1,5 +1,3 @@
-"use client"
-
 import {
 	Button,
 	Input,
@@ -9,24 +7,18 @@ import {
 	ModalFooter,
 	ModalHeader,
 } from "@nextui-org/react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { useAuth } from "../contexts/authContext"
-import useConnectService from "../services/connectService"
 
-export default function Login() {
-	const { login, authenticated, currentUser } = useAuth()
+export default function Register() {
+	const { register } = useAuth()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [userIdInput, setUserIdInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
 	const [userGuildsInput, setUserGuildsInput] = useState("")
 
-	const handleLogin = (userIdInput: number, userNameInput: string, userGuildsInput: string[]) => {
-		login(userIdInput, userNameInput, userGuildsInput)
-	}
-
-	useConnectService(currentUser)
-	if (authenticated) {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
+	const handleRegister = () => {
+		register(parseInt(userIdInput), userNameInput, userGuildsInput.split(" "))
 	}
 
 	return (
@@ -34,7 +26,7 @@ export default function Login() {
 			<Modal isOpen={isOpen} placement="center">
 				<ModalContent>
 					<>
-						<ModalHeader className="flex flex-col gap-1">Login User</ModalHeader>
+						<ModalHeader className="flex flex-col gap-1">Register User</ModalHeader>
 						<ModalBody>
 							<Input
 								label="userId"
@@ -55,13 +47,8 @@ export default function Login() {
 						<ModalFooter>
 							<Button
 								onPress={() => {
-									handleLogin(
-										parseInt(userIdInput),
-										userNameInput,
-										userGuildsInput.split(" ")
-									)
+									handleRegister()
 									setIsOpen(false)
-									// eslint-disable-next-line react-hooks/rules-of-hooks
 								}}
 							>
 								Create User

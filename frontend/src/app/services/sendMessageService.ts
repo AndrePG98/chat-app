@@ -53,4 +53,4 @@ export default async function sendData (serverId : string, channelId : string, m
     } catch (error) {
         console.error('Error connecting:', error);
     }
-};
+}
