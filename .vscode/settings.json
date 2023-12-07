@@ -1,6 +1,6 @@
 {
 	"editor.codeActionsOnSave": {
-		"source.fixAll": true
+		"source.fixAll": "explicit"
 	},
 	"editor.tabSize": 4,
 	"editor.insertSpaces": false,
@@ -8,5 +8,6 @@
 	"prettier.tabWidth": 4,
 	"prettier.printWidth": 100,
 	"prettier.useTabs": true,
-	"editor.defaultFormatter": "esbenp.prettier-vscode"
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"prettier.semi": false
 }
