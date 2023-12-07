@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { useUserContext } from "../contexts/userContext";
 import ChatPanel from "../layouts/ChatPanel";
 import { ChatMessage } from "../services/WebSocketService";
-import { User } from "../DTOs/User";
-import useSendMessage from "../services/sendMessageService";
-import sendData from "../services/sendMessageService";
 
 export default function TextChannel(props: { channelName: string, channelId: number }) {
 
@@ -23,7 +20,6 @@ export default function TextChannel(props: { channelName: string, channelId: num
         }
         sendWebSocketMessage(jsonMessage)
     }
-
 
     useEffect(() => {
         console.log(receivedMessage)

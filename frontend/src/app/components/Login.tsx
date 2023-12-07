@@ -2,11 +2,14 @@
 
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react'
 import { useState } from 'react'
-import { useWebSocketContext } from '../contexts/WebsocketContext'
+import Server from './Server'
+import { useUserContext } from '../contexts/userContext'
+import ServersPanel from '../layouts/ServersPanel'
 
 export default function Login() {
+    const { login } = useUserContext()
+
     const [isOpen, setIsOpen] = useState<boolean>(true)
-    const { login } = useWebSocketContext()
     const [userIdInput, setUserIdInput] = useState("")
     const [userNameInput, setUserNameInput] = useState("")
     const [userGuildsInput, setUserGuildsInput] = useState("")
@@ -39,7 +42,7 @@ export default function Login() {
                         <ModalFooter>
                             <Button
                                 onPress={() => {
-                                    login(userIdInput, userNameInput, userGuildsInput.split(" "));
+                                    login(userIdInput, userNameInput);
                                     setIsOpen(false)
                                 }}
                             >
@@ -49,6 +52,14 @@ export default function Login() {
                     </>
                 </ModalContent>
             </Modal>
+
+            {!isOpen &&
+                <div className="flex h-screen flex-row">
+                    <ServersPanel></ServersPanel>
+                    <Server></Server>
+                </div>
+            }
+
         </div>
     )
 }

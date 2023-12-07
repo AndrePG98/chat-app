@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { User } from '../DTOs/User';
 
 export interface WebSocketData {
@@ -16,31 +16,13 @@ export interface ChatMessage {
 const useWebSocket = () => {
 	const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type: -1, body: null });
 	const socketRef = useRef<WebSocket | null>(null);
-	const { user, login } = useLoggedInUser()
-
-	/* useEffect(() => {
-		//connectToWs()
-		return () => {
-			if (socketRef.current) {
-				socketRef.current.close();
-			}
-		};
-	}, []); */
 
 	const connectToWs = (user: User) => {
 
-	const connectToWs = () => {
-		if (user.id === "") {
-			return
-		}
 		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.id}`);
 		const socket = socketRef.current;
 
-
 		socket.onopen = () => {
-			console.log("Websocket Opened");
-
-
 			sendLogInData({
 				Type: 0,
 				Body: {

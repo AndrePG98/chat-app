@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import useWebSocket, { WebSocketData } from '../services/WebSocketService';
 import { User } from '../DTOs/User';
+import { WebSocketData } from '../services/WebSocketService';
 import useConnectService from '../services/connectService';
 
 interface userContextProps {
@@ -8,6 +8,7 @@ interface userContextProps {
     login: (userId: string, userName: string) => void,
     sendWebSocketMessage: (data: any) => void;
     receivedMessage: WebSocketData;
+    connected: boolean;
 }
 
 
@@ -21,13 +22,12 @@ export const useUserContext = () => {
     return ctx
 }
 
-
 export default function UserContextProvider(props: { children: React.ReactNode }) {
 
-    const { login, sendWebSocketMessage, receivedMessage, loggedUser } = useConnectService()
+    const { login, sendWebSocketMessage, receivedMessage, loggedUser, connected } = useConnectService()
 
     return (
-        <userContext.Provider value={{ login, sendWebSocketMessage, receivedMessage, loggedUser }}>
+        <userContext.Provider value={{ loggedUser, login, sendWebSocketMessage, receivedMessage,  connected }}>
             {props.children}
         </userContext.Provider>
     )

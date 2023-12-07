@@ -1,15 +1,12 @@
 "use client"
 
-
-import React, { useState, useEffect } from 'react'
-import TextChannel from './TextChannel'
 import { Button } from '@nextui-org/react'
+import { useEffect, useState } from 'react'
 
 import ChatPanel from '../layouts/ChatPanel'
-import Message from '../shared/components/Message'
 
 export default function WebSocketTester() {
-    const [connected, setConnected] = useState(false)
+    const [connected, setConnected] = useState(true)
     const [socket, setSocket] = useState<WebSocket | null>(null)
     const [messages, setMessages] = useState<string[]>([])
     
