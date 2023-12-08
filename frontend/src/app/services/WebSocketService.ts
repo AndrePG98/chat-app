@@ -18,10 +18,14 @@ const useWebSocket = () => {
 	const socketRef = useRef<WebSocket | null>(null)
 
 	const connectToWs = (user: User) => {
+		console.log(user)
+
 		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.id}`)
 		const socket = socketRef.current
 
 		socket.onopen = () => {
+			console.log("here")
+
 			sendLogInData({
 				Type: 0,
 				Body: {
@@ -29,6 +33,7 @@ const useWebSocket = () => {
 					guildIds: user.guilds,
 				},
 			})
+			console.log("sent data")
 		}
 
 		socket.onclose = (event) => {
@@ -55,7 +60,7 @@ const useWebSocket = () => {
 	const sendLogInData = (data: {
 		Type: number
 		Body: {
-			userId: number
+			userId: string
 			guildIds: string[]
 		}
 	}) => {

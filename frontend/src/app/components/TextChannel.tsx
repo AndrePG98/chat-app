@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react"
-import { useUserContext } from "../contexts/userContext"
-import ChatPanel from "../layouts/ChatPanel"
+import ChatPanel from "./layouts/ChatPanel"
 import { ChatMessage } from "../services/WebSocketService"
+import { useAuth } from "../context/authContext"
+import { useConnect } from "../context/connectContext"
 
 export default function TextChannel(props: { channelName: string; channelId: number }) {
-	const { loggedUser, sendWebSocketMessage, receivedMessage } = useUserContext()
+	const { currentUser } = useAuth()
+	const { sendWebSocketMessage, receivedMessage } = useConnect()
 	const [messages, setMessages] = useState<string[]>([])
 
 	function createNewMessage(message: string) {
 		const jsonMessage = {
 			type: 1,
 			body: {
-				userId: loggedUser.id,
-				guildId: loggedUser.guilds[0],
+				userId: currentUser.id,
+				guildId: currentUser.guilds[0],
 				channelId: "1",
 				message: message,
 			} as ChatMessage,
 		}
+
 		sendWebSocketMessage(jsonMessage)
 	}
 

@@ -1,7 +1,7 @@
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react"
 import { useState } from "react"
-import Login from "../components/Login"
-import Register from "../components/Register"
+import Login from "../Login"
+import Register from "../Register"
 
 export default function RegisterLoginOption() {
 	const [showLogin, setShowLogin] = useState(false)

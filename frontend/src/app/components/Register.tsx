@@ -8,7 +8,7 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import React, { useState } from "react"
-import { useAuth } from "../contexts/authContext"
+import { useAuth } from "../context/authContext"
 
 export default function Register() {
 	const { register } = useAuth()
@@ -18,7 +18,7 @@ export default function Register() {
 	const [userGuildsInput, setUserGuildsInput] = useState("")
 
 	const handleRegister = () => {
-		register(parseInt(userIdInput), userNameInput, userGuildsInput.split(" "))
+		register(userIdInput, userNameInput, userGuildsInput.split(" "))
 	}
 
 	return (

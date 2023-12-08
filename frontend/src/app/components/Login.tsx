@@ -10,23 +10,17 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import { useState } from "react"
-import { useAuth } from "../contexts/authContext"
-import useConnectService from "../services/connectService"
+import { useAuth } from "../context/authContext"
 
 export default function Login() {
-	const { login, authenticated, currentUser } = useAuth()
+	const { login } = useAuth()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [userIdInput, setUserIdInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
 	const [userGuildsInput, setUserGuildsInput] = useState("")
 
-	const handleLogin = (userIdInput: number, userNameInput: string, userGuildsInput: string[]) => {
+	const handleLogin = (userIdInput: string, userNameInput: string, userGuildsInput: string[]) => {
 		login(userIdInput, userNameInput, userGuildsInput)
-	}
-
-	useConnectService(currentUser)
-	if (authenticated) {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
 	}
 
 	return (
@@ -56,12 +50,11 @@ export default function Login() {
 							<Button
 								onPress={() => {
 									handleLogin(
-										parseInt(userIdInput),
+										userIdInput,
 										userNameInput,
 										userGuildsInput.split(" ")
 									)
 									setIsOpen(false)
-									// eslint-disable-next-line react-hooks/rules-of-hooks
 								}}
 							>
 								Create User

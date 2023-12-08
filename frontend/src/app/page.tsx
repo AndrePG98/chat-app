@@ -1,9 +1,9 @@
 "use client"
 
 import Server from "./components/Server"
-import { useAuth } from "./contexts/authContext"
-import RegisterLoginOption from "./layouts/RegisterLoginOption"
-import ServersPanel from "./layouts/ServersPanel"
+import { useAuth } from "./context/authContext"
+import RegisterLoginOption from "./components/layouts/RegisterLoginOption"
+import ServersPanel from "./components/layouts/ServersPanel"
 
 const Home = () => {
 	const { authenticated } = useAuth()
