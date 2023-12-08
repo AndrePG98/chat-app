@@ -10,7 +10,8 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({ children })
 	return (
 		<NextUIProvider>
 			<AuthProvider>
-				<ConnectProvider>{children}</ConnectProvider>
+				{children}
+				{/* <ConnectProvider></ConnectProvider> */}
 			</AuthProvider>
 		</NextUIProvider>
 	)

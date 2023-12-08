@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react"
 import { User } from "../DTOs/User"
 import useConnectService from "../services/connectService"
+import { WebSocketData } from "../services/WebSocketService"
 
 interface AuthContextProps {
 	authenticated: boolean
@@ -8,12 +9,14 @@ interface AuthContextProps {
 	login: (id: string, name: string, guilds: string[]) => void
 	logout: () => void
 	register: (id: string, name: string, guilds: string[]) => void
+	receivedMessage: WebSocketData
+	sendWebSocketMessage: (data: any) => void
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: any) => {
-	const { connectUser } = useConnectService()
+	const { connectUser, sendWebSocketMessage, receivedMessage } = useConnectService()
 	const [authenticated, setAuthenticated] = useState<boolean>(false)
 	const [currentUser, setCurrentUser] = useState(new User("", "", [], ""))
 
@@ -40,6 +43,8 @@ export const AuthProvider = ({ children }: any) => {
 				login,
 				logout,
 				register,
+				sendWebSocketMessage,
+				receivedMessage,
 			}}
 		>
 			{children}

@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react"
-import ChatPanel from "./layouts/ChatPanel"
-import { ChatMessage } from "../services/WebSocketService"
 import { useAuth } from "../context/authContext"
-import { useConnect } from "../context/connectContext"
+import { ChatMessage } from "../services/WebSocketService"
+import ChatPanel from "./layouts/ChatPanel"
 
 export default function TextChannel(props: { channelName: string; channelId: number }) {
-	const { currentUser } = useAuth()
-	const { sendWebSocketMessage, receivedMessage } = useConnect()
+	const { currentUser, sendWebSocketMessage, receivedMessage } = useAuth()
 	const [messages, setMessages] = useState<string[]>([])
 
 	function createNewMessage(message: string) {

@@ -18,8 +18,6 @@ const useWebSocket = () => {
 	const socketRef = useRef<WebSocket | null>(null)
 
 	const connectToWs = (user: User) => {
-		console.log(user)
-
 		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.id}`)
 		const socket = socketRef.current
 
