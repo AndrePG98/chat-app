@@ -1,7 +1,6 @@
-package wsServer
+package main
 
 import (
-	"backend/models"
 	"log"
 	"slices"
 
@@ -13,7 +12,7 @@ type Client struct {
 	Server *WsServer
 	Conn   *websocket.Conn
 	Guilds []string
-	Send   chan models.Message
+	Send   chan Message
 }
 
 func NewClient(id string, server *WsServer, conn *websocket.Conn) *Client {
@@ -22,23 +21,22 @@ func NewClient(id string, server *WsServer, conn *websocket.Conn) *Client {
 		Server: server,
 		Conn:   conn,
 		Guilds: make([]string, 0),
-		Send:   make(chan models.Message),
+		Send:   make(chan Message),
 	}
 }
 
-func (client *Client) isMemberOfGuild(guildId string) bool {
-	return slices.Contains(client.Guilds, guildId)
-}
-
-func (client *Client) Read() {
-
+func (client *Client) run() {
 	defer func() {
-		client.Conn.Close()
+		client.Server.Disconnect <- client.ID
 	}()
 
-	var newMessage models.Message
+	go client.read()
+	client.write()
+}
 
+func (client *Client) read() {
 	for {
+		var newMessage Message
 		err := client.Conn.ReadJSON(&newMessage)
 		if err != nil {
 			log.Println(err)
@@ -46,46 +44,19 @@ func (client *Client) Read() {
 		}
 		switch newMessage.Type {
 		case 0:
-			body, _ := newMessage.Body.(map[string]interface{})
-			if guildIDs, ok := body["guildIds"].([]interface{}); ok {
-				for _, id := range guildIDs {
-					if guildID, ok := id.(string); ok {
-						client.Guilds = append(client.Guilds, guildID)
-					}
-				}
-			}
+			client.handleInitalConnMessage(newMessage)
 		case 1:
-			if chatMessage, ok := newMessage.Body.(map[string]interface{}); ok {
-				userId := chatMessage["userId"].(string)
-				guildId := chatMessage["guildId"].(string)
-				channelId := chatMessage["channelId"].(string)
-				message := chatMessage["message"].(string)
-
-				for _, user := range client.Server.Clients {
-					if user.isMemberOfGuild(guildId) {
-						go func(user *Client) {
-							user.Send <- models.Message{
-								Type: 1,
-								Body: models.ChatMessage{
-									UserId:    userId,
-									GuildId:   guildId,
-									ChannelId: channelId,
-									Message:   message,
-								},
-							}
-						}(user)
-					}
-				}
-			}
-		case 2:
-		default:
-			log.Println("Unknown message type")
+			client.handleChatMessage(newMessage)
 		}
 	}
 }
 
-func (client *Client) SendMessage() {
+func (client *Client) write() {
 	for messageToSend := range client.Send {
 		client.Conn.WriteJSON(messageToSend)
 	}
+}
+
+func (client *Client) isMemberOfGuild(guildId string) bool {
+	return slices.Contains(client.Guilds, guildId)
 }
