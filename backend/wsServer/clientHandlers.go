@@ -1,33 +1,53 @@
 package main
 
-func (client *Client) handleInitalConnMessage(newMessage Message) {
-	body, _ := newMessage.Body.(map[string]interface{})
-	if guildIDs, ok := body["guildIds"].([]interface{}); ok {
-		for _, id := range guildIDs {
-			if guildID, ok := id.(string); ok {
-				client.Guilds = append(client.Guilds, guildID)
-			}
+import "log"
+
+func (client *Client) handleRegistration(newMessage Message) {
+	if body, ok := newMessage.Body.(map[string]interface{}); ok {
+		userId := body["userId"].(string)
+		client.Guilds = append(client.Guilds, "1")
+		client.Server.Authorize <- &Message{
+			Type: newMessage.Type,
+			Body: Registration{
+				UserId: userId,
+				Result: true,
+			},
+		}
+	}
+}
+
+func (client *Client) handleLogin(newMessage Message) {
+	if body, ok := newMessage.Body.(map[string]interface{}); ok {
+		userId := body["userId"].(string)
+		// fetch userData
+		client.Guilds = append(client.Guilds, "1") // append to fetched guilds
+		client.Server.Authorize <- &Message{
+			Type: newMessage.Type,
+			Body: Login{
+				UserId: userId,
+				Result: true, // can return based on database search result
+			},
 		}
 	}
 }
 
 func (client *Client) handleChatMessage(newMessage Message) {
-	if chatMessage, ok := newMessage.Body.(map[string]interface{}); ok {
-		userId := chatMessage["userId"].(string)
-		guildId := chatMessage["guildId"].(string)
-		channelId := chatMessage["channelId"].(string)
-		message := chatMessage["message"].(string)
-
-		for _, user := range client.Server.Clients {
+	if body, ok := newMessage.Body.(map[string]interface{}); ok {
+		userId := body["userId"].(string)
+		guildId := body["guildId"].(string)
+		channelId := body["channelId"].(string)
+		content := body["content"].(string)
+		log.Printf("%+v", newMessage)
+		for _, user := range client.Server.AuthClients {
 			if user.isMemberOfGuild(guildId) {
 				go func(user *Client) {
 					user.Send <- Message{
-						Type: 1,
+						Type: 3,
 						Body: ChatMessage{
 							UserId:    userId,
 							GuildId:   guildId,
 							ChannelId: channelId,
-							Message:   message,
+							Content:   content,
 						},
 					}
 				}(user)

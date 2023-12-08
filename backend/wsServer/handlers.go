@@ -25,8 +25,4 @@ func (server *WsServer) ServeWS(w http.ResponseWriter, r *http.Request) {
 
 	server.Connect <- NewClient(userID, server, ws)
 
-	ws.WriteJSON(Message{
-		Type: 0,
-	})
-
 }

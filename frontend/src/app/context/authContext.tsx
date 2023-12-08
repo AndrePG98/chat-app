@@ -1,38 +1,41 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import { User } from "../DTOs/User"
-import useConnectService from "../services/connectService"
-import { WebSocketData } from "../services/WebSocketService"
+import { DataExchangeObject, LoginRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import useWebSocket from "../services/WebSocketService"
 
 interface AuthContextProps {
 	authenticated: boolean
 	currentUser: User
-	login: (id: string, name: string, guilds: string[]) => void
+	login: (id: string, name: string) => void
 	logout: () => void
 	register: (id: string, name: string, guilds: string[]) => void
-	receivedMessage: WebSocketData
+	receivedMessage: DataExchangeObject
 	sendWebSocketMessage: (data: any) => void
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: any) => {
-	const { connectUser, sendWebSocketMessage, receivedMessage } = useConnectService()
-	const [authenticated, setAuthenticated] = useState<boolean>(false)
-	const [currentUser, setCurrentUser] = useState(new User("", "", [], ""))
+	const { connectToWs, disconnectFromWs, authenticated,sendWebSocketMessage, receivedMessage } = useWebSocket()
+	const [currentUser, setCurrentUser] = useState(new User("", "",""))
 
-	const register = (id: string, name: string, guilds: string[]) => {
-		login(id, name, guilds)
+	const register = (id: string, name: string) => {
+		connectToWs(id,(connected : boolean) => {
+			if(connected) {
+				sendWebSocketMessage(new RegisterRequest(id))
+			const user = new User(id, name, "https://source.unsplash.com/random/?avatar")
+			user.setGuilds(["1"])
+			setCurrentUser(user)
+			}
+		})
 	}
 
-	const login = async (id: string, name: string, guilds: string[]) => {
-		const user = new User(id, name, guilds, "https://source.unsplash.com/random/?avatar")
-		setCurrentUser(user)
-		setAuthenticated(true)
-		connectUser(user)
+	const login = async (id: string, name: string) => {
+		register(id, name)
 	}
 
 	const logout = () => {
-		setAuthenticated(false)
+		disconnectFromWs(currentUser.id)
 	}
 
 	return (

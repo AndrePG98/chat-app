@@ -1,8 +1,6 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true
-    },
-    "eslint.validate": [
-        "javascript"
-    ]
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit"
+	},
+	"eslint.validate": ["javascript"]
 }

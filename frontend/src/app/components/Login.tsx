@@ -17,10 +17,9 @@ export default function Login() {
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [userIdInput, setUserIdInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
-	const [userGuildsInput, setUserGuildsInput] = useState("")
 
-	const handleLogin = (userIdInput: string, userNameInput: string, userGuildsInput: string[]) => {
-		login(userIdInput, userNameInput, userGuildsInput)
+	const handleLogin = (userIdInput: string, userNameInput: string) => {
+		login(userIdInput, userNameInput)
 	}
 
 	return (
@@ -40,19 +39,13 @@ export default function Login() {
 								value={userNameInput}
 								onValueChange={setUserNameInput}
 							></Input>
-							<Input
-								label="guilds"
-								value={userGuildsInput}
-								onValueChange={setUserGuildsInput}
-							></Input>
 						</ModalBody>
 						<ModalFooter>
 							<Button
 								onPress={() => {
 									handleLogin(
 										userIdInput,
-										userNameInput,
-										userGuildsInput.split(" ")
+										userNameInput
 									)
 									setIsOpen(false)
 								}}

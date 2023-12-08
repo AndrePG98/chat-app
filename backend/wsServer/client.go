@@ -44,8 +44,13 @@ func (client *Client) read() {
 		}
 		switch newMessage.Type {
 		case 0:
-			client.handleInitalConnMessage(newMessage)
+			client.handleRegistration(newMessage)
 		case 1:
+			client.handleLogin(newMessage)
+		case 2:
+			//handle logout
+			log.Println("Logout")
+		case 3:
 			client.handleChatMessage(newMessage)
 		}
 	}

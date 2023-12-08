@@ -6,41 +6,59 @@ import (
 )
 
 type WsServer struct {
-	redisClient *RedisClient
-	Clients     map[string]*Client
-	Connect     chan *Client
-	Disconnect  chan string
+	AuthClients   map[string]*Client
+	UnAuthClients map[string]*Client
+	Authorize     chan *Message
+	Connect       chan *Client
+	Disconnect    chan string
 }
 
 func NewWsServer() *WsServer {
 	return &WsServer{
-		redisClient: NewRedisClient(),
-		Clients:     make(map[string]*Client),
-		Connect:     make(chan *Client),
+		AuthClients:   make(map[string]*Client),
+		UnAuthClients: make(map[string]*Client),
+		Authorize:     make(chan *Message),
+		Connect:       make(chan *Client),
+		Disconnect:    make(chan string),
 	}
 }
 
 func (server *WsServer) run() {
 	addRoutes(server)
-	go server.redisClient.listen()
 	go server.listenForDisconnections()
 	go server.listenForNewConnections()
+	go server.AuthorizeClients()
 	log.Println("Websocket Server listenning on", 8080)
 	http.ListenAndServe(":8080", nil)
 }
 
 func (server *WsServer) listenForNewConnections() {
 	for newConnection := range server.Connect {
-		log.Println("New Webscoket connection from:", newConnection.Conn.RemoteAddr())
-		server.Clients[newConnection.ID] = newConnection
+		log.Println("New webscoket connection request from:", newConnection.Conn.RemoteAddr())
+		server.UnAuthClients[newConnection.ID] = newConnection
 		go newConnection.run()
+	}
+}
+
+func (server *WsServer) AuthorizeClients() {
+	for message := range server.Authorize {
+		mtype := message.Type
+		body, _ := message.Body.(Registration)
+		client := server.UnAuthClients[body.UserId]
+		server.AuthClients[body.UserId] = client
+		// send user initial State
+		client.Send <- Message{Type: mtype, Body: Registration{
+			UserId: body.UserId,
+			Result: body.Result,
+		}}
+		delete(server.UnAuthClients, body.UserId)
 	}
 }
 
 func (server *WsServer) listenForDisconnections() {
 	for userId := range server.Disconnect {
-		server.Clients[userId].Conn.Close()
-		delete(server.Clients, userId)
+		server.AuthClients[userId].Conn.Close()
+		delete(server.AuthClients, userId)
 	}
 }
 

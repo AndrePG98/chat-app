@@ -1,75 +1,64 @@
 import { useRef, useState } from "react"
-import { User } from "../DTOs/User"
-
-export interface WebSocketData {
-	type: number
-	body: any
-}
-
-export interface ChatMessage {
-	userId: string
-	guildId: string
-	channelId: string
-	message: string
-}
+import { ChatMessageRequest, DataExchangeObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/MessageDTOs"
 
 const useWebSocket = () => {
-	const [receivedMessage, setReceivedMessage] = useState<WebSocketData>({ type: -1, body: null })
+	const [receivedMessage, setReceivedMessage] = useState<DataExchangeObject>({ type: -1, body: null })
+	const [authenticated, setAuthenticated] = useState(false)
 	const socketRef = useRef<WebSocket | null>(null)
 
-	const connectToWs = (user: User) => {
-		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${user.id}`)
-		const socket = socketRef.current
+	const connectToWs = async (userId: string, onConnectionEstablished: (status: boolean) => void) => {
+		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${userId}`)
+		//const socket = socketRef.current
 
-		socket.onopen = () => {
-			console.log("here")
-
-			sendLogInData({
-				Type: 0,
-				Body: {
-					userId: user.id,
-					guildIds: user.guilds,
-				},
-			})
-			console.log("sent data")
+		socketRef.current.onopen = () => {
+			onConnectionEstablished(true)
 		}
 
-		socket.onclose = (event) => {
+		socketRef.current.onclose = (event) => {
 			console.log("WebSocket closed", event)
 			// Implement reconnect logic if needed
 		}
 
-		socket.onerror = (error) => {
+		socketRef.current.onerror = (error) => {
 			console.error("WebSocket error", error)
 		}
 
-		socket.onmessage = (event) => {
-			const newReceivedData = JSON.parse(event.data) as WebSocketData
+		socketRef.current.onmessage = (event) => {
+			console.log("Received:", event.data)
+			var newReceivedData = JSON.parse(event.data) as DataExchangeObject
 			switch (newReceivedData.type) {
-				case 1: // Chat Message Type
-					setReceivedMessage({
-						type: newReceivedData.type,
-						body: newReceivedData.body as ChatMessage,
-					})
+				case 0:
+					setReceivedMessage(newReceivedData as RegisterRequest)
+					setAuthenticated(newReceivedData.body.result)
+					break
+				case 1:
+					setReceivedMessage(newReceivedData as LoginRequest)
+					setAuthenticated(newReceivedData.body.result)
+					break
+				case 2:
+					setReceivedMessage(newReceivedData as LogoutRequest)
+					setAuthenticated(newReceivedData.body.result)
+					break
+				case 3:
+					setReceivedMessage(newReceivedData as ChatMessageRequest)
+					break
 			}
 		}
+
 	}
 
-	const sendLogInData = (data: {
-		Type: number
-		Body: {
-			userId: string
-			guildIds: string[]
-		}
-	}) => {
+
+	const disconnectFromWs = (userId: string) => {
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-			socketRef.current?.send(JSON.stringify(data))
+			var message: string = JSON.stringify(new LogoutRequest(userId))
+			socketRef.current.send(message)
 		} else {
 			console.error("WebSocket is not open")
 		}
 	}
 
 	const sendWebSocketMessage = (data: any) => {
+		console.log("Sent:", data)
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			var message: string = JSON.stringify(data)
 			socketRef.current.send(message)
@@ -78,7 +67,7 @@ const useWebSocket = () => {
 		}
 	}
 
-	return { connectToWs, sendWebSocketMessage, receivedMessage }
+	return { connectToWs, disconnectFromWs, authenticated, sendWebSocketMessage, receivedMessage }
 }
 
 export default useWebSocket

@@ -5,14 +5,19 @@ type Message struct {
 	Body interface{} `json:"body"`
 }
 
+type Registration struct {
+	UserId string `json:"userId"`
+	Result bool   `json:"result"`
+}
+
+type Login struct {
+	UserId string `json:"userId"`
+	Result bool   `json:"result"`
+}
+
 type ChatMessage struct { // Send user
 	UserId    string `json:"userId"`
 	GuildId   string `json:"guildId"`
 	ChannelId string `json:"channelId"`
-	Message   string `json:"message"`
-}
-
-type InitialConnect struct {
-	UserId   string   `json:"userId"`
-	GuildIds []string `json:"guildIds"`
+	Content   string `json:"content"`
 }
