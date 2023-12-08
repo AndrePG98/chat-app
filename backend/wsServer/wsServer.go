@@ -33,19 +33,19 @@ func NewWsServer() *WsServer {
 	}
 }
 
-func (wsServer *WsServer) setUpRoutes() {
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		wsServer.ServeWS(w, r)
-	})
-}
-
 func (wsServer *WsServer) Run(wg *sync.WaitGroup) {
 	defer wg.Done()
-	//go server.PubSub(context.Background())
+	go wsServer.PubSub(context.Background())
 	go wsServer.RunClients()
 	wsServer.setUpRoutes()
 	log.Println("Websocket Server listenning on", 8080)
 	http.ListenAndServe(":8080", nil)
+}
+
+func (wsServer *WsServer) setUpRoutes() {
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		wsServer.ServeWS(w, r)
+	})
 }
 
 func (server *WsServer) RunClients() {
@@ -61,7 +61,7 @@ func (server *WsServer) RunClients() {
 	}
 }
 
-func (server *WsServer) PubSub(ctx context.Context) {
+func (wsServer *WsServer) PubSub(ctx context.Context) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
@@ -73,9 +73,9 @@ func (server *WsServer) PubSub(ctx context.Context) {
 		log.Println("Error connecting to Redis:", err)
 		return
 	}
-	log.Println("Connected to Redis:", pong)
+	log.Println("Websocket connected to Redis:", pong)
 
-	sub := rdb.Subscribe(ctx)
+	sub := rdb.Subscribe(ctx, "httpServer")
 
 	defer sub.Close()
 
