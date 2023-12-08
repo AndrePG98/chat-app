@@ -1,23 +1,23 @@
 "use client"
 
-import Server from './components/Server'
-import LoggedInUser from './components/LoginUser'
-import ServersPanel from './layouts/ServersPanel'
-import { Skeleton } from '@nextui-org/react'
-import useConnectToServer from './services/connectService';
-import LoadingComponent from './components/LoadingComponent';
+import Server from "./components/Server"
+import { useAuth } from "./context/authContext"
+import RegisterLoginOption from "./components/layouts/RegisterLoginOption"
+import ServersPanel from "./components/layouts/ServersPanel"
 
-
-export default function Home() {
-
-	const connected = useConnectToServer()
-
+const Home = () => {
+	const { authenticated } = useAuth()
 	return (
-		<main className="flex h-screen flex-row">
-			{/* Fetch servers and display server based on servers panel selection*/}
-			<LoggedInUser></LoggedInUser>
-			<ServersPanel></ServersPanel>
-			<Server></Server>
+		<main>
+			{!authenticated && <RegisterLoginOption></RegisterLoginOption>}
+			{authenticated && (
+				<div className="flex h-screen flex-row">
+					<ServersPanel></ServersPanel>
+					<Server></Server>
+				</div>
+			)}
 		</main>
 	)
 }
+
+export default Home
