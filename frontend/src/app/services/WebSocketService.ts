@@ -1,8 +1,8 @@
 import { useRef, useState } from "react"
-import { ChatMessageRequest, DataExchangeObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import { ChatMessageRequest, DataTransferObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/MessageDTOs"
 
 const useWebSocket = () => {
-	const [receivedMessage, setReceivedMessage] = useState<DataExchangeObject>({ type: -1, body: null })
+	const [receivedMessage, setReceivedMessage] = useState<DataTransferObject>({ type: -1, body: null })
 	const [authenticated, setAuthenticated] = useState(false)
 	const socketRef = useRef<WebSocket | null>(null)
 
@@ -25,7 +25,7 @@ const useWebSocket = () => {
 
 		socketRef.current.onmessage = (event) => {
 			console.log("Received:", event.data)
-			var newReceivedData = JSON.parse(event.data) as DataExchangeObject
+			var newReceivedData = JSON.parse(event.data) as DataTransferObject
 			switch (newReceivedData.type) {
 				case 0:
 					setReceivedMessage(newReceivedData as RegisterRequest)

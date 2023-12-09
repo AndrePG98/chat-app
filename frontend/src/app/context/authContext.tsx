@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { User } from "../DTOs/User"
-import { DataExchangeObject, LoginRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import { DataTransferObject, LoginRequest, RegisterRequest } from "../DTOs/MessageDTOs"
 import useWebSocket from "../services/WebSocketService"
 
 interface AuthContextProps {
@@ -9,7 +9,7 @@ interface AuthContextProps {
 	login: (id: string, name: string) => void
 	logout: () => void
 	register: (id: string, name: string, guilds: string[]) => void
-	receivedMessage: DataExchangeObject
+	receivedMessage: DataTransferObject
 	sendWebSocketMessage: (data: any) => void
 }
 

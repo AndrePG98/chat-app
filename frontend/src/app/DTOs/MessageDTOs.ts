@@ -1,9 +1,9 @@
-export interface DataExchangeObject {
+export interface DataTransferObject {
     type: number
     body: any
 }
 
-export class RegisterRequest implements DataExchangeObject {
+export class RegisterRequest implements DataTransferObject {
     type: number
     body: any
 
@@ -14,7 +14,7 @@ export class RegisterRequest implements DataExchangeObject {
     }
 }
 
-export class LoginRequest implements DataExchangeObject {
+export class LoginRequest implements DataTransferObject {
     type: number
     body: any
 
@@ -25,7 +25,7 @@ export class LoginRequest implements DataExchangeObject {
     }
 }
 
-export class LogoutRequest implements DataExchangeObject {
+export class LogoutRequest implements DataTransferObject {
     type: number
     body: any;
     constructor(userId: string) {
@@ -34,7 +34,7 @@ export class LogoutRequest implements DataExchangeObject {
     }
 }
 
-export class ChatMessageRequest implements DataExchangeObject {
+export class ChatMessageRequest implements DataTransferObject {
     type: number
     body: any
 
