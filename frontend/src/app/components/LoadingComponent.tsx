@@ -5,7 +5,7 @@ export default function LoadingComponent() {
 	return (
 		<div className="flex justify-center items-center h-full w-full">
 			<Spinner size="lg" color="danger" labelColor="danger" label="Loading..."></Spinner>
-			testing
+			testing testing 2
 		</div>
 	)
 }
