@@ -1,25 +1,76 @@
 import { useAuth } from "@/app/context/authContext"
-import { Divider, User } from "@nextui-org/react"
+import { Button, Divider, User } from "@nextui-org/react"
+import { useState } from "react"
+import CreateServerModal from "../shared/CreateServerModal"
+import ServerBtn from "../shared/ServerBtn"
+import { useApp } from "../App"
+import Server from "../Server"
 
-export default function ServersPanel() {
+export const ServersPanel = () => {
 	const { currentUser } = useAuth()
+	const [modalOpen, setModalOpen] = useState(false)
+	const { server, servers, createServer, selectServer } = useApp()
+
+	const openModal = () => {
+		setModalOpen(true)
+	}
+
+	const closeModal = () => {
+		setModalOpen(false)
+	}
+
+	const createNewServer = (name: string) => {
+		createServer(name)
+	}
+
 	return (
-		<aside
-			className="servers-panel h-screen w-64 py-5 px-4 border-r border-gray-700 flex flex-col"
-			style={{ border: "2px solid green" }}
-		>
-			<nav className="flex justify-center items-center">
-				<div className="space-y-3">
-					<User
-						name={currentUser.name}
-						description={currentUser.id}
-						avatarProps={{
-							src: currentUser.logo,
-						}}
-					/>
-					<Divider className="w-52"></Divider>
+		<>
+			<aside className="w-64" style={{ border: "2px solid green" }}>
+				<div>
+					<div className="m-4">
+						<User
+							name={currentUser.name}
+							description={currentUser.id}
+							avatarProps={{
+								src: currentUser.logo,
+							}}
+						/>
+					</div>
+					<div className="flex justify-center">
+						<Divider className="w-52"></Divider>
+					</div>
+					<div className="channel-buttons flex-1">
+						{servers.map((server) => (
+							<div key={server.id}>
+								<ServerBtn
+									serverId={server.id}
+									serverName={server.name}
+									selectServer={selectServer}
+								/>
+							</div>
+						))}
+					</div>
+					<div className="w-64 fixed bottom-0">
+						<CreateServerModal
+							isOpen={modalOpen}
+							onOpenChange={closeModal}
+							createNewServer={createNewServer}
+						/>
+						<Button
+							variant="light"
+							radius="none"
+							size="sm"
+							fullWidth
+							isIconOnly
+							className="flex justify-center items-center w-full"
+							onClick={openModal}
+						>
+							<span className="material-symbols-outlined">add</span>
+						</Button>
+					</div>
 				</div>
-			</nav>
-		</aside>
+			</aside>
+			{server && <Server serverId={server?.id} server={server}></Server>}
+		</>
 	)
 }

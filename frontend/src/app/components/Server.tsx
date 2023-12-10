@@ -2,14 +2,14 @@
 
 import { createContext, useState } from "react"
 
-import { Channel } from "../DTOs/Channel"
+import { ChannelDTO } from "../DTOs/ChannelDTO"
+import { ServerDTO } from "../DTOs/ServerDTO"
 import TextChannel from "./TextChannel"
-import VoiceChannel from "./VoiceChannel"
 import ChannelsPanel from "./layouts/ChannelsPanel"
 import MembersPanel from "./layouts/MembersPanel"
 
 export const SelectedChannelContext = createContext<{
-	selectedChannel: Channel | undefined
+	selectedChannel: ChannelDTO | undefined
 	selectChannel: (channelId: number) => void
 	createNewChannel: (name: string, type: string) => void
 }>({
@@ -18,17 +18,16 @@ export const SelectedChannelContext = createContext<{
 	createNewChannel: (name: string, type: string) => {},
 })
 
-export default function Server() {
-	const [channels, setChannels] = useState<Channel[]>([])
-	const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(undefined)
+export default function Server(props: { serverId: string | undefined; server: ServerDTO }) {
+	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO | undefined>(undefined)
 
 	const createNewChannel = (name: string, type: string) => {
-		const newChannel = new Channel(channels.length + 1, name, type)
-		setChannels((prevChannels) => [...prevChannels, newChannel])
+		const newChannel = new ChannelDTO(props.server.getChannels().length + 1, name, type)
+		props.server.addChannel(newChannel)
 	}
 
 	const selectChannel = (channelId: number) => {
-		setSelectedChannel(channels.find((channel) => channel.id === channelId))
+		setSelectedChannel(props.server.getChannels().find((channel) => channel.id === channelId))
 	}
 
 	return (
@@ -36,21 +35,17 @@ export default function Server() {
 			<SelectedChannelContext.Provider
 				value={{ selectedChannel, selectChannel, createNewChannel }}
 			>
-				<ChannelsPanel channels={channels}></ChannelsPanel>
+				<ChannelsPanel channels={props.server.getChannels()}></ChannelsPanel>
 			</SelectedChannelContext.Provider>
 			<div className="selected-channel-div flex-1">
-				{selectedChannel?.type === "text" && (
-					<TextChannel
-						channelName={selectedChannel.name}
-						channelId={selectedChannel.id}
-					></TextChannel>
-				)}
-				{selectedChannel?.type === "voice" && (
-					<VoiceChannel
-						channelName={selectedChannel.name}
-						channelId={selectedChannel.id}
-					></VoiceChannel>
-				)}
+				{props.server.getChannels().map((channel) => (
+					<div key={channel.id}>
+						<TextChannel
+							channel={channel}
+							messages={channel.getMessages()}
+						></TextChannel>
+					</div>
+				))}
 			</div>
 			<MembersPanel />
 		</div>

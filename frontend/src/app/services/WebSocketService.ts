@@ -1,12 +1,24 @@
 import { useRef, useState } from "react"
-import { ChatMessageRequest, DataExchangeObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import {
+	ChatMessageRequest,
+	DataExchangeObject,
+	LoginRequest,
+	LogoutRequest,
+	RegisterRequest,
+} from "../DTOs/RequestsDTOs"
 
 const useWebSocket = () => {
-	const [receivedMessage, setReceivedMessage] = useState<DataExchangeObject>({ type: -1, body: null })
+	const [receivedMessage, setReceivedMessage] = useState<DataExchangeObject>({
+		type: -1,
+		body: null,
+	})
 	const [authenticated, setAuthenticated] = useState(false)
 	const socketRef = useRef<WebSocket | null>(null)
 
-	const connectToWs = async (userId: string, onConnectionEstablished: (status: boolean) => void) => {
+	const connectToWs = async (
+		userId: string,
+		onConnectionEstablished: (status: boolean) => void
+	) => {
 		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${userId}`)
 		//const socket = socketRef.current
 
@@ -44,9 +56,7 @@ const useWebSocket = () => {
 					break
 			}
 		}
-
 	}
-
 
 	const disconnectFromWs = (userId: string) => {
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {

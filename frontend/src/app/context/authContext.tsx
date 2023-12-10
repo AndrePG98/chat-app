@@ -1,11 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react"
-import { User } from "../DTOs/User"
-import { DataExchangeObject, LoginRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import { createContext, useContext, useState } from "react"
+import { DataExchangeObject, RegisterRequest } from "../DTOs/RequestsDTOs"
+import { UserDTO } from "../DTOs/UserDTO"
 import useWebSocket from "../services/WebSocketService"
 
 interface AuthContextProps {
 	authenticated: boolean
-	currentUser: User
+	currentUser: UserDTO
 	login: (id: string, name: string) => void
 	logout: () => void
 	register: (id: string, name: string, guilds: string[]) => void
@@ -16,16 +16,17 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: any) => {
-	const { connectToWs, disconnectFromWs, authenticated,sendWebSocketMessage, receivedMessage } = useWebSocket()
-	const [currentUser, setCurrentUser] = useState(new User("", "",""))
+	const { connectToWs, disconnectFromWs, authenticated, sendWebSocketMessage, receivedMessage } =
+		useWebSocket()
+	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", ""))
 
 	const register = (id: string, name: string) => {
-		connectToWs(id,(connected : boolean) => {
-			if(connected) {
+		connectToWs(id, (connected: boolean) => {
+			if (connected) {
 				sendWebSocketMessage(new RegisterRequest(id))
-			const user = new User(id, name, "https://source.unsplash.com/random/?avatar")
-			user.setGuilds(["1"])
-			setCurrentUser(user)
+				const user = new UserDTO(id, name, "https://source.unsplash.com/random/?avatar")
+				user.setGuilds(["1"])
+				setCurrentUser(user)
 			}
 		})
 	}

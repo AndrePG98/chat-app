@@ -3,7 +3,7 @@
 import Server from "./components/Server"
 import { useAuth } from "./context/authContext"
 import RegisterLoginOption from "./components/layouts/RegisterLoginOption"
-import ServersPanel from "./components/layouts/ServersPanel"
+import { ServersPanel } from "./components/layouts/ServersPanel"
 
 const Home = () => {
 	const { authenticated } = useAuth()
@@ -13,7 +13,6 @@ const Home = () => {
 			{authenticated && (
 				<div className="flex h-screen flex-row">
 					<ServersPanel></ServersPanel>
-					<Server></Server>
 				</div>
 			)}
 		</main>
