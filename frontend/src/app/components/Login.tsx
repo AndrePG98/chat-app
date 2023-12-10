@@ -15,11 +15,11 @@ import { useAuth } from "../context/authContext"
 export default function Login() {
 	const { login } = useAuth()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
-	const [userIdInput, setUserIdInput] = useState("")
+	const [userPasswordInput, setUserPasswordInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
 
-	const handleLogin = (userIdInput: string, userNameInput: string) => {
-		login(userIdInput, userNameInput)
+	const handleLogin = (userName: string, userPassword: string) => {
+		login(userName, userPassword)
 	}
 
 	return (
@@ -30,22 +30,22 @@ export default function Login() {
 						<ModalHeader className="flex flex-col gap-1">Login User</ModalHeader>
 						<ModalBody>
 							<Input
-								label="userId"
-								value={userIdInput}
-								onValueChange={setUserIdInput}
-							></Input>
-							<Input
-								label="userName"
+								label="Username"
 								value={userNameInput}
 								onValueChange={setUserNameInput}
+							></Input>
+							<Input
+								label="Password"
+								value={userPasswordInput}
+								onValueChange={setUserPasswordInput}
 							></Input>
 						</ModalBody>
 						<ModalFooter>
 							<Button
 								onPress={() => {
 									handleLogin(
-										userIdInput,
-										userNameInput
+										userNameInput,
+										userPasswordInput
 									)
 									setIsOpen(false)
 								}}

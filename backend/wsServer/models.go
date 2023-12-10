@@ -5,14 +5,32 @@ type Message struct {
 	Body interface{} `json:"body"`
 }
 
-type Registration struct {
-	UserId string `json:"userId"`
-	Result bool   `json:"result"`
+type AuthRequest struct { // Connection sends to server
+	Result bool
+	Client *Client
 }
 
-type Login struct {
-	UserId string `json:"userId"`
-	Result bool   `json:"result"`
+type AuthenticationResult struct { // Sends to client
+	Result bool     `json:"result"`
+	Token  string   `json:"token"`
+	ID     string   `json:"userId"`
+	State  []string `json:"state"`
+	Error  string   `json:"error"` // if result if false empty otherwise
+}
+
+type Guild struct {
+	ID      string // unique globally
+	Name    string
+	Members []string // user ids
+	Channel []string // maybe channel ids unique inside the guild but not globablly
+}
+
+type Channel struct {
+	ID      string // unique inside guild
+	Name    string
+	Type    string    // text, voice
+	Members []string  // voice channel users , empty if text channel
+	History []Message // text channel chat history , empty if voice channel
 }
 
 type ChatMessage struct { // Send user

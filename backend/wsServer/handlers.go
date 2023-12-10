@@ -21,8 +21,6 @@ func (server *WsServer) ServeWS(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	userID := r.URL.Query().Get("id")
 
-	server.Connect <- NewClient(userID, server, ws)
-
+	server.Connect <- ws
 }

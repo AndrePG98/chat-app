@@ -6,9 +6,9 @@ import useWebSocket from "../services/WebSocketService"
 interface AuthContextProps {
 	authenticated: boolean
 	currentUser: User
-	login: (id: string, name: string) => void
+	login: (username : string, password : string) => void
 	logout: () => void
-	register: (id: string, name: string, guilds: string[]) => void
+	register: (username: string, password : string ,email : string) => void
 	receivedMessage: DataTransferObject
 	sendWebSocketMessage: (data: any) => void
 }
@@ -17,21 +17,25 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: any) => {
 	const { connectToWs, disconnectFromWs, authenticated,sendWebSocketMessage, receivedMessage } = useWebSocket()
-	const [currentUser, setCurrentUser] = useState(new User("", "",""))
+	const [currentUser, setCurrentUser] = useState(new User("", "" ,"", ""))
 
-	const register = (id: string, name: string) => {
-		connectToWs(id,(connected : boolean) => {
+	const register = (username: string, password: string, email : string) => {
+		connectToWs((connected : boolean) => {
 			if(connected) {
-				sendWebSocketMessage(new RegisterRequest(id))
-			const user = new User(id, name, "https://source.unsplash.com/random/?avatar")
+				sendWebSocketMessage(new RegisterRequest(username, password, email))
+			/* const user = new User(id, name, "https://source.unsplash.com/random/?avatar")
 			user.setGuilds(["1"])
-			setCurrentUser(user)
+			setCurrentUser(user) */
 			}
 		})
 	}
 
-	const login = async (id: string, name: string) => {
-		register(id, name)
+	const login = async (username: string, password: string) => {
+		connectToWs((connected : boolean) => {
+			if(connected) {
+				sendWebSocketMessage(new LoginRequest(username, password))
+			}
+		})
 	}
 
 	const logout = () => {

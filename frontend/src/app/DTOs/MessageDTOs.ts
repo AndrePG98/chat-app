@@ -7,9 +7,9 @@ export class RegisterRequest implements DataTransferObject {
     type: number
     body: any
 
-    constructor(userId: string) {
+    constructor(username: string, password: string, email: string) {
         this.type = 0
-        this.body = { userId, result: false }
+        this.body = { username, password, email }
 
     }
 }
@@ -18,10 +18,9 @@ export class LoginRequest implements DataTransferObject {
     type: number
     body: any
 
-    constructor(userId: string) {
+    constructor(username: string, password: string) {
         this.type = 1
-        this.body = { userId, result: false }
-
+        this.body = { username, password }
     }
 }
 
@@ -48,4 +47,14 @@ export class ChatMessageRequest implements DataTransferObject {
         }
     }
 
+}
+
+export interface AuthenticationResult {
+    type: number
+    body: {
+        result: boolean
+        token: string
+        userId: string
+        state: string[]
+    }
 }
