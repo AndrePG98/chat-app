@@ -1,4 +1,4 @@
-export class Channel {
+export class ChannelDTO {
     id: number;
     name: string;
     type: string;

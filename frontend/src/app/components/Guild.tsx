@@ -2,14 +2,14 @@
 
 import { createContext, useState } from "react"
 
-import { Channel } from "../DTOs/Channel"
+import { ChannelDTO } from "../DTOs/ChannelDTO"
 import TextChannel from "./TextChannel"
 import VoiceChannel from "./VoiceChannel"
 import ChannelsPanel from "./layouts/ChannelsPanel"
 import MembersPanel from "./layouts/MembersPanel"
 
 export const SelectedChannelContext = createContext<{
-	selectedChannel: Channel | undefined
+	selectedChannel: ChannelDTO | undefined
 	selectChannel: (channelId: number) => void
 	createNewChannel: (name: string, type: string) => void
 }>({
@@ -18,12 +18,12 @@ export const SelectedChannelContext = createContext<{
 	createNewChannel: (name: string, type: string) => {},
 })
 
-export default function Server() {
-	const [channels, setChannels] = useState<Channel[]>([])
-	const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(undefined)
+export default function Guild() {
+	const [channels, setChannels] = useState<ChannelDTO[]>([])
+	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO | undefined>(undefined)
 
 	const createNewChannel = (name: string, type: string) => {
-		const newChannel = new Channel(channels.length + 1, name, type)
+		const newChannel = new ChannelDTO(channels.length + 1, name, type)
 		setChannels((prevChannels) => [...prevChannels, newChannel])
 	}
 

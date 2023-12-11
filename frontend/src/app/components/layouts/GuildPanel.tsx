@@ -1,7 +1,7 @@
 import { useAuth } from "@/app/context/authContext"
 import { Divider, User } from "@nextui-org/react"
 
-export default function ServersPanel() {
+export default function GuildPanel() {
 	const { currentUser } = useAuth()
 	return (
 		<aside

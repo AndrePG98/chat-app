@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { User } from "../DTOs/User"
-import { DataTransferObject, LoginRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import { User } from "../DTOs/UserDTO"
+import { DataTransferObject, LoginRequest, RegisterRequest } from "../DTOs/RequestDTO"
 import useWebSocket from "../services/WebSocketService"
 
 interface AuthContextProps {

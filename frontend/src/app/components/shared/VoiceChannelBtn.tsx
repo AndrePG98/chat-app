@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button, Listbox, ListboxItem, User } from '@nextui-org/react';
-import { SelectedChannelContext } from '@/app/components/Server';
+import { SelectedChannelContext } from '@/app/components/Guild';
 
 export default function VoiceChannelBtn(props: { channelName: string, channelId: number }) {
     

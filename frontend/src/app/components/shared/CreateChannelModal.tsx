@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup } from "@nextui-org/react";
-import { SelectedChannelContext } from '@/app/components/Server';
+import { SelectedChannelContext } from '@/app/components/Guild';
 
 export default function CreateChannelModal(props: {
     isOpen: boolean,

@@ -1,11 +1,11 @@
 import { Button, ButtonGroup } from "@nextui-org/react"
 import { useState } from "react"
-import { Channel } from "../../DTOs/Channel"
+import { ChannelDTO } from "../../DTOs/ChannelDTO"
 import CreateChannelModal from "../shared/CreateChannelModal"
 import TextChannelBtn from "../shared/TextChannelBtn"
 import VoiceChannelBtn from "../shared/VoiceChannelBtn"
 
-export default function ChannelsPanel(props: { channels: Channel[] }) {
+export default function ChannelsPanel(props: { channels: ChannelDTO[] }) {
 	const [modalOpen, setModalOpen] = useState(false)
 
 	function openModal() {

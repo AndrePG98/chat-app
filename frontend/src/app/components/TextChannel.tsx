@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../context/authContext"
 import ChatPanel from "./layouts/ChatPanel"
-import { ChatMessageRequest } from "../DTOs/MessageDTOs";
+import { ChatMessageRequest } from "../DTOs/RequestDTO";
 
 export default function TextChannel(props: { channelName: string; channelId: number }) {
 	const { currentUser, sendWebSocketMessage, receivedMessage } = useAuth()

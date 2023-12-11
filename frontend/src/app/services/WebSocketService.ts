@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { AuthenticationResult, ChatMessageRequest, DataTransferObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import { AuthenticationResult, ChatMessageRequest, DataTransferObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/RequestDTO"
 
 const useWebSocket = () => {
 	const [receivedMessage, setReceivedMessage] = useState<DataTransferObject>({ type: -1, body: null })

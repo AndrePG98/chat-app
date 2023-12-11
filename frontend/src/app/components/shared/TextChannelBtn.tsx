@@ -1,4 +1,4 @@
-import { SelectedChannelContext } from '@/app/components/Server';
+import { SelectedChannelContext } from '@/app/components/Guild';
 import { Button } from '@nextui-org/react';
 import { useContext } from 'react';
 
