@@ -2,10 +2,11 @@ import { Button, Input } from "@nextui-org/react"
 import React, { useEffect, useRef } from "react"
 import Message from "../shared/Message"
 import { MessageDTO } from "@/app/DTOs/MessageDTO"
+import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
 
 export default function ChatPanel(props: {
 	messages: MessageDTO[]
-	channelId: number
+	channel: ChannelDTO
 	createNewMessage: (message: string) => void
 }) {
 	const [input, setInput] = React.useState("")
@@ -38,7 +39,7 @@ export default function ChatPanel(props: {
 					<Message message={message.body} key={message.id}></Message>
 				))}
 			</div>
-			{props.channelId !== null && (
+			{props.channel.id !== null && (
 				<div>
 					<Input
 						className=""

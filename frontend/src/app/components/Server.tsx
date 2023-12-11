@@ -7,6 +7,7 @@ import { ServerDTO } from "../DTOs/ServerDTO"
 import TextChannel from "./TextChannel"
 import ChannelsPanel from "./layouts/ChannelsPanel"
 import MembersPanel from "./layouts/MembersPanel"
+import VoiceChannel from "./VoiceChannel"
 
 export const SelectedChannelContext = createContext<{
 	selectedChannel: ChannelDTO | undefined
@@ -38,14 +39,12 @@ export default function Server(props: { serverId: string | undefined; server: Se
 				<ChannelsPanel channels={props.server.getChannels()}></ChannelsPanel>
 			</SelectedChannelContext.Provider>
 			<div className="selected-channel-div flex-1">
-				{props.server.getChannels().map((channel) => (
-					<div key={channel.id}>
-						<TextChannel
-							channel={channel}
-							messages={channel.getMessages()}
-						></TextChannel>
-					</div>
-				))}
+				{selectedChannel?.type === "text" && (
+					<TextChannel channel={selectedChannel}></TextChannel>
+				)}
+				{selectedChannel?.type === "voice" && (
+					<VoiceChannel channel={selectedChannel}></VoiceChannel>
+				)}
 			</div>
 			<MembersPanel />
 		</div>

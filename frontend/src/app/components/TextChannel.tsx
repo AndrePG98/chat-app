@@ -1,16 +1,18 @@
 import { useEffect } from "react"
+import { ChannelDTO } from "../DTOs/ChannelDTO"
 import { ChatMessageRequest } from "../DTOs/RequestsDTOs"
 import { useAuth } from "../context/authContext"
 import ChatPanel from "./layouts/ChatPanel"
-import { MessageDTO } from "../DTOs/MessageDTO"
-import { ChannelDTO } from "../DTOs/ChannelDTO"
 
-export default function TextChannel(props: { channel: ChannelDTO; messages: MessageDTO[] }) {
+export default function TextChannel(props: { channel: ChannelDTO }) {
 	const { currentUser, sendWebSocketMessage, receivedMessage } = useAuth()
 
 	const createNewMessage = (message: string) => {
 		const chatMessage = new ChatMessageRequest(currentUser.id, "1", "1", message)
 		sendWebSocketMessage(chatMessage)
+		const newMessage: string = receivedMessage.body.content
+		props.channel.addMessage(currentUser, newMessage)
+		console.log(message)
 	}
 
 	useEffect(() => {
@@ -19,18 +21,18 @@ export default function TextChannel(props: { channel: ChannelDTO; messages: Mess
 			receivedMessage.body != null &&
 			receivedMessage.type === 3
 		) {
-			const newMessage: string = receivedMessage.body.content
-			props.channel.addMessage(currentUser, newMessage)
 		}
-	}, [receivedMessage])
+	}, [props.channel.getMessages()])
 
 	return (
 		<div className="text-channel h-full flex-1">
-			<ChatPanel
-				channelId={props.channel.id}
-				createNewMessage={createNewMessage}
-				messages={props.messages}
-			></ChatPanel>
+			<div key={props.channel.id}>
+				<ChatPanel
+					messages={props.channel.getMessages()}
+					createNewMessage={createNewMessage}
+					channel={props.channel}
+				></ChatPanel>
+			</div>
 		</div>
 	)
 }
