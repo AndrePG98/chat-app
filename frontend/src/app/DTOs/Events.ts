@@ -1,20 +1,19 @@
-export interface DataTransferObject {
+export interface Event {
     type: number
     body: any
 }
 
-export class RegisterRequest implements DataTransferObject {
+export class RegisterEvent implements Event {
     type: number
     body: any
 
     constructor(username: string, password: string, email: string) {
         this.type = 0
         this.body = { username, password, email }
-
     }
 }
 
-export class LoginRequest implements DataTransferObject {
+export class LoginEvent implements Event {
     type: number
     body: any
 
@@ -24,7 +23,7 @@ export class LoginRequest implements DataTransferObject {
     }
 }
 
-export class LogoutRequest implements DataTransferObject {
+export class LogoutEvent implements Event {
     type: number
     body: any;
     constructor(userId: string) {
@@ -33,7 +32,7 @@ export class LogoutRequest implements DataTransferObject {
     }
 }
 
-export class ChatMessageRequest implements DataTransferObject {
+export class ChatMessageEvent implements Event {
     type: number
     body: any
 

@@ -1,9 +1,8 @@
 import { useRef, useState } from "react"
-import { AuthenticationResult, ChatMessageRequest, DataTransferObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/RequestDTO"
-import { UserDTO } from "../DTOs/UserDTO"
+import { Event, LoginEvent } from "../DTOs/Events"
 
-const useWebSocket = (user: UserDTO) => {
-	const [receivedMessage, setReceivedMessage] = useState<DataTransferObject>({ type: -1, body: null })
+const useWebSocket = () => {
+	const [receivedMessage, setReceivedMessage] = useState<Event>({ type: -1, body: null })
 	const socketRef = useRef<WebSocket | null>(null)
 
 	const connectToWs = async (onConnectionEstablished: (status: boolean) => void) => {
@@ -26,7 +25,7 @@ const useWebSocket = (user: UserDTO) => {
 
 		socketRef.current.onmessage = (event) => {
 			console.log("Received:", event.data)
-			var newReceivedData = JSON.parse(event.data) as DataTransferObject
+			var newReceivedData = JSON.parse(event.data) as Event
 			setReceivedMessage(newReceivedData)
 		}
 
@@ -34,7 +33,7 @@ const useWebSocket = (user: UserDTO) => {
 
 	const disconnectFromWs = (userId: string) => {
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-			var message: string = JSON.stringify(new LogoutRequest(userId))
+			var message: string = JSON.stringify(new LoginEvent(userId, "randomPW"))
 			socketRef.current.send(message)
 		} else {
 			console.error("WebSocket is not open")

@@ -10,16 +10,16 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import { useState } from "react"
-import { useAuth } from "../../context/UserContext"
+import { useUserContext } from "../../context/UserContext"
 
 export default function Login() {
-	const { login } = useAuth()
+	const { register } = useUserContext()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [userPasswordInput, setUserPasswordInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
 
 	const handleLogin = (userName: string, userPassword: string) => {
-		login(userName, userPassword)
+		register(userName, userPassword, "someEmail")
 	}
 
 	return (
@@ -43,10 +43,7 @@ export default function Login() {
 						<ModalFooter>
 							<Button
 								onPress={() => {
-									handleLogin(
-										userNameInput,
-										userPasswordInput
-									)
+									handleLogin(userNameInput, userPasswordInput)
 									setIsOpen(false)
 								}}
 							>

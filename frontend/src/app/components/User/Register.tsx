@@ -8,10 +8,10 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import React, { useState } from "react"
-import { useAuth } from "../../context/UserContext"
+import { useUserContext } from "../../context/UserContext"
 
 export default function Register() {
-	const { register } = useAuth()
+	const { register } = useUserContext()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [userPasswordInput, setUserPasswordInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")

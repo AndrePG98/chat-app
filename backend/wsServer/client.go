@@ -55,7 +55,6 @@ func (client *Client) read() {
 	for {
 		var newMessage Message
 		err := client.Conn.ReadJSON(&newMessage)
-		log.Printf("%+v", newMessage)
 		if err != nil {
 			log.Println(err)
 			return

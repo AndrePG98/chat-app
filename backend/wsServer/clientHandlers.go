@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 func handleRegistration(client *Client, newMessage Message) {
 	if body, ok := newMessage.Body.(map[string]interface{}); ok {
 		username := body["username"].(string)
@@ -54,7 +52,6 @@ func handleChatMessage(client *Client, newMessage Message) {
 		guildId := body["guildId"].(string)
 		channelId := body["channelId"].(string)
 		content := body["content"].(string)
-		log.Printf("%+v", newMessage)
 		for _, user := range client.Server.AuthClients {
 			if user.isMemberOfGuild(guildId) {
 				go func(user *Client) {

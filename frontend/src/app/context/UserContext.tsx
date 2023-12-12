@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { UserDTO } from "../DTOs/UserDTO"
-import { DataTransferObject, LoginRequest, RegisterRequest } from "../DTOs/RequestDTO"
+import { Event, LoginEvent, RegisterEvent } from "../DTOs/Events"
 import useWebSocket from "../services/WebSocketService"
 import { GuildDTO } from "../DTOs/GuildDTO"
 import { MessageDTO } from "../DTOs/MessageDTO"
@@ -12,7 +12,7 @@ interface UserContextProps {
 	login: (username: string, password: string) => void
 	logout: () => void
 	register: (username: string, password: string, email: string) => void
-	receivedMessage: DataTransferObject
+	receivedMessage: Event
 	sendWebSocketMessage: (data: any) => void
 }
 
@@ -20,9 +20,10 @@ const UserContext = createContext<UserContextProps | undefined>(undefined)
 
 export const UserContextProvider = ({ children }: any) => {
 	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", ""))
-	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } =
-		useWebSocket(currentUser) // only available inside user context
+	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } = useWebSocket() // only available inside user context
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+	const [changeFlag, setChangeFlag] = useState(false)
 
 	useEffect(() => {
 		switch (receivedMessage.type) {
@@ -38,12 +39,13 @@ export const UserContextProvider = ({ children }: any) => {
 				)
 				break
 		}
+		setChangeFlag(!changeFlag)
 	}, [receivedMessage])
 
 	const register = (username: string, password: string, email: string) => {
 		connectToWs((connected: boolean) => {
 			if (connected) {
-				sendWebSocketMessage(new RegisterRequest(username, password, email))
+				sendWebSocketMessage(new RegisterEvent(username, password, email))
 			}
 		})
 	}
@@ -67,7 +69,7 @@ export const UserContextProvider = ({ children }: any) => {
 	const login = async (username: string, password: string) => {
 		connectToWs((connected: boolean) => {
 			if (connected) {
-				sendWebSocketMessage(new LoginRequest(username, password))
+				sendWebSocketMessage(new LoginEvent(username, password))
 			}
 		})
 	}
@@ -91,9 +93,10 @@ export const UserContextProvider = ({ children }: any) => {
 				guild.channels.forEach((channel) => {
 					if (channel.id == channelId) {
 						const newId = (channel.messages.length + 1).toString()
-						channel.addMessage(
-							new MessageDTO(newId, guildId, channelId, userId, message)
-						)
+						channel.messages = [
+							...channel.messages,
+							new MessageDTO(newId, guildId, channelId, userId, message),
+						]
 					}
 				})
 			}
@@ -117,7 +120,7 @@ export const UserContextProvider = ({ children }: any) => {
 	)
 }
 
-export const useAuth = () => {
+export const useUserContext = () => {
 	const context = useContext(UserContext)
 	if (!context) {
 		throw new Error("useAuth must be used within an AuthProvider")
@@ -125,6 +128,6 @@ export const useAuth = () => {
 	return context
 }
 
-function ProcessMessage(message: DataTransferObject) {
+function ProcessMessage(message: Event) {
 	return
 }
