@@ -1,6 +1,5 @@
 import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
 import { Button } from "@nextui-org/react"
-import { useContext } from "react"
 
 export default function TextChannelBtn(props: {
 	channel: ChannelDTO

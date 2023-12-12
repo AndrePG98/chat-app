@@ -28,7 +28,11 @@ export const UserContextProvider = ({ children }: any) => {
 	useEffect(() => {
 		switch (receivedMessage.type) {
 			case 0:
-				authenticate(receivedMessage.body.userId, receivedMessage.body.state)
+				authenticate(
+					receivedMessage.body.userId,
+					receivedMessage.body.userName,
+					receivedMessage.body.state
+				)
 				break
 			case 3:
 				receiveMessage(
@@ -50,16 +54,15 @@ export const UserContextProvider = ({ children }: any) => {
 		})
 	}
 
-	const authenticate = (id: string, guilds: string[]) => {
+	const authenticate = (id: string, userName: string, guilds: string[]) => {
 		const user = new UserDTO(
 			id,
-			"Username",
+			userName,
 			"Email",
 			"https://source.unsplash.com/random/?avatar"
 		)
 		guilds.forEach((guildId) => {
 			const newGuild = new GuildDTO(guildId, "GuildName")
-			newGuild.addChannel(new ChannelDTO("1", "Some channel", "text"))
 			user.joinGuild(newGuild)
 		})
 		setCurrentUser(user)
@@ -84,15 +87,22 @@ export const UserContextProvider = ({ children }: any) => {
 		guildId: string,
 		channelId: string
 	) => {
+		console.log("here")
+
 		currentUser.guilds.forEach((guild) => {
 			if (guild.id === guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.id == channelId) {
 						const newId = (channel.messages.length + 1).toString()
-						channel.messages = [
-							...channel.messages,
-							new MessageDTO(newId, guildId, channelId, userId, message),
-						]
+						const newMessage = new MessageDTO(
+							newId,
+							guildId,
+							channelId,
+							userId,
+							message
+						)
+						channel.messages = [...channel.messages, newMessage]
+						console.log(channel)
 					}
 				})
 			}

@@ -60,10 +60,11 @@ func (server *WsServer) listenForAuthReq() {
 			client.Send <- &Message{
 				Type: 0,
 				Body: AuthenticationResult{
-					Result: result,
-					Token:  "SomeToken",
-					ID:     client.ID,
-					State:  client.Guilds,
+					Result:   result,
+					Token:    "Token",
+					ID:       client.ID,
+					UserName: client.Username,
+					State:    client.Guilds,
 				},
 			}
 		} else {

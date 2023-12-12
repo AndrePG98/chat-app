@@ -1,30 +1,56 @@
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
 import GuildBtn from "./GuildBtn"
+import { Button, Divider } from "@nextui-org/react"
+import CreateGuildModal from "./CreateGuildModal"
+import { useState } from "react"
+import UserInfo from "../User/UserInfo"
+import { UserDTO } from "@/app/DTOs/UserDTO"
 
 export default function GuildSelector(props: {
-	guilds: GuildDTO[]
+	currentUser: UserDTO
 	selectGuild: (guild: GuildDTO) => void
+	createNewGuild: (guildName: string) => void
 }) {
+	const [modalOpen, setModalOpen] = useState(false)
+
+	const openModal = () => {
+		setModalOpen(true)
+	}
+
+	const closeModal = () => {
+		setModalOpen(false)
+	}
+
 	return (
 		<aside
 			className="servers-panel h-screen w-64 py-5 px-4 border-r border-gray-700 flex flex-col"
 			style={{ border: "2px solid green" }}
 		>
-			{props.guilds.map((guild, index) => (
-				<GuildBtn guild={guild} selectGuild={props.selectGuild} key={index}></GuildBtn>
-			))}
-			{/* <nav className="flex justify-center items-center">
-				<div className="space-y-3">
-					<User
-						name={currentUser.username}
-						description={currentUser.id}
-						avatarProps={{
-							src: currentUser.logo,
-						}}
+			<div>
+				<UserInfo currentUser={props.currentUser}></UserInfo>
+				<Divider className="my-2"></Divider>
+				<div className="my-3">
+					{props.currentUser.getGuilds().map((guild, index) => (
+						<GuildBtn
+							guild={guild}
+							selectGuild={props.selectGuild}
+							key={index}
+						></GuildBtn>
+					))}
+					<Button
+						isIconOnly
+						className="flex justify-center items-center w-full my-2"
+						onClick={openModal}
+					>
+						<span className="material-symbols-outlined">add</span>
+					</Button>
+					<CreateGuildModal
+						isOpen={modalOpen}
+						onOpenChange={closeModal}
+						createNewGuild={props.createNewGuild}
 					/>
-					<Divider className="w-52"></Divider>
 				</div>
-			</nav> */}
+			</div>
 		</aside>
 	)
 }

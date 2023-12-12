@@ -11,11 +11,12 @@ type AuthRequest struct { // Connection sends to server
 }
 
 type AuthenticationResult struct { // Sends to client
-	Result bool     `json:"result"`
-	Token  string   `json:"token"`
-	ID     string   `json:"userId"`
-	State  []string `json:"state"`
-	Error  string   `json:"error"` // if result if false empty otherwise
+	Result   bool     `json:"result"`
+	Token    string   `json:"token"`
+	ID       string   `json:"userId"`
+	UserName string   `json:"userName"`
+	State    []string `json:"state"`
+	Error    string   `json:"error"` // if result if false empty otherwise
 }
 
 type Guild struct {

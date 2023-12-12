@@ -14,8 +14,32 @@ export class UserDTO {
 		this.logo = logo
 	}
 
+	getName() {
+		return this.username
+	}
+
+	setName(username: string) {
+		this.username = username
+	}
+
+	getLogo() {
+		return this.logo
+	}
+
+	addGuild(guildName: string) {
+		const newGuild = new GuildDTO((this.getGuilds.length + 1).toString(), guildName)
+		this.guilds.push(newGuild)
+	}
+
+	getGuilds() {
+		return this.guilds
+	}
+
+	getGuild(name: string) {
+		return this.guilds.find((guild) => guild.getName() === name)
+	}
+
 	joinGuild(guild: GuildDTO) {
 		this.guilds.push(guild)
 	}
-
 }

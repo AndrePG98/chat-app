@@ -17,8 +17,13 @@ export default function Guild(props: { guild: GuildDTO }) {
 	}
 
 	const createNewChannel = (name: string, type: string) => {
-		const newChannel = new ChannelDTO("1", name, type)
+		const newChannel = new ChannelDTO(
+			(props.guild.getChannels().length + 1).toString(),
+			name,
+			type
+		)
 		props.guild.addChannel(newChannel)
+		console.log(props.guild)
 	}
 
 	return (

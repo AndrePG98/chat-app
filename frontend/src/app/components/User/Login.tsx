@@ -20,6 +20,7 @@ export default function Login() {
 
 	const handleLogin = (userName: string, userPassword: string) => {
 		register(userName, userPassword, "someEmail")
+		console.log(userName)
 	}
 
 	return (
