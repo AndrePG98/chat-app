@@ -1,11 +1,15 @@
 import { Button, ButtonGroup } from "@nextui-org/react"
 import { useState } from "react"
 import { ChannelDTO } from "../../DTOs/ChannelDTO"
-import CreateChannelModal from "../shared/CreateChannelModal"
-import TextChannelBtn from "../shared/TextChannelBtn"
-import VoiceChannelBtn from "../shared/VoiceChannelBtn"
+import TextChannelBtn from "./Text/TextChannelBtn"
+import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
+import CreateChannelModal from "./CreateChannelModal"
 
-export default function ChannelsPanel(props: { channels: ChannelDTO[] }) {
+export default function ChannelSelector(props: {
+	channels: ChannelDTO[]
+	createNewChannel: (name: string, type: string) => void
+	selectChannel: (channel: ChannelDTO) => void
+}) {
 	const [modalOpen, setModalOpen] = useState(false)
 
 	function openModal() {
@@ -28,16 +32,23 @@ export default function ChannelsPanel(props: { channels: ChannelDTO[] }) {
 				{props.channels.map((channel) => (
 					<div key={channel.id}>
 						{channel.type === "text" && (
-							<TextChannelBtn channelName={channel.name} channelId={channel.id} />
+							<TextChannelBtn channel={channel} selectChannel={props.selectChannel} />
 						)}
 						{channel.type === "voice" && (
-							<VoiceChannelBtn channelName={channel.name} channelId={channel.id} />
+							<VoiceChannelBtn
+								channel={channel}
+								selectChannel={props.selectChannel}
+							/>
 						)}
 					</div>
 				))}
 			</div>
 			<div className="user-buttons">
-				<CreateChannelModal isOpen={modalOpen} onOpenChange={closeModal} />
+				<CreateChannelModal
+					isOpen={modalOpen}
+					onOpenChange={closeModal}
+					createNewChannel={props.createNewChannel}
+				/>
 				<ButtonGroup
 					variant="light"
 					className="flex flex-row w-full"

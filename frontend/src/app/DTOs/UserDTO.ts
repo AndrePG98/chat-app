@@ -1,18 +1,21 @@
+import { GuildDTO } from "./GuildDTO"
+
 export class UserDTO {
 	id: string
-	name: string
+	username: string
 	email: string
-	guilds: string[] = []
+	guilds: GuildDTO[] = []
 	logo: string
 
-	constructor(id: string, name: string, email: string, logo: string) {
+	constructor(id: string, username: string, email: string, logo: string) {
 		this.id = id
 		this.email = email
-		this.name = name
+		this.username = username
 		this.logo = logo
 	}
 
-	setGuilds(guilds: string[]) {
-		this.guilds.concat(guilds)
+	joinGuild(guild: GuildDTO) {
+		this.guilds.push(guild)
 	}
+
 }

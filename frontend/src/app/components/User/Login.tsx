@@ -10,7 +10,7 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import { useState } from "react"
-import { useAuth } from "../context/authContext"
+import { useAuth } from "../../context/UserContext"
 
 export default function Login() {
 	const { login } = useAuth()

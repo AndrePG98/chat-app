@@ -8,7 +8,7 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import React, { useState } from "react"
-import { useAuth } from "../context/authContext"
+import { useAuth } from "../../context/UserContext"
 
 export default function Register() {
 	const { register } = useAuth()

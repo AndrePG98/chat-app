@@ -26,4 +26,5 @@ export class GuildDTO {
     setLogo(logo: string) {
         this.logo = logo
     }
+
 }

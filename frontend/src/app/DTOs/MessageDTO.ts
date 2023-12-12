@@ -2,12 +2,16 @@ import { UserDTO } from "./UserDTO"
 
 export class MessageDTO {
     id: string
-    sender: UserDTO
+    guildId: string
+    channelId: string
+    senderId: string
     body: string
 
-    constructor(id: string, sender: UserDTO, body: string) {
+    constructor(id: string, guildId: string, channelId: string, senderId: string, body: string) {
         this.id = id
-        this.sender = sender
+        this.guildId = guildId
+        this.channelId = channelId
+        this.senderId = senderId
         this.body = body
     }
 }

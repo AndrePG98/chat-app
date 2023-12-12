@@ -1,10 +1,11 @@
 import { Button, Input } from "@nextui-org/react"
 import React, { useEffect, useRef } from "react"
-import Message from "../shared/Message"
+import Message from "./Message"
+import { MessageDTO } from "@/app/DTOs/MessageDTO"
 
 export default function ChatPanel(props: {
-	messages: string[]
-	channelId: number
+	messages: MessageDTO[]
+	channelId: string
 	createNewMessage: (message: string) => void
 }) {
 	const [input, setInput] = React.useState("")

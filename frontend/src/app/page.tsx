@@ -1,21 +1,11 @@
 "use client"
 
-import Server from "./components/Guild"
-import { useAuth } from "./context/authContext"
-import RegisterLoginOption from "./components/layouts/RegisterLoginOption"
-import ServersPanel from "./components/layouts/ServersPanel"
+import App from "./App"
 
 const Home = () => {
-	const { authenticated } = useAuth()
 	return (
 		<main>
-			{!authenticated && <RegisterLoginOption></RegisterLoginOption>}
-			{authenticated && (
-				<div className="flex h-screen flex-row">
-					<ServersPanel></ServersPanel>
-					<Server></Server>
-				</div>
-			)}
+			<App></App>
 		</main>
 	)
 }

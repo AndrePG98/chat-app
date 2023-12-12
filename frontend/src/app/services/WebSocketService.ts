@@ -1,9 +1,9 @@
 import { useRef, useState } from "react"
 import { AuthenticationResult, ChatMessageRequest, DataTransferObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/RequestDTO"
+import { UserDTO } from "../DTOs/UserDTO"
 
-const useWebSocket = () => {
+const useWebSocket = (user: UserDTO) => {
 	const [receivedMessage, setReceivedMessage] = useState<DataTransferObject>({ type: -1, body: null })
-	const [authenticated, setAuthenticated] = useState(false)
 	const socketRef = useRef<WebSocket | null>(null)
 
 	const connectToWs = async (onConnectionEstablished: (status: boolean) => void) => {
@@ -25,27 +25,9 @@ const useWebSocket = () => {
 		}
 
 		socketRef.current.onmessage = (event) => {
-			// server sends back session token .
-
 			console.log("Received:", event.data)
 			var newReceivedData = JSON.parse(event.data) as DataTransferObject
-			switch (newReceivedData.type) {
-				case 0:
-					const authResult = newReceivedData as AuthenticationResult
-					if (authResult.body.result) {
-
-					}
-					setAuthenticated(newReceivedData.body.result)
-					//set Initial State
-					break
-				case 2:
-					setReceivedMessage(newReceivedData as LogoutRequest)
-					setAuthenticated(newReceivedData.body.result)
-					break
-				case 3:
-					setReceivedMessage(newReceivedData as ChatMessageRequest)
-					break
-			}
+			setReceivedMessage(newReceivedData)
 		}
 
 	}
@@ -69,7 +51,7 @@ const useWebSocket = () => {
 		}
 	}
 
-	return { connectToWs, disconnectFromWs, authenticated, sendWebSocketMessage, receivedMessage }
+	return { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage }
 }
 
 export default useWebSocket
