@@ -1,7 +1,9 @@
+import { GuildDTO } from "./GuildDTO"
+
 export class UserDTO {
 	id: string
 	name: string
-	guilds: string[] = []
+	guilds: GuildDTO[] = []
 	logo: string
 
 	constructor(id: string, name: string, logo: string) {
@@ -10,7 +12,19 @@ export class UserDTO {
 		this.logo = logo
 	}
 
-	setGuilds(guilds: string[]) {
-		this.guilds.concat(guilds)
+	addGuild(guild: GuildDTO) {
+		this.guilds.push(guild)
 	}
+
+	getGuilds() {
+		return this.guilds
+	}
+
+	getGuild(id: string) {
+		return this.guilds.find((guild) => guild.id === id)
+	}
+
+	/* 	setGuilds(guilds: string[]) {
+		this.guilds.concat(guilds)
+	} */
 }

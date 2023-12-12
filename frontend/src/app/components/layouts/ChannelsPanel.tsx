@@ -5,14 +5,13 @@ import CreateChannelModal from "../shared/CreateChannelModal"
 import TextChannelBtn from "../shared/TextChannelBtn"
 import VoiceChannelBtn from "../shared/VoiceChannelBtn"
 
-export default function ChannelsPanel(props: { channels: ChannelDTO[] }) {
+export default function ChannelsPanel(props: { channels: ChannelDTO[]; guildName: string }) {
 	const [modalOpen, setModalOpen] = useState(false)
 
-	function openModal() {
+	const openModal = () => {
 		setModalOpen(true)
 	}
-
-	function closeModal() {
+	const closeModal = () => {
 		setModalOpen(false)
 	}
 
@@ -21,16 +20,12 @@ export default function ChannelsPanel(props: { channels: ChannelDTO[] }) {
 			className="channel-list w-64 flex flex-col items-stretch"
 			style={{ border: "2px solid red" }}
 		>
-			<div className="title text-center p-3 mb-5">SERVER NAME</div>
+			<div className="title text-center p-3 mb-5">{props.guildName}</div>
 			<div className="channel-buttons flex-1">
 				{props.channels.map((channel) => (
 					<div key={channel.id}>
-						{channel.type === "text" && (
-							<TextChannelBtn channelName={channel.name} channelId={channel.id} />
-						)}
-						{channel.type === "voice" && (
-							<VoiceChannelBtn channelName={channel.name} channelId={channel.id} />
-						)}
+						{channel.type === "text" && <TextChannelBtn channel={channel} />}
+						{channel.type === "voice" && <VoiceChannelBtn channel={channel} />}
 					</div>
 				))}
 			</div>

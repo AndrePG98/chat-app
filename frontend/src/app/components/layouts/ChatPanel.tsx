@@ -5,7 +5,6 @@ import { MessageDTO } from "@/app/DTOs/MessageDTO"
 import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
 
 export default function ChatPanel(props: {
-	messages: MessageDTO[]
 	channel: ChannelDTO
 	createNewMessage: (message: string) => void
 }) {
@@ -16,7 +15,7 @@ export default function ChatPanel(props: {
 		if (chatContainerRef.current) {
 			chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
 		}
-	}, [props.messages])
+	}, [props.channel.getMessages()])
 
 	const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.key === "Enter" && input !== "") {
@@ -28,14 +27,14 @@ export default function ChatPanel(props: {
 
 	return (
 		<div
-			className="chat-panel flex flex-col h-full px-3 pb-5"
+			className="chat-panel flex flex-col h-screen px-3 pb-5"
 			style={{ border: "2px solid blue" }}
 		>
 			<div
 				ref={chatContainerRef}
-				className="message-container flex flex-col gap-10 overflow-y-auto flex-1 w-full pt-5 px-3 pb-3"
+				className="message-container flex flex-col overflow-y-auto flex-1"
 			>
-				{props.messages.map((message) => (
+				{props.channel.getMessages().map((message) => (
 					<Message message={message.body} key={message.id}></Message>
 				))}
 			</div>

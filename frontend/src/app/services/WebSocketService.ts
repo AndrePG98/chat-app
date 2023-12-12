@@ -6,8 +6,9 @@ import {
 	LogoutRequest,
 	RegisterRequest,
 } from "../DTOs/RequestsDTOs"
+import { UserDTO } from "../DTOs/UserDTO"
 
-const useWebSocket = () => {
+const useWebSocket = (currentUser: UserDTO) => {
 	const [receivedMessage, setReceivedMessage] = useState<DataExchangeObject>({
 		type: -1,
 		body: null,
@@ -53,6 +54,13 @@ const useWebSocket = () => {
 					break
 				case 3:
 					setReceivedMessage(newReceivedData as ChatMessageRequest)
+					console.log(newReceivedData)
+
+					const guild = currentUser.getGuild("1")
+					const channel = guild?.getChannel("1")
+					channel?.addMessage(currentUser, newReceivedData.body.content)
+					console.log(guild)
+					console.log(currentUser.getGuilds)
 					break
 			}
 		}

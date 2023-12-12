@@ -10,7 +10,7 @@ import {
 	Radio,
 	RadioGroup,
 } from "@nextui-org/react"
-import { SelectedChannelContext } from "@/app/components/Server"
+import { SelectedChannelContext } from "@/app/components/Guild"
 
 export default function CreateChannelModal(props: {
 	isOpen: boolean

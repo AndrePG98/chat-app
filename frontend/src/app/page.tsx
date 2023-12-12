@@ -1,6 +1,6 @@
 "use client"
 
-import Server from "./components/Server"
+import Server from "./components/Guild"
 import { useAuth } from "./context/authContext"
 import RegisterLoginOption from "./components/layouts/RegisterLoginOption"
 import { ServersPanel } from "./components/layouts/ServersPanel"

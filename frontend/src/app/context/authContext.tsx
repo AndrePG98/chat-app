@@ -16,16 +16,15 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined)
 
 export const AuthProvider = ({ children }: any) => {
-	const { connectToWs, disconnectFromWs, authenticated, sendWebSocketMessage, receivedMessage } =
-		useWebSocket()
 	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", ""))
+	const { connectToWs, disconnectFromWs, authenticated, sendWebSocketMessage, receivedMessage } =
+		useWebSocket(currentUser)
 
 	const register = (id: string, name: string) => {
 		connectToWs(id, (connected: boolean) => {
 			if (connected) {
 				sendWebSocketMessage(new RegisterRequest(id))
 				const user = new UserDTO(id, name, "https://source.unsplash.com/random/?avatar")
-				user.setGuilds(["1"])
 				setCurrentUser(user)
 			}
 		})

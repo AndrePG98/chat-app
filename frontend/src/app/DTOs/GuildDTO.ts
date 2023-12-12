@@ -1,6 +1,7 @@
+import { channel } from "diagnostics_channel"
 import { ChannelDTO } from "./ChannelDTO"
 
-export class ServerDTO {
+export class GuildDTO {
 	id: string
 	name: string
 	channels: ChannelDTO[] = []
@@ -13,6 +14,10 @@ export class ServerDTO {
 
 	getChannels() {
 		return this.channels
+	}
+
+	getChannel(id: string) {
+		return this.getChannels().find((channel) => channel.id === id)
 	}
 
 	setChannels(channels: ChannelDTO[]) {

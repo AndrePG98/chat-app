@@ -1,15 +1,15 @@
 import { useAuth } from "@/app/context/authContext"
 import { Button, Divider, User } from "@nextui-org/react"
 import { useState } from "react"
+import { useApp } from "../App"
+import Guild from "../Guild"
 import CreateServerModal from "../shared/CreateServerModal"
 import ServerBtn from "../shared/ServerBtn"
-import { useApp } from "../App"
-import Server from "../Server"
 
 export const ServersPanel = () => {
 	const { currentUser } = useAuth()
 	const [modalOpen, setModalOpen] = useState(false)
-	const { server, servers, createServer, selectServer } = useApp()
+	const { guild, createGuild, selectGuild } = useApp()
 
 	const openModal = () => {
 		setModalOpen(true)
@@ -19,8 +19,8 @@ export const ServersPanel = () => {
 		setModalOpen(false)
 	}
 
-	const createNewServer = (name: string) => {
-		createServer(name)
+	const createNewGuild = (name: string) => {
+		createGuild(name)
 	}
 
 	return (
@@ -40,13 +40,9 @@ export const ServersPanel = () => {
 						<Divider className="w-52"></Divider>
 					</div>
 					<div className="channel-buttons flex-1">
-						{servers.map((server) => (
-							<div key={server.id}>
-								<ServerBtn
-									serverId={server.id}
-									serverName={server.name}
-									selectServer={selectServer}
-								/>
+						{currentUser.getGuilds().map((guild) => (
+							<div key={guild.id}>
+								<ServerBtn guild={guild} selectGuild={selectGuild} />
 							</div>
 						))}
 					</div>
@@ -54,7 +50,7 @@ export const ServersPanel = () => {
 						<CreateServerModal
 							isOpen={modalOpen}
 							onOpenChange={closeModal}
-							createNewServer={createNewServer}
+							createNewServer={createNewGuild}
 						/>
 						<Button
 							variant="light"
@@ -70,7 +66,7 @@ export const ServersPanel = () => {
 					</div>
 				</div>
 			</aside>
-			{server && <Server serverId={server?.id} server={server}></Server>}
+			{guild && <Guild guild={guild}></Guild>}
 		</>
 	)
 }
