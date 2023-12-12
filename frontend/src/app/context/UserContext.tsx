@@ -78,10 +78,6 @@ export const UserContextProvider = ({ children }: any) => {
 		disconnectFromWs(currentUser.id)
 	}
 
-	const sendMessage = (message: string, guildId: string, channelId: string) => {
-		sendWebSocketMessage(new MessageDTO("id", guildId, channelId, currentUser.id, message))
-	}
-
 	const receiveMessage = (
 		userId: string,
 		message: string,
@@ -126,8 +122,4 @@ export const useUserContext = () => {
 		throw new Error("useAuth must be used within an AuthProvider")
 	}
 	return context
-}
-
-function ProcessMessage(message: Event) {
-	return
 }

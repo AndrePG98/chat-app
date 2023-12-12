@@ -1,8 +1,7 @@
-import { Button, Input } from "@nextui-org/react"
-import React, { useEffect, useRef, memo } from "react"
-import Message from "./Message"
 import { MessageDTO } from "@/app/DTOs/MessageDTO"
-import { Console } from "console"
+import { Button, Input } from "@nextui-org/react"
+import React, { useEffect, useRef } from "react"
+import Message from "./Message"
 
 interface ChatPanelProps {
 	messages: MessageDTO[]

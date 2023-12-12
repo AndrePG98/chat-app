@@ -17,17 +17,17 @@ export default function Guild(props: { guild: GuildDTO }) {
 	}
 
 	const createNewChannel = (name: string, type: string) => {
-		if (props.guild) {
-			const newChannel = new ChannelDTO("1", name, type)
-			props.guild.addChannel(newChannel)
-		}
+		const newChannel = new ChannelDTO("1", name, type)
+		props.guild.addChannel(newChannel)
 	}
+
 	return (
 		<div className="server flex-1 flex flex-row">
 			<ChannelSelector
 				channels={props.guild.channels}
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
+				serverName={props.guild.getName()}
 			></ChannelSelector>
 			<div className="selected-channel-div flex-1">
 				{selectedChannel?.type === "text" && (
