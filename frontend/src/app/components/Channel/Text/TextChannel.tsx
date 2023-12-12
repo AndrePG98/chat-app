@@ -17,11 +17,12 @@ export default function TextChannel(props: { channel: ChannelDTO; guildId: strin
 
 	return (
 		<div className="text-channel h-full flex-1">
-			<ChatPanel
+			{}
+			{/* <ChatPanel
 				channelId={props.channel.id}
 				createNewMessage={createNewMessage}
 				messages={props.channel.messages}
-			></ChatPanel>
+			></ChatPanel> */}
 		</div>
 	)
 }
