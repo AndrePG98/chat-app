@@ -3,55 +3,81 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 type WsServer struct {
 	AuthClients   map[string]*Client
-	UnAuthClients map[string]*Client
-	Authorize     chan *Message
-	Connect       chan *Client
+	UnAuthClients map[*Client]bool
+	Authenticate  chan *AuthRequest
+	Connect       chan *websocket.Conn
 	Disconnect    chan string
+	Remove        chan *Client
 }
 
 func NewWsServer() *WsServer {
 	return &WsServer{
 		AuthClients:   make(map[string]*Client),
-		UnAuthClients: make(map[string]*Client),
-		Authorize:     make(chan *Message),
-		Connect:       make(chan *Client),
+		UnAuthClients: make(map[*Client]bool),
+		Authenticate:  make(chan *AuthRequest),
+		Connect:       make(chan *websocket.Conn),
 		Disconnect:    make(chan string),
+		Remove:        make(chan *Client),
 	}
 }
 
 func (server *WsServer) run() {
 	addRoutes(server)
-	go server.listenForDisconnections()
 	go server.listenForNewConnections()
-	go server.AuthorizeClients()
-	log.Println("Websocket Server listenning on", 8080)
-	http.ListenAndServe(":8080", nil)
+	go server.listenForAuthReq()
+	go server.RemoveNonAuthClients()
+	go server.listenForDisconnections()
+	log.Println("Websocket Server listenning on", 8443)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (server *WsServer) listenForNewConnections() {
 	for newConnection := range server.Connect {
-		log.Println("New webscoket connection request from:", newConnection.Conn.RemoteAddr())
-		server.UnAuthClients[newConnection.ID] = newConnection
-		go newConnection.run()
+		client := NewClient(newConnection, server)
+		server.UnAuthClients[client] = true
+		go client.run()
 	}
 }
 
-func (server *WsServer) AuthorizeClients() {
-	for message := range server.Authorize {
-		mtype := message.Type
-		body, _ := message.Body.(Registration)
-		client := server.UnAuthClients[body.UserId]
-		server.AuthClients[body.UserId] = client
-		// send user initial State
-		client.Send <- Message{Type: mtype, Body: Registration{
-			UserId: body.UserId,
-			Result: body.Result,
-		}}
-		delete(server.UnAuthClients, body.UserId)
+func (server *WsServer) listenForAuthReq() {
+	for authReq := range server.Authenticate {
+		result := authReq.Result
+		client := authReq.Client
+		if result {
+			log.Println("New webscoket connection request from:", client.Conn.RemoteAddr())
+			server.AuthClients[client.ID] = client
+			delete(server.UnAuthClients, client)
+			// Send initial State
+			client.Send <- &Message{
+				Type: 0,
+				Body: AuthenticationResult{
+					Result: result,
+					Token:  "SomeToken",
+					ID:     client.ID,
+					State:  client.Guilds,
+				},
+			}
+		} else {
+			// Send error
+			client.Conn.WriteJSON(
+				Message{
+					Type: 0,
+					Body: AuthenticationResult{
+						Result: result,
+						Error:  "Some Error",
+					},
+				},
+			)
+		}
 	}
 }
 
@@ -59,6 +85,13 @@ func (server *WsServer) listenForDisconnections() {
 	for userId := range server.Disconnect {
 		server.AuthClients[userId].Conn.Close()
 		delete(server.AuthClients, userId)
+	}
+}
+
+func (server *WsServer) RemoveNonAuthClients() {
+	for user := range server.Remove {
+		user.Conn.Close()
+		delete(server.UnAuthClients, user)
 	}
 }
 

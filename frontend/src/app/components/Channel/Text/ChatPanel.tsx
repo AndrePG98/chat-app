@@ -1,12 +1,15 @@
+import { MessageDTO } from "@/app/DTOs/MessageDTO"
 import { Button, Input } from "@nextui-org/react"
 import React, { useEffect, useRef } from "react"
-import Message from "../shared/Message"
+import Message from "./Message"
 
-export default function ChatPanel(props: {
-	messages: string[]
-	channelId: number
+interface ChatPanelProps {
+	messages: MessageDTO[]
+	channelId: string
 	createNewMessage: (message: string) => void
-}) {
+}
+
+export default function ChatPanel(props: ChatPanelProps) {
 	const [input, setInput] = React.useState("")
 	const chatContainerRef = useRef<HTMLDivElement>(null)
 
@@ -14,7 +17,7 @@ export default function ChatPanel(props: {
 		if (chatContainerRef.current) {
 			chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
 		}
-	}, [props.messages])
+	}, [props.messages.length])
 
 	const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.key === "Enter" && input !== "") {

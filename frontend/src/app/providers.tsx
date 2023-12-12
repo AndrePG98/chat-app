@@ -1,17 +1,14 @@
 // app/providers.tsx
 "use client"
 
-import { NextUIProvider } from "@nextui-org/react"
 import React from "react"
-import { AuthProvider } from "./context/authContext"
+import { NextUIProvider } from "@nextui-org/react"
+import { UserContextProvider } from "./context/UserContext"
 
 export const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	return (
 		<NextUIProvider>
-			<AuthProvider>
-				{children}
-				{/* <ConnectProvider></ConnectProvider> */}
-			</AuthProvider>
+			<UserContextProvider>{children}</UserContextProvider>
 		</NextUIProvider>
 	)
 }

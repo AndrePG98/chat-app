@@ -1,47 +1,61 @@
 package main
 
-import "log"
-
-func (client *Client) handleRegistration(newMessage Message) {
+func handleRegistration(client *Client, newMessage Message) {
 	if body, ok := newMessage.Body.(map[string]interface{}); ok {
-		userId := body["userId"].(string)
-		client.Guilds = append(client.Guilds, "1")
-		client.Server.Authorize <- &Message{
-			Type: newMessage.Type,
-			Body: Registration{
-				UserId: userId,
+		username := body["username"].(string)
+		password := body["password"].(string)
+		email := body["email"].(string)
+		// Database operations here
+		// returns id
+		result, id := CreateUser(username, password, email)
+		if result {
+			client.authenticate(id, username, []string{"1"})
+			client.Server.Authenticate <- &AuthRequest{
 				Result: true,
-			},
+				Client: client,
+			}
+		} else {
+			client.Server.Authenticate <- &AuthRequest{
+				Result: false,
+				Client: client,
+			}
 		}
 	}
 }
 
-func (client *Client) handleLogin(newMessage Message) {
+func handleLogin(client *Client, newMessage Message) {
 	if body, ok := newMessage.Body.(map[string]interface{}); ok {
-		userId := body["userId"].(string)
-		// fetch userData
-		client.Guilds = append(client.Guilds, "1") // append to fetched guilds
-		client.Server.Authorize <- &Message{
-			Type: newMessage.Type,
-			Body: Login{
-				UserId: userId,
-				Result: true, // can return based on database search result
-			},
+		username := body["username"].(string)
+		password := body["password"].(string)
+		email := body["email"].(string)
+		// Database operations here
+		// returns id
+		result, id := CreateUser(username, password, email)
+		if result {
+			client.authenticate(id, username, []string{"1"})
+			client.Server.Authenticate <- &AuthRequest{
+				Result: true,
+				Client: client,
+			}
+		} else {
+			client.Server.Authenticate <- &AuthRequest{
+				Result: false,
+				Client: client,
+			}
 		}
 	}
 }
 
-func (client *Client) handleChatMessage(newMessage Message) {
+func handleChatMessage(client *Client, newMessage Message) {
 	if body, ok := newMessage.Body.(map[string]interface{}); ok {
 		userId := body["userId"].(string)
 		guildId := body["guildId"].(string)
 		channelId := body["channelId"].(string)
 		content := body["content"].(string)
-		log.Printf("%+v", newMessage)
 		for _, user := range client.Server.AuthClients {
 			if user.isMemberOfGuild(guildId) {
 				go func(user *Client) {
-					user.Send <- Message{
+					user.Send <- &Message{
 						Type: 3,
 						Body: ChatMessage{
 							UserId:    userId,

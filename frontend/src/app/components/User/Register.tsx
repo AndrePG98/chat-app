@@ -8,17 +8,17 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import React, { useState } from "react"
-import { useAuth } from "../context/authContext"
+import { useUserContext } from "../../context/UserContext"
 
 export default function Register() {
-	const { register } = useAuth()
+	const { register } = useUserContext()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
-	const [userIdInput, setUserIdInput] = useState("")
+	const [userPasswordInput, setUserPasswordInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
-	const [userGuildsInput, setUserGuildsInput] = useState("")
+	const [userEmailInput, setUserEmailInput] = useState("")
 
 	const handleRegister = () => {
-		register(userIdInput, userNameInput, userGuildsInput.split(" "))
+		register(userNameInput, userPasswordInput, userEmailInput)
 	}
 
 	return (
@@ -29,19 +29,19 @@ export default function Register() {
 						<ModalHeader className="flex flex-col gap-1">Register User</ModalHeader>
 						<ModalBody>
 							<Input
-								label="userId"
-								value={userIdInput}
-								onValueChange={setUserIdInput}
+								label="Email"
+								value={userEmailInput}
+								onValueChange={setUserEmailInput}
 							></Input>
 							<Input
-								label="userName"
+								label="Username"
 								value={userNameInput}
 								onValueChange={setUserNameInput}
 							></Input>
 							<Input
-								label="guilds"
-								value={userGuildsInput}
-								onValueChange={setUserGuildsInput}
+								label="Password"
+								value={userPasswordInput}
+								onValueChange={setUserPasswordInput}
 							></Input>
 						</ModalBody>
 						<ModalFooter>

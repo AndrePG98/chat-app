@@ -1,16 +1,16 @@
 import { useRef, useState } from "react"
-import { ChatMessageRequest, DataTransferObject, LoginRequest, LogoutRequest, RegisterRequest } from "../DTOs/MessageDTOs"
+import { Event, LoginEvent } from "../DTOs/Events"
 
 const useWebSocket = () => {
-	const [receivedMessage, setReceivedMessage] = useState<DataTransferObject>({ type: -1, body: null })
-	const [authenticated, setAuthenticated] = useState(false)
+	const [receivedMessage, setReceivedMessage] = useState<Event>({ type: -1, body: null })
 	const socketRef = useRef<WebSocket | null>(null)
 
-	const connectToWs = async (userId: string, onConnectionEstablished: (status: boolean) => void) => {
-		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws?id=${userId}`)
+	const connectToWs = async (onConnectionEstablished: (status: boolean) => void) => {
+		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws`)
 		//const socket = socketRef.current
 
 		socketRef.current.onopen = () => {
+			// send username and password for authentication
 			onConnectionEstablished(true)
 		}
 
@@ -25,32 +25,15 @@ const useWebSocket = () => {
 
 		socketRef.current.onmessage = (event) => {
 			console.log("Received:", event.data)
-			var newReceivedData = JSON.parse(event.data) as DataTransferObject
-			switch (newReceivedData.type) {
-				case 0:
-					setReceivedMessage(newReceivedData as RegisterRequest)
-					setAuthenticated(newReceivedData.body.result)
-					break
-				case 1:
-					setReceivedMessage(newReceivedData as LoginRequest)
-					setAuthenticated(newReceivedData.body.result)
-					break
-				case 2:
-					setReceivedMessage(newReceivedData as LogoutRequest)
-					setAuthenticated(newReceivedData.body.result)
-					break
-				case 3:
-					setReceivedMessage(newReceivedData as ChatMessageRequest)
-					break
-			}
+			var newReceivedData = JSON.parse(event.data) as Event
+			setReceivedMessage(newReceivedData)
 		}
 
 	}
 
-
 	const disconnectFromWs = (userId: string) => {
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-			var message: string = JSON.stringify(new LogoutRequest(userId))
+			var message: string = JSON.stringify(new LoginEvent(userId, "randomPW"))
 			socketRef.current.send(message)
 		} else {
 			console.error("WebSocket is not open")
@@ -67,7 +50,7 @@ const useWebSocket = () => {
 		}
 	}
 
-	return { connectToWs, disconnectFromWs, authenticated, sendWebSocketMessage, receivedMessage }
+	return { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage }
 }
 
 export default useWebSocket

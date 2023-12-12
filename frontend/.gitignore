@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Certificate and Key files for SSL/TLS
+localhost.crt
+localhost.key
