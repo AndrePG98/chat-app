@@ -5,20 +5,24 @@ func handleRegistration(client *Client, newMessage Message) {
 		username := body["username"].(string)
 		password := body["password"].(string)
 		email := body["email"].(string)
-		// Database operations here
-		// returns id
-		result, id := CreateUser(username, password, email)
+
+		result, id := CreateUser(username, password, email) // create user in db and return uuid
 		if result {
-			client.authenticate(id, username, []string{"1"})
+			client.authenticate(id, username, []string{})
 			client.Server.Authenticate <- &AuthRequest{
 				Result: true,
 				Client: client,
 			}
 		} else {
-			client.Server.Authenticate <- &AuthRequest{
-				Result: false,
-				Client: client,
-			}
+			client.Conn.WriteJSON(
+				Message{
+					Type: 0,
+					Body: AuthenticationResult{
+						Result: result,
+						Error:  "Some Error",
+					},
+				},
+			)
 		}
 	}
 }

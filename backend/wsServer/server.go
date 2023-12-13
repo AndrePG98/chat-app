@@ -67,17 +67,6 @@ func (server *WsServer) listenForAuthReq() {
 					State:    client.Guilds,
 				},
 			}
-		} else {
-			// Send error
-			client.Conn.WriteJSON(
-				Message{
-					Type: 0,
-					Body: AuthenticationResult{
-						Result: result,
-						Error:  "Some Error",
-					},
-				},
-			)
 		}
 	}
 }

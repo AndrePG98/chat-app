@@ -1,14 +1,6 @@
 package main
 
-type Message struct {
-	Type int         `json:"type"`
-	Body interface{} `json:"body"`
-}
-
-type AuthRequest struct { // Connection sends to server
-	Result bool
-	Client *Client
-}
+import "time"
 
 type AuthenticationResult struct { // Sends to client
 	Result   bool     `json:"result"`
@@ -20,23 +12,26 @@ type AuthenticationResult struct { // Sends to client
 }
 
 type Guild struct {
-	ID      string // unique globally
-	Name    string
-	Members []string // user ids
-	Channel []string // maybe channel ids unique inside the guild but not globablly
+	ID       string    `json:"guildId"`
+	OwnerId  string    `json:"ownerId"`
+	Name     string    `json:"guildName"`
+	Members  []User    `json:"members"`
+	Channels []Channel `json:"chanels"`
 }
 
 type Channel struct {
-	ID      string // unique inside guild
-	Name    string
-	Type    string    // text, voice
-	Members []string  // voice channel users , empty if text channel
-	History []Message // text channel chat history , empty if voice channel
+	ID      string    `json:"channelId"`
+	GuildId string    `json:"guildID"`
+	Name    string    `json:"channelName"`
+	Type    string    `json:"channelType"`
+	Members []string  `json:"members"`
+	History []Message `json:"history"`
 }
 
-type ChatMessage struct { // Send user
-	UserId    string `json:"userId"`
-	GuildId   string `json:"guildId"`
-	ChannelId string `json:"channelId"`
-	Content   string `json:"content"`
+type Message struct {
+	SenderId  string    `json:"senderId"`
+	GuildId   string    `json:"guildId"`
+	ChannelId string    `json:"channelId"`
+	Content   string    `json:"content"`
+	SendAt    time.Time `json:"sendAt"`
 }
