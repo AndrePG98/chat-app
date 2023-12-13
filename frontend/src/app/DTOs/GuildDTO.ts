@@ -3,7 +3,7 @@ import { ChannelDTO } from "./ChannelDTO"
 export class GuildDTO {
 	id: string
 	name: string
-	channels: ChannelDTO[] = []
+	channels: ChannelDTO[] = [new ChannelDTO("1", "Text Channel", "text")]
 	logo: string = ""
 
 	constructor(id: string, name: string) {

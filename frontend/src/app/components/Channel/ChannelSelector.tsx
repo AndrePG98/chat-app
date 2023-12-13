@@ -48,21 +48,17 @@ export default function ChannelSelector(props: {
 					onOpenChange={closeModal}
 					createNewChannel={props.createNewChannel}
 				/>
-				<ButtonGroup
-					variant="light"
-					className="flex flex-row w-full"
-					radius="none"
-					size="sm"
+				<Button
 					fullWidth
+					size="sm"
+					radius="none"
+					variant="light"
+					isIconOnly
+					className="flex justify-center items-center w-full"
+					onClick={openModal}
 				>
-					<Button
-						isIconOnly
-						className="flex justify-center items-center w-full"
-						onClick={openModal}
-					>
-						<span className="material-symbols-outlined">add</span>
-					</Button>
-				</ButtonGroup>
+					<span className="material-symbols-outlined">add</span>
+				</Button>
 			</div>
 		</div>
 	)
