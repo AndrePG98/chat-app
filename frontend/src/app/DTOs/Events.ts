@@ -17,18 +17,18 @@ export class LoginEvent implements Event {
     type: number
     body: any
 
-    constructor(username: string, password: string) {
+    constructor(username: string, password: string, token: string) {
         this.type = 1
-        this.body = { username, password, token: "" }
+        this.body = { username, password, token }
     }
 }
 
 export class LogoutEvent implements Event {
     type: number
     body: any;
-    constructor(userId: string) {
+    constructor(username: string) {
         this.type = 2
-        this.body = { userId, result: false }
+        this.body = { username }
     }
 }
 
@@ -55,6 +55,7 @@ export interface AuthenticationResult {
         result: boolean
         token: string
         userId: string
+        username: string
         state: string[]
     }
 }

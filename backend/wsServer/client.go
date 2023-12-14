@@ -25,6 +25,7 @@ func NewClient(conn *websocket.Conn, server *WsServer) *Client {
 		Authenticated: false,
 		Server:        server,
 		Conn:          conn,
+		Guilds:        make([]string, 0),
 		Send:          make(chan *models.IMessage),
 	}
 	return client
@@ -43,15 +44,16 @@ func (client *Client) run() {
 
 }
 
-func (client *Client) authenticate(id string, username string, guilds []string) {
+func (client *Client) authenticate(id string, username string) {
 	client.ID = id
 	client.Username = username
-	client.Guilds = append(client.Guilds, guilds...)
 	client.Authenticated = true
 }
 
-func (client *Client) JoinGuilds(guildIds []string) {
-	client.Guilds = append(client.Guilds, guildIds...)
+func (client *Client) JoinGuilds(guilds []models.Guild) {
+	for _, guild := range guilds {
+		client.Guilds = append(client.Guilds, guild.ID)
+	}
 }
 
 func (client *Client) read() {
@@ -73,8 +75,7 @@ func (client *Client) read() {
 			mapstructure.Decode(newMessage.Body, &body)
 			handleLogin(client, body)
 		case 2:
-			//handle logout
-			log.Println("Logout")
+			handleLogout(client)
 		case 3:
 			var body models.SendMessageEvent
 			mapstructure.Decode(newMessage.Body, &body)

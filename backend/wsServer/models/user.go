@@ -8,6 +8,7 @@ type IMessage struct {
 type User struct {
 	UserId   string `json:"userId"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Logo     string `json:"logo"`
 }
 
@@ -25,10 +26,6 @@ type LoginEvent struct {
 	Token    string `json:"token"`
 }
 
-type LogoutEvent struct {
-	UserId string `json:"userId"`
-}
-
 // ################################## EVENTS ###########################################
 
 // ################################## RESULTS ##############################################
@@ -43,10 +40,6 @@ type AcessResult struct {
 	Error    string  `json:"error"`
 }
 
-type LogoutResult struct {
-	Result bool `json:"result"`
-}
-
 // ################################## BROADCASTS ##############################################
 
 type LoginBroadcast struct {
@@ -55,8 +48,8 @@ type LoginBroadcast struct {
 }
 
 type LogoutBroadcast struct {
-	User     User   `json:"user"`
-	GuildIds string `json:"guildIds"`
+	Username string   `json:"username"`
+	GuildIds []string `json:"guildIds"`
 }
 
 // #############################################################################################

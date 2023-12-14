@@ -19,7 +19,7 @@ export default function Login() {
 	const [userNameInput, setUserNameInput] = useState("")
 
 	const handleLogin = (userName: string, userPassword: string) => {
-		login(userName, userPassword)
+		login(userName, userPassword, "")
 	}
 
 	return (

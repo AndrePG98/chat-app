@@ -40,4 +40,8 @@ export class GuildDTO {
 	setLogo(logo: string) {
 		this.logo = logo
 	}
+
+	addMember(member: UserDTO) {
+		this.members.push(member)
+	}
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Event, LoginEvent } from "../DTOs/Events"
+import { Event, LoginEvent, LogoutEvent } from "../DTOs/Events"
 
 const useWebSocket = () => {
 	const [receivedMessage, setReceivedMessage] = useState<Event>({ type: -1, body: null })
@@ -33,7 +33,7 @@ const useWebSocket = () => {
 
 	const disconnectFromWs = (userId: string) => {
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-			var message: string = JSON.stringify(new LoginEvent(userId, "randomPW"))
+			var message: string = JSON.stringify(new LogoutEvent(userId))
 			socketRef.current.send(message)
 		} else {
 			console.error("WebSocket is not open")

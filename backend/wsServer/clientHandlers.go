@@ -1,101 +1,95 @@
 package main
 
 import (
-	"time"
 	"wsServer/models"
 )
 
 type AuthRequest struct {
 	Result bool
 	Client *Client
+	Token  string
+	Error  string
 	State  []models.Guild
 }
 
 func handleRegistration(client *Client, regEvent models.RegisterEvent) {
-
 	username := regEvent.Username
 	password := regEvent.Password
 	email := regEvent.Email
 
-	result, id := CreateUser(username, password, email) // create user in db and return uuid
+	result, id, token := CreateUser(username, password, email) // create user in db and return uuid
 	if result {
-		client.authenticate(id, username, []string{})
+		client.authenticate(id, username)
 		client.Server.Authenticate <- &AuthRequest{
 			Result: true,
 			Client: client,
+			Token:  token,
 		}
 	} else {
-		client.Conn.WriteJSON(
-			models.IMessage{
-				Type: 0,
-				Body: models.AcessResult{
-					Result: result,
-					Error:  "Some Error",
-				},
-			},
-		)
+		client.Server.Authenticate <- &AuthRequest{
+			Result: false,
+			Client: client,
+			Error:  "Some Error",
+		}
 	}
 }
 
 func handleLogin(client *Client, logEvent models.LoginEvent) {
 	username := logEvent.Username
 	password := logEvent.Password
-	// Database operations here
-	// return state
-	result, id := FetchUser(username, password)
-	// Hardcoded State
-	guild1 := models.Guild{
-		ID:      "1",
-		OwnerId: id,
-		Name:    "Guild1",
-		Members: []models.User{
-			{
-				UserId:   id,
-				Username: username,
-				Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-			},
-		},
-		Channels: []models.Channel{
-			{
-				ID:      "1",
-				GuildId: "1",
-				Name:    "Channel1",
-				Type:    "text",
-				History: []models.Message{
-					{
-						Sender: models.User{
-							UserId:   id,
-							Username: username,
-							Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-						},
-						GuildId:   "1",
-						ChannelId: "1",
-						Content:   "Test Message",
-						SendAt:    time.Now().Format("02/01/2006"),
-					},
-				},
-			},
-		},
+	token := logEvent.Token
+	var result bool
+	var id string
+	var state []models.Guild
+	if len(token) == 0 {
+		result, id, token, state = FetchUserByPassword(username, password)
+	} else {
+		result, id, token, state = FetchUserByToken(token)
 	}
 	if result {
-		client.authenticate(id, username, []string{"1"})
+		client.authenticate(id, username)
+		client.JoinGuilds(state)
 		client.Server.Authenticate <- &AuthRequest{
 			Result: true,
 			Client: client,
-			State: []models.Guild{
-				guild1,
-			},
+			State:  state,
+			Token:  token,
 		}
+		broadcastLogin(client)
 	} else {
-		client.Conn.WriteJSON(
-			models.IMessage{
-				Type: 0,
-				Body: models.AcessResult{
-					Result: result,
-					Error:  "Some Error",
-				},
-			},
-		)
+		client.Server.Authenticate <- &AuthRequest{
+			Result: false,
+			Client: client,
+			Error:  "Some Error",
+		}
+	}
+}
+
+func broadcastLogin(client *Client) {
+	for _, c := range client.Server.AuthClients {
+		commonGuilds := matching(client.Guilds, c.Guilds)
+		if len(commonGuilds) > 0 {
+			c.Send <- &models.IMessage{
+				Type: 1,
+			}
+		}
+	}
+}
+
+func handleLogout(client *Client) {
+	defer client.Conn.Close()
+	for _, guildId := range client.Guilds {
+		for _, v := range client.Server.AuthClients {
+			if v.isMemberOfGuild(guildId) && v.ID != client.ID {
+				v.Send <- &models.IMessage{
+					Type: 2,
+					Body: &models.LogoutBroadcast{
+						Username: client.Username,
+						GuildIds: client.Guilds,
+					},
+				}
+			}
+		}
 	}
 }
 
@@ -110,6 +104,7 @@ func handleChatMessage(client *Client, messageEvent models.SendMessageEvent) {
 							Sender: models.User{
 								UserId:   messageEvent.SenderId,
 								Username: client.Username,
+								Email:    "Some@Email",
 								Logo:     "https://source.unsplash.com/random/150x150/?avatar",
 							},
 							GuildId:   messageEvent.GuildId,
@@ -122,4 +117,16 @@ func handleChatMessage(client *Client, messageEvent models.SendMessageEvent) {
 			}(user)
 		}
 	}
+}
+
+func matching(slice1 []string, slice2 []string) []string {
+	matches := make([]string, 0)
+	for _, a := range slice1 {
+		for _, b := range slice2 {
+			if a == b {
+				matches = append(matches, a)
+			}
+		}
+	}
+	return matches
 }

@@ -26,9 +26,9 @@ export default function GuildSelector(props: {
 			className="servers-panel h-screen w-64 py-5 px-4 border-r border-gray-700 flex flex-col"
 			style={{ border: "2px solid green" }}
 		>
+			<UserInfo currentUser={props.currentUser}></UserInfo>
+			<Divider className="my-2"></Divider>
 			<div>
-				<UserInfo currentUser={props.currentUser}></UserInfo>
-				<Divider className="my-2"></Divider>
 				<div className="my-3">
 					{props.currentUser.getGuilds().map((guild, index) => (
 						<GuildBtn
