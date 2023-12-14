@@ -74,9 +74,6 @@ func verifyToken(tokenString string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("couldn't parse claims")
 	}
 
-	id, _ := claims["userId"].(string)
-	username, _ := claims["username"].(string)
-	log.Printf("Verifying %v with id: %v", username, id)
 	return claims, nil
 }
 
