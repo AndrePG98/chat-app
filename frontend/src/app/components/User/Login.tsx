@@ -13,14 +13,13 @@ import { useState } from "react"
 import { useUserContext } from "../../context/UserContext"
 
 export default function Login() {
-	const { register } = useUserContext()
+	const { login } = useUserContext()
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [userPasswordInput, setUserPasswordInput] = useState("")
 	const [userNameInput, setUserNameInput] = useState("")
 
 	const handleLogin = (userName: string, userPassword: string) => {
-		register(userName, userPassword, "someEmail")
-		console.log(userName)
+		login(userName, userPassword)
 	}
 
 	return (

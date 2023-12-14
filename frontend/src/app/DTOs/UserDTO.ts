@@ -26,11 +26,6 @@ export class UserDTO {
 		return this.logo
 	}
 
-	addGuild(guildName: string) {
-		const newGuild = new GuildDTO((this.getGuilds.length + 1).toString(), guildName)
-		this.guilds.push(newGuild)
-	}
-
 	getGuilds() {
 		return this.guilds
 	}

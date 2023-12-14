@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"wsServer/models"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -52,21 +54,22 @@ func (server *WsServer) listenForAuthReq() {
 	for authReq := range server.Authenticate {
 		result := authReq.Result
 		client := authReq.Client
+		state := authReq.State
 		if result {
-			log.Println("New webscoket connection request from:", client.Conn.RemoteAddr())
 			server.AuthClients[client.ID] = client
 			delete(server.UnAuthClients, client)
 			// Send initial State
-			client.Send <- &Message{
+			client.Send <- &models.IMessage{
 				Type: 0,
-				Body: AuthenticationResult{
-					Result:   result,
-					Token:    "Token",
-					ID:       client.ID,
-					UserName: client.Username,
-					State:    client.Guilds,
+				Body: models.AcessResult{
+					Result:   true,
+					Token:    "TestToken",
+					UserId:   client.ID,
+					Username: client.Username,
+					State:    state,
 				},
 			}
+			log.Println("New Client connection from:", client.Conn.RemoteAddr())
 		}
 	}
 }

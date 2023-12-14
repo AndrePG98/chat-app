@@ -36,10 +36,10 @@ export const UserContextProvider = ({ children }: any) => {
 				break
 			case 3:
 				receiveMessage(
-					receivedMessage.body.userId,
-					receivedMessage.body.content,
-					receivedMessage.body.guildId,
-					receivedMessage.body.channelId
+					receivedMessage.body.message.sender.userId,
+					receivedMessage.body.message.content,
+					receivedMessage.body.message.guildId,
+					receivedMessage.body.message.channelId
 				)
 				break
 		}
@@ -54,17 +54,16 @@ export const UserContextProvider = ({ children }: any) => {
 		})
 	}
 
-	const authenticate = (id: string, userName: string, guilds: string[]) => {
+	const authenticate = (id: string, userName: string, state: any[]) => {
 		const user = new UserDTO(
 			id,
 			userName,
 			"Email",
 			"https://source.unsplash.com/random/?avatar"
 		)
-		guilds.forEach((guildId) => {
-			const newGuild = new GuildDTO(guildId, "GuildName")
-			user.joinGuild(newGuild)
-		})
+		const testguild = new GuildDTO("1", "Test Guild", id)
+		testguild.addChannel(new ChannelDTO("1", "Test Channel", "text"))
+		user.joinGuild(testguild)
 		setCurrentUser(user)
 		setIsAuthenticated(true)
 	}
@@ -87,12 +86,11 @@ export const UserContextProvider = ({ children }: any) => {
 		guildId: string,
 		channelId: string
 	) => {
-		console.log("here")
-
 		currentUser.guilds.forEach((guild) => {
 			if (guild.id === guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.id == channelId) {
+						console.log("here")
 						const newId = (channel.messages.length + 1).toString()
 						const newMessage = new MessageDTO(
 							newId,

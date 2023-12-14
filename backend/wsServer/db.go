@@ -10,6 +10,7 @@ func CreateUser(username string, password string, email string) (bool, string) {
 	return true, uuid.NewString()
 }
 
-func FetchUser(id string) {
+func FetchUser(username string, password string) (bool, string) {
+	return true, uuid.NewString()
 	//return user info for initial state and app init
 }

@@ -19,7 +19,7 @@ export class LoginEvent implements Event {
 
     constructor(username: string, password: string) {
         this.type = 1
-        this.body = { username, password }
+        this.body = { username, password, token: "" }
     }
 }
 
@@ -36,13 +36,14 @@ export class ChatMessageEvent implements Event {
     type: number
     body: any
 
-    constructor(userId: string, guildId: string, channelId: string, content: string) {
+    constructor(senderId: string, guildId: string, channelId: string, content: string) {
         this.type = 3
         this.body = {
-            userId,
+            senderId,
             guildId,
             channelId,
-            content
+            content,
+            sendAt: new Date(Date.now()).toLocaleDateString("en-GB")
         }
     }
 

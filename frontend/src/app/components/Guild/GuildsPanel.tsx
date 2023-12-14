@@ -14,7 +14,6 @@ export default function GuildsPanel(props: {
 
 	const selectGuild = (guild: GuildDTO) => {
 		setSelectedGuild(guild)
-		console.log(props.currentUser.getName())
 	}
 
 	return (
