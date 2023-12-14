@@ -60,11 +60,13 @@ export const UserContextProvider = ({ children }: any) => {
 						guild.addMember(new UserDTO(id, username, email, logo))
 					}
 				})
+				break
 			case 2:
 				const userId = receivedMessage.body.userId
 				currentUser.getGuilds().forEach((guild) => {
 					guild.members = guild.members.filter((member) => member.id != userId)
 				})
+				break
 			case 3:
 				receiveMessage(
 					receivedMessage.body.message.sender.userId,

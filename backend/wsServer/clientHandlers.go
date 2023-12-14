@@ -44,7 +44,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	if len(token) == 0 {
 		result, id, token, state = FetchUserByPassword(username, password)
 	} else {
-		result, id, token, state = FetchUserByToken(token)
+		result, id, token, username, state = FetchUserByToken(token)
 	}
 	if result {
 		client.authenticate(id, username)
@@ -71,6 +71,14 @@ func broadcastLogin(client *Client) {
 		if len(commonGuilds) > 0 {
 			c.Send <- &models.IMessage{
 				Type: 1,
+				Body: &models.LoginBroadcast{
+					User: models.User{
+						UserId:   client.ID,
+						Username: c.Username,
+						Email:    "Some@Email",
+						Logo:     "https://source.unsplash.com/random/150x150/?avatar",
+					},
+				},
 			}
 		}
 	}

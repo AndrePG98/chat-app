@@ -18,7 +18,7 @@ func CreateUser(username string, password string, email string) (bool, string, s
 	return true, id, token
 }
 
-func FetchUserByToken(token string) (bool, string, string, []models.Guild) {
+func FetchUserByToken(token string) (bool, string, string, string, []models.Guild) {
 	newToken, id, username, err := refreshToken(token)
 	if err != nil {
 		log.Println("error refreshing token")
@@ -58,7 +58,7 @@ func FetchUserByToken(token string) (bool, string, string, []models.Guild) {
 			},
 		},
 	}
-	return true, id, newToken, []models.Guild{guild1}
+	return true, id, newToken, username, []models.Guild{guild1}
 }
 
 func FetchUserByPassword(username string, password string) (bool, string, string, []models.Guild) {
