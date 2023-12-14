@@ -28,7 +28,6 @@ export const UserContextProvider = ({ children }: any) => {
 	useEffect(() => {
 		const token = localStorage.getItem("token")
 		if (token) {
-			console.log(token)
 			connectToWs((connected: boolean) => {
 				if (connected) {
 					sendWebSocketMessage(new LoginEvent("", "", token))
@@ -138,7 +137,6 @@ export const UserContextProvider = ({ children }: any) => {
 							message
 						)
 						channel.messages = [...channel.messages, newMessage]
-						console.log(channel)
 					}
 				})
 			}
