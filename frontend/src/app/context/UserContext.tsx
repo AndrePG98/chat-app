@@ -9,7 +9,7 @@ import { ChannelDTO } from "../DTOs/ChannelDTO"
 interface UserContextProps {
 	isAuthenticated: boolean
 	currentUser: UserDTO
-	login: (username: string, password: string) => void
+	login: (username: string, password: string, token: string) => void
 	logout: () => void
 	register: (username: string, password: string, email: string) => void
 	receivedMessage: Event
@@ -26,20 +26,53 @@ export const UserContextProvider = ({ children }: any) => {
 	const [changeFlag, setChangeFlag] = useState(false)
 
 	useEffect(() => {
+		const token = localStorage.getItem("token")
+		if (token) {
+			connectToWs((connected: boolean) => {
+				if (connected) {
+					sendWebSocketMessage(new LoginEvent("", "", token))
+				}
+			})
+		}
+		return () => {
+			disconnectFromWs(currentUser.id)
+		}
+	}, [])
+
+	useEffect(() => {
 		switch (receivedMessage.type) {
 			case 0:
 				authenticate(
 					receivedMessage.body.userId,
+					receivedMessage.body.token,
 					receivedMessage.body.userName,
 					receivedMessage.body.state
 				)
 				break
+			case 1:
+				const id = receivedMessage.body.userId
+				const username = receivedMessage.body.username
+				const email = receivedMessage.body.email
+				const logo = receivedMessage.body.logo
+				const guildIds: string[] = receivedMessage.body.guildIds
+				currentUser.guilds.forEach((guild) => {
+					if (guildIds.includes(guild.id)) {
+						guild.addMember(new UserDTO(id, username, email, logo))
+					}
+				})
+				break
+			case 2:
+				const userId = receivedMessage.body.userId
+				currentUser.getGuilds().forEach((guild) => {
+					guild.members = guild.members.filter((member) => member.id != userId)
+				})
+				break
 			case 3:
 				receiveMessage(
-					receivedMessage.body.userId,
-					receivedMessage.body.content,
-					receivedMessage.body.guildId,
-					receivedMessage.body.channelId
+					receivedMessage.body.message.sender.userId,
+					receivedMessage.body.message.content,
+					receivedMessage.body.message.guildId,
+					receivedMessage.body.message.channelId
 				)
 				break
 		}
@@ -54,31 +87,37 @@ export const UserContextProvider = ({ children }: any) => {
 		})
 	}
 
-	const authenticate = (id: string, userName: string, guilds: string[]) => {
+	const authenticate = (id: string, token: string, userName: string, state: any[]) => {
 		const user = new UserDTO(
 			id,
 			userName,
 			"Email",
 			"https://source.unsplash.com/random/?avatar"
 		)
-		guilds.forEach((guildId) => {
-			const newGuild = new GuildDTO(guildId, "GuildName")
-			user.joinGuild(newGuild)
-		})
+		localStorage.setItem("token", token)
+		if (state !== null) {
+			// read state param and fill the data
+			const testguild = new GuildDTO("1", "Test Guild", id)
+			testguild.addChannel(new ChannelDTO("1", "Test Channel", "text"))
+			user.joinGuild(testguild)
+		}
 		setCurrentUser(user)
 		setIsAuthenticated(true)
 	}
 
-	const login = async (username: string, password: string) => {
+	const login = async (username: string, password: string, token: string) => {
 		connectToWs((connected: boolean) => {
 			if (connected) {
-				sendWebSocketMessage(new LoginEvent(username, password))
+				sendWebSocketMessage(new LoginEvent(username, password, token))
 			}
 		})
 	}
 
 	const logout = () => {
 		disconnectFromWs(currentUser.id)
+		setIsAuthenticated(false)
+		setCurrentUser(new UserDTO("", "", "", ""))
+		localStorage.removeItem("token")
 	}
 
 	const receiveMessage = (
@@ -87,8 +126,6 @@ export const UserContextProvider = ({ children }: any) => {
 		guildId: string,
 		channelId: string
 	) => {
-		console.log("here")
-
 		currentUser.guilds.forEach((guild) => {
 			if (guild.id === guildId) {
 				guild.channels.forEach((channel) => {
@@ -102,7 +139,6 @@ export const UserContextProvider = ({ children }: any) => {
 							message
 						)
 						channel.messages = [...channel.messages, newMessage]
-						console.log(channel)
 					}
 				})
 			}

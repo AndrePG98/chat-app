@@ -1,14 +1,20 @@
 import { ChannelDTO } from "./ChannelDTO"
+import { UserDTO } from "./UserDTO"
 
 export class GuildDTO {
 	id: string
+	ownerId: string
 	name: string
-	channels: ChannelDTO[] = [new ChannelDTO("1", "Text Channel", "text")]
+	channels: ChannelDTO[]
+	members: UserDTO[]
 	logo: string = ""
 
-	constructor(id: string, name: string) {
+	constructor(id: string, name: string, ownderId: string) {
 		this.id = id
+		this.ownerId = ownderId
+		this.members = []
 		this.name = name
+		this.channels = []
 	}
 
 	getName() {
@@ -33,5 +39,9 @@ export class GuildDTO {
 
 	setLogo(logo: string) {
 		this.logo = logo
+	}
+
+	addMember(member: UserDTO) {
+		this.members.push(member)
 	}
 }

@@ -4,7 +4,10 @@ import (
 	"log"
 	"slices"
 
+	"wsServer/models"
+
 	"github.com/gorilla/websocket"
+	"github.com/mitchellh/mapstructure"
 )
 
 type Client struct {
@@ -14,7 +17,7 @@ type Client struct {
 	Server        *WsServer
 	Conn          *websocket.Conn
 	Guilds        []string
-	Send          chan *Message
+	Send          chan *models.IMessage
 }
 
 func NewClient(conn *websocket.Conn, server *WsServer) *Client {
@@ -22,7 +25,8 @@ func NewClient(conn *websocket.Conn, server *WsServer) *Client {
 		Authenticated: false,
 		Server:        server,
 		Conn:          conn,
-		Send:          make(chan *Message),
+		Guilds:        make([]string, 0),
+		Send:          make(chan *models.IMessage),
 	}
 	return client
 }
@@ -40,38 +44,44 @@ func (client *Client) run() {
 
 }
 
-func (client *Client) authenticate(id string, username string, guilds []string) {
+func (client *Client) authenticate(id string, username string) {
 	client.ID = id
 	client.Username = username
-	client.Guilds = append(client.Guilds, guilds...)
 	client.Authenticated = true
 }
 
-func (client *Client) JoinGuilds(guildIds []string) {
-	client.Guilds = append(client.Guilds, guildIds...)
+func (client *Client) JoinGuilds(guilds []models.Guild) {
+	for _, guild := range guilds {
+		client.Guilds = append(client.Guilds, guild.ID)
+	}
 }
 
 func (client *Client) read() {
 	for {
-		var newMessage Message
+		var newMessage models.IMessage
 		err := client.Conn.ReadJSON(&newMessage)
 		if err != nil {
 			log.Println(err)
 			return
 		}
+
 		switch newMessage.Type {
 		case 0:
-			handleRegistration(client, newMessage)
+			var body models.RegisterEvent
+			mapstructure.Decode(newMessage.Body, &body)
+			handleRegistration(client, body)
 		case 1:
-			handleLogin(client, newMessage)
+			var body models.LoginEvent
+			mapstructure.Decode(newMessage.Body, &body)
+			handleLogin(client, body)
 		case 2:
-			//handle logout
-			log.Println("Logout")
+			handleLogout(client)
 		case 3:
-			handleChatMessage(client, newMessage)
+			var body models.SendMessageEvent
+			mapstructure.Decode(newMessage.Body, &body)
+			handleChatMessage(client, body)
 		}
 	}
-
 }
 
 func (client *Client) write() {

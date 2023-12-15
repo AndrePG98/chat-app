@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"wsServer/models"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -30,8 +32,8 @@ func NewWsServer() *WsServer {
 func (server *WsServer) run() {
 	addRoutes(server)
 	go server.listenForNewConnections()
+	go server.listenForRemoves()
 	go server.listenForAuthReq()
-	go server.RemoveNonAuthClients()
 	go server.listenForDisconnections()
 	log.Println("Websocket Server listenning on", 8443)
 	err := http.ListenAndServe(":8080", nil)
@@ -52,47 +54,45 @@ func (server *WsServer) listenForAuthReq() {
 	for authReq := range server.Authenticate {
 		result := authReq.Result
 		client := authReq.Client
+		state := authReq.State
+		token := authReq.Token
+		error := authReq.Error
 		if result {
-			log.Println("New webscoket connection request from:", client.Conn.RemoteAddr())
 			server.AuthClients[client.ID] = client
-			delete(server.UnAuthClients, client)
 			// Send initial State
-			client.Send <- &Message{
+			client.Send <- &models.IMessage{
 				Type: 0,
-				Body: AuthenticationResult{
+				Body: models.AcessResult{
 					Result:   result,
-					Token:    "Token",
-					ID:       client.ID,
-					UserName: client.Username,
-					State:    client.Guilds,
+					Token:    token,
+					UserId:   client.ID,
+					Username: client.Username,
+					State:    state,
 				},
 			}
+			log.Println("New Client connection from:", client.Conn.RemoteAddr())
 		} else {
-			// Send error
-			client.Conn.WriteJSON(
-				Message{
-					Type: 0,
-					Body: AuthenticationResult{
-						Result: result,
-						Error:  "Some Error",
-					},
+			client.Send <- &models.IMessage{
+				Type: 0,
+				Body: models.AcessResult{
+					Result: result,
+					Error:  error,
 				},
-			)
+			}
 		}
+		delete(server.UnAuthClients, client)
 	}
 }
 
 func (server *WsServer) listenForDisconnections() {
 	for userId := range server.Disconnect {
-		server.AuthClients[userId].Conn.Close()
 		delete(server.AuthClients, userId)
 	}
 }
 
-func (server *WsServer) RemoveNonAuthClients() {
-	for user := range server.Remove {
-		user.Conn.Close()
-		delete(server.UnAuthClients, user)
+func (server *WsServer) listenForRemoves() {
+	for client := range server.Remove {
+		delete(server.UnAuthClients, client)
 	}
 }
 

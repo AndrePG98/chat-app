@@ -18,7 +18,6 @@ export default function TextChannel(props: TextChannelProps) {
 
 	return (
 		<div className="text-channel h-full flex-1">
-			{props.channel.messages.length}
 			<ChatPanel
 				channelId={props.channel.id}
 				createNewMessage={createNewMessage}

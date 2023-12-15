@@ -23,7 +23,6 @@ export default function Guild(props: { guild: GuildDTO }) {
 			type
 		)
 		props.guild.addChannel(newChannel)
-		console.log(props.guild)
 	}
 
 	return (
@@ -42,7 +41,7 @@ export default function Guild(props: { guild: GuildDTO }) {
 					<VoiceChannel channnel={selectedChannel}></VoiceChannel>
 				)}
 			</div>
-			<MembersPanel />
+			<MembersPanel members={props.guild.members} />
 		</div>
 	)
 }
