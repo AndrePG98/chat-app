@@ -13,7 +13,7 @@ export default function GuildBtn(props: {
 			className="w-full my-1"
 			onPress={() => props.selectGuild(props.guild)}
 		>
-			{props.guild.name}
+			{props.guild.guildName}
 		</Button>
 	)
 }

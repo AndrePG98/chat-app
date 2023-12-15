@@ -5,11 +5,12 @@ type Channel struct {
 	GuildId string    `json:"guildID"`
 	Name    string    `json:"channelName"`
 	Type    string    `json:"channelType"`
-	Members []string  `json:"members"`
+	Members []User    `json:"members"`
 	History []Message `json:"history"`
 }
 
 type Message struct {
+	ID        string `json:"messageId"`
 	Sender    User   `json:"sender"`
 	GuildId   string `json:"guildId"`
 	ChannelId string `json:"channelId"`
@@ -45,7 +46,7 @@ type LeaveChannelEvent struct {
 }
 
 type SendMessageEvent struct {
-	SenderId  string `json:"senderId"`
+	Sender    User   `json:"sender"`
 	GuildId   string `json:"guildId"`
 	ChannelId string `json:"channelId"`
 	SendAt    string `json:"sendAt"`

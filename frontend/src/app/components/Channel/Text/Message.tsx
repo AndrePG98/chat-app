@@ -10,7 +10,7 @@ export default function Message(props: { message: MessageDTO }) {
 			</div>
 			<div className="flex-1 overflow-auto">
 				<div className="max-w-[90%]">
-					<p className="text-sm break-words">{props.message.body}</p>
+					<p className="text-sm break-words">{props.message.content}</p>
 				</div>
 			</div>
 		</div>

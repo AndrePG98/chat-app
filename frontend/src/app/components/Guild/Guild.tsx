@@ -2,14 +2,16 @@
 
 import { useState } from "react"
 
-import { ChannelDTO } from "../../DTOs/ChannelDTO"
+import { ChannelDTO, CreateChannelEvent } from "../../DTOs/ChannelDTO"
 import { GuildDTO } from "../../DTOs/GuildDTO"
 import ChannelSelector from "../Channel/ChannelSelector"
 import TextChannel from "../Channel/Text/TextChannel"
 import VoiceChannel from "../Channel/Voice/VoiceChannel"
 import MembersPanel from "./MembersPanel"
+import { useUserContext } from "@/app/context/UserContext"
 
 export default function Guild(props: { guild: GuildDTO }) {
+	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO>()
 
 	const selectChannel = (channel: ChannelDTO) => {
@@ -17,12 +19,8 @@ export default function Guild(props: { guild: GuildDTO }) {
 	}
 
 	const createNewChannel = (name: string, type: string) => {
-		const newChannel = new ChannelDTO(
-			(props.guild.getChannels().length + 1).toString(),
-			name,
-			type
-		)
-		props.guild.addChannel(newChannel)
+		const channel = new CreateChannelEvent(currentUser.id, props.guild.guildId, name, type)
+		sendWebSocketMessage(channel)
 	}
 
 	return (
@@ -31,13 +29,16 @@ export default function Guild(props: { guild: GuildDTO }) {
 				channels={props.guild.channels}
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
-				serverName={props.guild.getName()}
+				serverName={props.guild.guildName}
 			></ChannelSelector>
 			<div className="selected-channel-div flex-1">
-				{selectedChannel?.type === "text" && (
-					<TextChannel channel={selectedChannel} guildId={props.guild.id}></TextChannel>
+				{selectedChannel?.channelType === "text" && (
+					<TextChannel
+						channel={selectedChannel}
+						guildId={props.guild.guildId}
+					></TextChannel>
 				)}
-				{selectedChannel?.type === "voice" && (
+				{selectedChannel?.channelType === "voice" && (
 					<VoiceChannel channnel={selectedChannel}></VoiceChannel>
 				)}
 			</div>

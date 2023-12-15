@@ -1,28 +1,29 @@
 import { ChannelDTO } from "./ChannelDTO"
-import { UserDTO } from "./UserDTO"
+import { SenderDTO, UserDTO } from "./UserDTO"
+import { IEvent, EventType, ResultType } from "./Types"
 
 export class GuildDTO {
-	id: string
+	guildId: string
 	ownerId: string
-	name: string
+	guildName: string
 	channels: ChannelDTO[]
-	members: UserDTO[]
+	members: SenderDTO[]
 	logo: string = ""
 
-	constructor(id: string, name: string, ownderId: string) {
-		this.id = id
-		this.ownerId = ownderId
+	constructor(guildId: string, name: string, ownerId: string) {
+		this.guildId = guildId
+		this.ownerId = ownerId
 		this.members = []
-		this.name = name
+		this.guildName = name
 		this.channels = []
 	}
 
 	getName() {
-		return this.name
+		return this.guildName
 	}
 
 	setName(name: string) {
-		this.name = name
+		this.guildName = name
 	}
 
 	getChannels() {
@@ -41,7 +42,56 @@ export class GuildDTO {
 		this.logo = logo
 	}
 
-	addMember(member: UserDTO) {
+	addMember(member: SenderDTO) {
 		this.members.push(member)
+	}
+}
+
+
+export class CreateGuildEvent implements IEvent {
+	type: EventType
+	body: any
+
+	constructor(ownerId: string, guildName: string) {
+		this.type = EventType.CreateGuild
+		this.body = { ownerId, guildName }
+	}
+}
+
+export class DeleteGuildEvent implements IEvent {
+	type: EventType
+	body: any
+
+	constructor(userguildId: string, guildguildId: string) {
+		this.type = EventType.DeleteGuild
+		this.body = { userguildId, guildguildId }
+	}
+}
+
+export class JoinGuildEvent implements IEvent {
+	type: EventType
+	body: any
+
+	constructor(guildguildId: string, member: SenderDTO) {
+		this.type = EventType.JoinGuild
+		this.body = { guildguildId, member }
+	}
+}
+
+export class LeaveGuildEvent implements IEvent {
+	type: EventType
+	body: any
+
+	constructor(guildguildId: string, memberguildId: string) {
+		this.type = EventType.LeaveGuild
+		this.body = { guildguildId, memberguildId }
+	}
+}
+
+
+export interface JoinGuildResult {
+	type: ResultType
+	body: {
+		guild: GuildDTO
 	}
 }

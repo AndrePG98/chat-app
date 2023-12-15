@@ -29,11 +29,11 @@ export default function ChannelSelector(props: {
 			<div className="title text-center p-3 mb-5">{props.serverName}</div>
 			<div className="channel-buttons flex-1">
 				{props.channels.map((channel) => (
-					<div key={channel.id}>
-						{channel.type === "text" && (
+					<div key={channel.channelId}>
+						{channel.channelType === "text" && (
 							<TextChannelBtn channel={channel} selectChannel={props.selectChannel} />
 						)}
-						{channel.type === "voice" && (
+						{channel.channelType === "voice" && (
 							<VoiceChannelBtn
 								channel={channel}
 								selectChannel={props.selectChannel}

@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { UserDTO } from "../DTOs/UserDTO"
-import { Event, LoginEvent, RegisterEvent } from "../DTOs/Events"
+import { AccessResult, LoginBroadcast, SenderDTO, UserDTO } from "../DTOs/UserDTO"
+import { LoginEvent, RegisterEvent } from "../DTOs/UserDTO"
+import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
-import { GuildDTO } from "../DTOs/GuildDTO"
-import { MessageDTO } from "../DTOs/MessageDTO"
-import { ChannelDTO } from "../DTOs/ChannelDTO"
+import { GuildDTO, JoinGuildResult } from "../DTOs/GuildDTO"
+import { ChatMessageBroadcast, MessageDTO, SendMessageEvent } from "../DTOs/MessageDTO"
+import { ChannelDTO, CreateChannelBroadcast, CreateChannelEvent } from "../DTOs/ChannelDTO"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -12,7 +13,7 @@ interface UserContextProps {
 	login: (username: string, password: string, token: string) => void
 	logout: () => void
 	register: (username: string, password: string, email: string) => void
-	receivedMessage: Event
+	receivedMessage: IEvent
 	sendWebSocketMessage: (data: any) => void
 }
 
@@ -35,45 +36,29 @@ export const UserContextProvider = ({ children }: any) => {
 			})
 		}
 		return () => {
-			disconnectFromWs(currentUser.id)
+			disconnectFromWs()
 		}
 	}, [])
 
 	useEffect(() => {
 		switch (receivedMessage.type) {
-			case 0:
-				authenticate(
-					receivedMessage.body.userId,
-					receivedMessage.body.token,
-					receivedMessage.body.userName,
-					receivedMessage.body.state
-				)
+			case ResultType.R_Acess:
+				authenticate(receivedMessage)
 				break
-			case 1:
-				const id = receivedMessage.body.userId
-				const username = receivedMessage.body.username
-				const email = receivedMessage.body.email
-				const logo = receivedMessage.body.logo
-				const guildIds: string[] = receivedMessage.body.guildIds
-				currentUser.guilds.forEach((guild) => {
-					if (guildIds.includes(guild.id)) {
-						guild.addMember(new UserDTO(id, username, email, logo))
-					}
-				})
+			case ResultType.B_Login:
+				processLoginBroadcast(receivedMessage)
 				break
-			case 2:
-				const userId = receivedMessage.body.userId
-				currentUser.getGuilds().forEach((guild) => {
-					guild.members = guild.members.filter((member) => member.id != userId)
-				})
+			case ResultType.B_Logout:
+				processLogoutBroadcast(receivedMessage.body.userId)
 				break
-			case 3:
-				receiveMessage(
-					receivedMessage.body.message.sender.userId,
-					receivedMessage.body.message.content,
-					receivedMessage.body.message.guildId,
-					receivedMessage.body.message.channelId
-				)
+			case ResultType.R_JoinGuild:
+				processGuildJoin(receivedMessage)
+				break
+			case ResultType.B_CreateChannel:
+				processChannelCreate(receivedMessage)
+				break
+			case ResultType.B_ChatMessage:
+				receiveMessage(receivedMessage)
 				break
 		}
 		setChangeFlag(!changeFlag)
@@ -87,22 +72,27 @@ export const UserContextProvider = ({ children }: any) => {
 		})
 	}
 
-	const authenticate = (id: string, token: string, userName: string, state: any[]) => {
+	const authenticate = (msg: AccessResult) => {
 		const user = new UserDTO(
-			id,
-			userName,
+			msg.body.userId,
+			msg.body.username,
 			"Email",
 			"https://source.unsplash.com/random/?avatar"
 		)
-		localStorage.setItem("token", token)
-		if (state !== null) {
+		localStorage.setItem("token", msg.body.token)
+		if (msg.body.state !== null) {
 			// read state param and fill the data
-			const testguild = new GuildDTO("1", "Test Guild", id)
-			testguild.addChannel(new ChannelDTO("1", "Test Channel", "text"))
-			user.joinGuild(testguild)
+			proccessInitialState(msg.body.state, user)
+			//const testguild = new GuildDTO("1", "Test Guild", id)
+			//testguild.addChannel(new ChannelDTO("1", "Test Channel", "text"))
+			//user.joinGuild(testguild)
 		}
 		setCurrentUser(user)
 		setIsAuthenticated(true)
+	}
+
+	const proccessInitialState = (state: GuildDTO[], user: UserDTO) => {
+		user.joinGuilds(state)
 	}
 
 	const login = async (username: string, password: string, token: string) => {
@@ -114,33 +104,57 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const logout = () => {
-		disconnectFromWs(currentUser.id)
+		disconnectFromWs()
 		setIsAuthenticated(false)
 		setCurrentUser(new UserDTO("", "", "", ""))
 		localStorage.removeItem("token")
 	}
 
-	const receiveMessage = (
-		userId: string,
-		message: string,
-		guildId: string,
-		channelId: string
-	) => {
+	const receiveMessage = (msg: ChatMessageBroadcast) => {
+		const newMsg = msg.body.message
 		currentUser.guilds.forEach((guild) => {
-			if (guild.id === guildId) {
+			if (guild.guildId === newMsg.guildId) {
 				guild.channels.forEach((channel) => {
-					if (channel.id == channelId) {
-						const newId = (channel.messages.length + 1).toString()
-						const newMessage = new MessageDTO(
-							newId,
-							guildId,
-							channelId,
-							userId,
-							message
-						)
-						channel.messages = [...channel.messages, newMessage]
+					if (channel.channelId == newMsg.channelId) {
+						channel.history = [...channel.history, newMsg]
 					}
 				})
+			}
+		})
+	}
+
+	const processLoginBroadcast = (msg: LoginBroadcast) => {
+		const user = msg.body.user
+		currentUser.guilds.forEach((guild) => {
+			if (msg.body.guildIds.includes(guild.guildId)) {
+				guild.addMember(user)
+			}
+		})
+	}
+
+	const processLogoutBroadcast = (id: string) => {
+		currentUser.getGuilds().forEach((guild) => {
+			guild.members = guild.members.filter((member) => member.userId != id)
+		})
+	}
+
+	const processGuildJoin = (msg: JoinGuildResult) => {
+		console.log(msg)
+		currentUser.joinGuild(msg.body.guild)
+	}
+
+	const processChannelCreate = (msg: CreateChannelBroadcast) => {
+		const channel = new ChannelDTO(
+			msg.body.channelId,
+			msg.body.guildId,
+			msg.body.channelName,
+			msg.body.channelType,
+			[],
+			[]
+		)
+		currentUser.guilds.forEach((guild) => {
+			if (channel.guildId === guild.guildId) {
+				guild.channels = [...guild.channels, channel]
 			}
 		})
 	}

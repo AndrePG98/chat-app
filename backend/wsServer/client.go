@@ -44,15 +44,9 @@ func (client *Client) run() {
 
 }
 
-func (client *Client) authenticate(id string, username string) {
-	client.ID = id
-	client.Username = username
-	client.Authenticated = true
-}
-
-func (client *Client) JoinGuilds(guilds []models.Guild) {
-	for _, guild := range guilds {
-		client.Guilds = append(client.Guilds, guild.ID)
+func (client *Client) write() {
+	for messageToSend := range client.Send {
+		client.Conn.WriteJSON(*messageToSend)
 	}
 }
 
@@ -64,30 +58,51 @@ func (client *Client) read() {
 			log.Println(err)
 			return
 		}
-
-		switch newMessage.Type {
-		case 0:
-			var body models.RegisterEvent
-			mapstructure.Decode(newMessage.Body, &body)
-			handleRegistration(client, body)
-		case 1:
-			var body models.LoginEvent
-			mapstructure.Decode(newMessage.Body, &body)
-			handleLogin(client, body)
-		case 2:
-			handleLogout(client)
-		case 3:
-			var body models.SendMessageEvent
-			mapstructure.Decode(newMessage.Body, &body)
-			handleChatMessage(client, body)
-		}
+		client.handleMessage(newMessage)
 	}
 }
 
-func (client *Client) write() {
-	for messageToSend := range client.Send {
-		client.Conn.WriteJSON(*messageToSend)
+func (client *Client) authenticate(id string, username string) {
+	client.ID = id
+	client.Username = username
+	client.Authenticated = true
+}
+
+func (client *Client) handleMessage(msg models.IMessage) {
+	switch msg.Type {
+	case models.E_Register:
+		var body models.RegisterEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleRegistration(client, body)
+	case models.E_Login:
+		var body models.LoginEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleLogin(client, body)
+	case models.E_Logout:
+		handleLogout(client)
+	case models.E_CreateGuild:
+		var body models.CreateGuildEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleCreateGuild(client, body)
+	case models.B_ChatMessage:
+		var body models.SendMessageEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleChatMessage(client, body)
+	case models.E_CreateChannel:
+		var body models.CreateChannelEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleCreateChannel(client, body)
 	}
+}
+
+func (client *Client) joinGuilds(guilds []models.Guild) {
+	for _, guild := range guilds {
+		client.Guilds = append(client.Guilds, guild.ID)
+	}
+}
+
+func (client *Client) joinGuild(guildId string) {
+	client.Guilds = append(client.Guilds, guildId)
 }
 
 func (client *Client) isMemberOfGuild(guildId string) bool {

@@ -5,7 +5,7 @@ type Guild struct {
 	OwnerId  string    `json:"ownerId"`
 	Name     string    `json:"guildName"`
 	Members  []User    `json:"members"`
-	Channels []Channel `json:"chanels"`
+	Channels []Channel `json:"channels"`
 }
 
 // ################################## EVENTS ###########################################
@@ -17,12 +17,12 @@ type CreateGuildEvent struct {
 
 type DeleteGuildEvent struct {
 	UserId  string `json:"userId"`
-	GuildId string `json:"guildID"`
+	GuildId string `json:"guildId"`
 }
 
 type JoinGuildEvent struct {
 	GuildId  string `json:"guildId"`
-	MemberId string `json:"memberId"`
+	MemberId User   `json:"member"`
 }
 
 type LeaveGuildEvent struct {

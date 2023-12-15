@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateUser(username string, password string, email string) (bool, string, string) {
+func CreateUser(username string, password string) (bool, string, string) {
 	id := uuid.NewString()
 	// check if uuid is unique
 	//hashedPW := hashPassword(username, password)

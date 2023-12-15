@@ -1,7 +1,10 @@
 package main
 
 import (
+	"log"
 	"wsServer/models"
+
+	"github.com/google/uuid"
 )
 
 type AuthRequest struct {
@@ -15,9 +18,8 @@ type AuthRequest struct {
 func handleRegistration(client *Client, regEvent models.RegisterEvent) {
 	username := regEvent.Username
 	password := regEvent.Password
-	email := regEvent.Email
 
-	result, id, token := CreateUser(username, password, email) // create user in db and return uuid
+	result, id, token := CreateUser(username, password) // create user in db and return uuid
 	if result {
 		client.authenticate(id, username)
 		client.Server.Authenticate <- &AuthRequest{
@@ -48,7 +50,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	}
 	if result {
 		client.authenticate(id, username)
-		client.JoinGuilds(state)
+		client.joinGuilds(state)
 		client.Server.Authenticate <- &AuthRequest{
 			Result: true,
 			Client: client,
@@ -70,7 +72,7 @@ func broadcastLogin(client *Client) {
 		commonGuilds := matching(client.Guilds, c.Guilds)
 		if len(commonGuilds) > 0 {
 			c.Send <- &models.IMessage{
-				Type: 1,
+				Type: models.B_Login,
 				Body: &models.LoginBroadcast{
 					User: models.User{
 						UserId:   client.ID,
@@ -90,7 +92,7 @@ func handleLogout(client *Client) {
 		for _, v := range client.Server.AuthClients {
 			if v.isMemberOfGuild(guildId) && v.ID != client.ID {
 				v.Send <- &models.IMessage{
-					Type: 2,
+					Type: models.B_Logout,
 					Body: &models.LogoutBroadcast{
 						Username: client.Username,
 						GuildIds: client.Guilds,
@@ -106,20 +108,59 @@ func handleChatMessage(client *Client, messageEvent models.SendMessageEvent) {
 		if user.isMemberOfGuild(messageEvent.GuildId) {
 			go func(user *Client) {
 				user.Send <- &models.IMessage{
-					Type: 3,
+					Type: models.B_ChatMessage,
 					Body: models.MessageBroadcast{
 						Message: models.Message{
-							Sender: models.User{
-								UserId:   messageEvent.SenderId,
-								Username: client.Username,
-								Email:    "Some@Email",
-								Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-							},
+							ID:        uuid.NewString(),
+							Sender:    messageEvent.Sender,
 							GuildId:   messageEvent.GuildId,
 							ChannelId: messageEvent.ChannelId,
 							SendAt:    messageEvent.SendAt,
 							Content:   messageEvent.Content,
 						},
+					},
+				}
+			}(user)
+		}
+	}
+}
+
+func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
+	log.Println(msg)
+	guildId := uuid.NewString()
+	client.joinGuild(guildId)
+	client.Send <- &models.IMessage{
+		Type: models.R_GuildJoin,
+		Body: models.JoinGuildResult{
+			Guild: models.Guild{
+				ID:      guildId,
+				OwnerId: client.ID,
+				Name:    msg.GuildName,
+				Members: []models.User{
+					{
+						UserId:   client.ID,
+						Username: client.Username,
+						Email:    "Some@Emai",
+						Logo:     "https://source.unsplash.com/random/150x150/?avatar",
+					},
+				},
+				Channels: []models.Channel{},
+			},
+		},
+	}
+}
+
+func handleCreateChannel(client *Client, msg models.CreateChannelEvent) {
+	for _, user := range client.Server.AuthClients {
+		if user.isMemberOfGuild(msg.GuildId) {
+			go func(user *Client) {
+				user.Send <- &models.IMessage{
+					Type: models.B_ChannelCreate,
+					Body: models.CreateChannelBroadcast{
+						GuildId:     msg.GuildId,
+						ChannelId:   uuid.NewString(),
+						ChannelName: msg.ChannelName,
+						ChannelType: msg.ChannelType,
 					},
 				}
 			}(user)
