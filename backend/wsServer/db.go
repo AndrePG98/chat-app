@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 	"wsServer/models"
 
 	"github.com/google/uuid"
@@ -23,42 +22,7 @@ func FetchUserByToken(token string) (bool, string, string, string, []models.Guil
 	if err != nil {
 		log.Println("error refreshing token")
 	}
-	guild1 := models.Guild{
-		ID:      "1",
-		OwnerId: id,
-		Name:    "Guild1",
-		Members: []models.User{
-			{
-				UserId:   id,
-				Username: username,
-				Email:    "Some@Email",
-				Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-			},
-		},
-		Channels: []models.Channel{
-			{
-				ID:      "1",
-				GuildId: "1",
-				Name:    "Channel1",
-				Type:    "text",
-				History: []models.Message{
-					{
-						Sender: models.User{
-							UserId:   id,
-							Username: username,
-							Email:    "Some@Email",
-							Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-						},
-						GuildId:   "1",
-						ChannelId: "1",
-						Content:   "Test Message",
-						SendAt:    time.Now().Format("02/01/2006"),
-					},
-				},
-			},
-		},
-	}
-	return true, id, newToken, username, []models.Guild{guild1}
+	return true, id, newToken, username, []models.Guild{}
 }
 
 func FetchUserByPassword(username string, password string) (bool, string, string, []models.Guild) {
@@ -66,41 +30,45 @@ func FetchUserByPassword(username string, password string) (bool, string, string
 	// Search db for username
 	// compore hashedPw with db hashedPw if true return user state
 	id := uuid.NewString()
-	guild1 := models.Guild{
-		ID:      "1",
-		OwnerId: id,
-		Name:    "Guild1",
-		Members: []models.User{
-			{
-				UserId:   id,
-				Username: username,
-				Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-			},
+
+	token, _ := generateToken(id, username)
+	return true, id, token, []models.Guild{}
+	//return user info for initial state and app init
+}
+
+// Hardcoded State for testing
+/* guild1 := models.Guild{
+	ID:      "1",
+	OwnerId: id,
+	Name:    "Guild1",
+	Members: []models.User{
+		{
+			UserId:   id,
+			Username: username,
+			Email:    "Some@Email",
+			Logo:     "https://source.unsplash.com/random/150x150/?avatar",
 		},
-		Channels: []models.Channel{
-			{
-				ID:      "1",
-				GuildId: "1",
-				Name:    "Channel1",
-				Type:    "text",
-				History: []models.Message{
-					{
-						Sender: models.User{
-							UserId:   id,
-							Username: username,
-							Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-						},
-						GuildId:   "1",
-						ChannelId: "1",
-						Content:   "Test Message",
-						SendAt:    time.Now().Format("02/01/2006"),
+	},
+	Channels: []models.Channel{
+		{
+			ID:      "1",
+			GuildId: "1",
+			Name:    "Channel1",
+			Type:    "text",
+			History: []models.Message{
+				{
+					Sender: models.User{
+						UserId:   id,
+						Username: username,
+						Email:    "Some@Email",
+						Logo:     "https://source.unsplash.com/random/150x150/?avatar",
 					},
+					GuildId:   "1",
+					ChannelId: "1",
+					Content:   "Test Message",
+					SendAt:    time.Now().Format("02/01/2006"),
 				},
 			},
 		},
-	}
-
-	token, _ := generateToken(id, username)
-	return true, id, token, []models.Guild{guild1}
-	//return user info for initial state and app init
-}
+	},
+} */

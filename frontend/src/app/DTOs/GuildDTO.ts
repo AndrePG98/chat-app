@@ -62,9 +62,9 @@ export class DeleteGuildEvent implements IEvent {
 	type: EventType
 	body: any
 
-	constructor(userguildId: string, guildguildId: string) {
+	constructor(userId: string, guildId: string) {
 		this.type = EventType.DeleteGuild
-		this.body = { userguildId, guildguildId }
+		this.body = { userId, guildId }
 	}
 }
 
@@ -72,9 +72,9 @@ export class JoinGuildEvent implements IEvent {
 	type: EventType
 	body: any
 
-	constructor(guildguildId: string, member: SenderDTO) {
+	constructor(guildId: string, member: SenderDTO) {
 		this.type = EventType.JoinGuild
-		this.body = { guildguildId, member }
+		this.body = { guildId, member }
 	}
 }
 
@@ -82,9 +82,9 @@ export class LeaveGuildEvent implements IEvent {
 	type: EventType
 	body: any
 
-	constructor(guildguildId: string, memberguildId: string) {
+	constructor(guildId: string, memberId: string) {
 		this.type = EventType.LeaveGuild
-		this.body = { guildguildId, memberguildId }
+		this.body = { guildId, memberId }
 	}
 }
 
@@ -93,5 +93,29 @@ export interface JoinGuildResult {
 	type: ResultType
 	body: {
 		guild: GuildDTO
+	}
+}
+
+export interface GuildDeleteBroadcast {
+	type: ResultType
+	body: {
+		guildId: string
+	}
+}
+
+
+export interface JoinGuildBroadcast {
+	type: ResultType
+	body: {
+		user: SenderDTO
+		guildId: string
+	}
+}
+
+export interface LeaveGuildBroadcast {
+	type: ResultType
+	body: {
+		userId: string
+		guildId: string
 	}
 }

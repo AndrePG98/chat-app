@@ -81,11 +81,7 @@ export const UserContextProvider = ({ children }: any) => {
 		)
 		localStorage.setItem("token", msg.body.token)
 		if (msg.body.state !== null) {
-			// read state param and fill the data
 			proccessInitialState(msg.body.state, user)
-			//const testguild = new GuildDTO("1", "Test Guild", id)
-			//testguild.addChannel(new ChannelDTO("1", "Test Channel", "text"))
-			//user.joinGuild(testguild)
 		}
 		setCurrentUser(user)
 		setIsAuthenticated(true)

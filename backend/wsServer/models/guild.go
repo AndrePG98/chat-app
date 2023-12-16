@@ -21,8 +21,8 @@ type DeleteGuildEvent struct {
 }
 
 type JoinGuildEvent struct {
-	GuildId  string `json:"guildId"`
-	MemberId User   `json:"member"`
+	GuildId string `json:"guildId"`
+	Member  User   `json:"member"`
 }
 
 type LeaveGuildEvent struct {
@@ -42,17 +42,16 @@ type JoinGuildResult struct {
 // ################################## RESULTS ##############################################
 
 // ################################## BROADCASTS ##############################################
+type GuildDeleteBroadcast struct {
+	GuildId string `json:"guildId"`
+}
 
 type GuildJoinBroadcast struct {
 	User    User   `json:"user"`
 	GuildId string `json:"guildId"`
 }
 
-type GuildDeleteBroadcast struct {
-	GuildId string `json:"guildId"`
-}
-
 type GuildLeaveBroadcast struct {
-	UserId string `json:"userId"`
-	Guild  Guild  `json:"guild"`
+	UserId  string `json:"userId"`
+	GuildId string `json:"guildId"`
 }

@@ -81,3 +81,30 @@ export interface CreateChannelBroadcast {
         channelType: string
     }
 }
+
+export interface DeleteChannelBroadcast {
+    type: ResultType
+    body: {
+        guildId: string
+        channelid: string
+    }
+}
+
+export interface JoinChannelBroadcast {
+    type: ResultType
+    body: {
+        guildId: string
+        channelId: string
+        userId: string
+    }
+}
+
+
+export interface LeaveCHannelBroadcast {
+    type: ResultType
+    body: {
+        guildId: string
+        channelId: string
+        userId: string
+    }
+}

@@ -70,28 +70,70 @@ func (client *Client) authenticate(id string, username string) {
 
 func (client *Client) handleMessage(msg models.IMessage) {
 	switch msg.Type {
+
 	case models.E_Register:
 		var body models.RegisterEvent
 		mapstructure.Decode(msg.Body, &body)
 		handleRegistration(client, body)
+
 	case models.E_Login:
 		var body models.LoginEvent
 		mapstructure.Decode(msg.Body, &body)
 		handleLogin(client, body)
+
 	case models.E_Logout:
-		handleLogout(client)
+		broadcastLogout(client)
+
 	case models.E_CreateGuild:
 		var body models.CreateGuildEvent
 		mapstructure.Decode(msg.Body, &body)
 		handleCreateGuild(client, body)
-	case models.B_ChatMessage:
-		var body models.SendMessageEvent
+
+	case models.E_DeleteGuild:
+		var body models.DeleteGuildEvent
 		mapstructure.Decode(msg.Body, &body)
-		handleChatMessage(client, body)
+		broadcastGuildDelete(client, body)
+
+	case models.E_JoinGuild:
+		var body models.JoinGuildEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleJoinGuild(client, body)
+
+	case models.E_LeaveGuild:
+		var body models.LeaveGuildEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastGuildLeave(client, body)
+
 	case models.E_CreateChannel:
 		var body models.CreateChannelEvent
 		mapstructure.Decode(msg.Body, &body)
-		handleCreateChannel(client, body)
+		broadcastChannelCreate(client, body)
+
+	case models.E_DeleteChannel:
+		var body models.DeleteChannelEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastChannelDelete(client, body)
+
+	case models.E_JoinChannel:
+		var body models.JoinChannelEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastChannelJoin(client, body)
+
+	case models.E_LeaveChannel:
+		var body models.LeaveChannelEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastChannelLeave(client, body)
+
+	case models.E_ChatMessage:
+		var body models.SendMessageEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastMessage(client, body)
+
+	case models.E_DeleteMessage:
+		var body models.DeleteMessageEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastMessageDelete(client, body)
+
 	}
 }
 
@@ -111,4 +153,14 @@ func (client *Client) isMemberOfGuild(guildId string) bool {
 
 func (client *Client) isAuthenticated() bool {
 	return client.Authenticated
+}
+
+func (client *Client) leaveGuild(id string) {
+	newGuildList := []string{}
+	for _, guildId := range client.Guilds {
+		if guildId != id {
+			newGuildList = append(newGuildList, guildId)
+		}
+	}
+	client.Guilds = newGuildList
 }

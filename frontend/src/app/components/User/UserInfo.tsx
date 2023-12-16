@@ -5,11 +5,10 @@ import React from "react"
 
 export default function UserInfo(props: { currentUser: UserDTO }) {
 	const { logout } = useUserContext()
-
 	return (
 		<div className="flex flex-row justify-between items-center">
 			<User
-				name={props.currentUser.getName()}
+				name={props.currentUser.username}
 				avatarProps={{
 					src: props.currentUser.getLogo(),
 				}}

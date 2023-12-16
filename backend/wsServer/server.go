@@ -12,6 +12,7 @@ import (
 type WsServer struct {
 	AuthClients   map[string]*Client
 	UnAuthClients map[*Client]bool
+	Guilds        map[string][]string
 	Authenticate  chan *AuthRequest
 	Connect       chan *websocket.Conn
 	Disconnect    chan string
@@ -22,6 +23,7 @@ func NewWsServer() *WsServer {
 	return &WsServer{
 		AuthClients:   make(map[string]*Client),
 		UnAuthClients: make(map[*Client]bool),
+		Guilds:        map[string][]string{},
 		Authenticate:  make(chan *AuthRequest),
 		Connect:       make(chan *websocket.Conn),
 		Disconnect:    make(chan string),
@@ -100,4 +102,12 @@ func addRoutes(server *WsServer) {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		server.ServeWS(w, r)
 	})
+}
+
+func (server *WsServer) UpdateGuild(guildId string, userId string) {
+	if _, exist := server.Guilds[guildId]; !exist {
+		server.Guilds[guildId] = []string{userId}
+	} else {
+		server.Guilds[guildId] = append(server.Guilds[guildId], userId)
+	}
 }

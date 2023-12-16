@@ -60,3 +60,12 @@ export interface ChatMessageBroadcast {
 		message: MessageDTO
 	}
 }
+
+export interface DeleteMessageBroadcast {
+	type: ResultType
+	body: {
+		guildId: string
+		channelId: string
+		messageId: string
+	}
+}
