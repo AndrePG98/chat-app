@@ -19,6 +19,7 @@ const (
 const (
 	R_Acess int = iota // Equivalent to R_Login & R_Register
 	R_GuildJoin
+	R_GuildLeave
 	B_Login
 	B_Logout
 	B_GuildDelete

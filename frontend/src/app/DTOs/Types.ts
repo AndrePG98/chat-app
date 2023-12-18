@@ -23,6 +23,7 @@ export enum EventType {
 export enum ResultType {
     R_Acess,
     R_JoinGuild,
+    R_LeaveGuild,
     B_Login,
     B_Logout,
     B_GuildDelete,

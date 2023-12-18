@@ -26,6 +26,10 @@ export class GuildDTO {
 		this.guildName = name
 	}
 
+	getChannel(channelId: string) {
+		return this.channels.find((chann) => chann.channelId === channelId)
+	}
+
 	getChannels() {
 		return this.channels
 	}
@@ -38,12 +42,24 @@ export class GuildDTO {
 		this.channels.push(channel)
 	}
 
+	removeChannel(channelId: string) {
+		this.channels = this.channels.filter((chan) => {
+			return chan.channelId !== channelId
+		})
+	}
+
 	setLogo(logo: string) {
 		this.logo = logo
 	}
 
 	addMember(member: SenderDTO) {
 		this.members.push(member)
+	}
+
+	removeMember(memberId: string) {
+		this.members = this.members.filter((member) => {
+			return member.userId !== memberId
+		})
 	}
 }
 
@@ -93,6 +109,13 @@ export interface JoinGuildResult {
 	type: ResultType
 	body: {
 		guild: GuildDTO
+	}
+}
+
+export interface LeaveGuildResult {
+	type: ResultType
+	body: {
+		guildId: string
 	}
 }
 

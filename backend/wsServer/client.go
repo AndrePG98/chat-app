@@ -69,6 +69,7 @@ func (client *Client) authenticate(id string, username string) {
 }
 
 func (client *Client) handleMessage(msg models.IMessage) {
+	log.Println(msg)
 	switch msg.Type {
 
 	case models.E_Register:
@@ -102,7 +103,7 @@ func (client *Client) handleMessage(msg models.IMessage) {
 	case models.E_LeaveGuild:
 		var body models.LeaveGuildEvent
 		mapstructure.Decode(msg.Body, &body)
-		broadcastGuildLeave(client, body)
+		handleLeaveGuild(client, body)
 
 	case models.E_CreateChannel:
 		var body models.CreateChannelEvent

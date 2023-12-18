@@ -31,8 +31,8 @@ export class UserDTO {
 		return this.guilds
 	}
 
-	getGuild(name: string) {
-		return this.guilds.find((guild) => guild.getName() === name)
+	getGuild(guildId: string) {
+		return this.guilds.find((guild) => guild.guildId === guildId)
 	}
 
 	joinGuild(guild: GuildDTO) {
@@ -41,6 +41,14 @@ export class UserDTO {
 
 	joinGuilds(guilds: GuildDTO[]) {
 		guilds.forEach(guild => this.guilds.push(guild))
+	}
+
+	leaveGuild(guildId: string) {
+		this.guilds = this.guilds.filter((guild) => {
+			if (guild.guildId !== guildId) {
+				return true
+			}
+		})
 	}
 }
 

@@ -3,14 +3,14 @@
 import { useState } from "react"
 
 import { ChannelDTO, CreateChannelEvent } from "../../DTOs/ChannelDTO"
-import { GuildDTO } from "../../DTOs/GuildDTO"
+import { GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
 import ChannelSelector from "../Channel/ChannelSelector"
 import TextChannel from "../Channel/Text/TextChannel"
 import VoiceChannel from "../Channel/Voice/VoiceChannel"
 import MembersPanel from "./MembersPanel"
 import { useUserContext } from "@/app/context/UserContext"
 
-export default function Guild(props: { guild: GuildDTO }) {
+export default function Guild(props: { guild: GuildDTO; leaveGuild: () => void }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO>()
 
@@ -29,6 +29,7 @@ export default function Guild(props: { guild: GuildDTO }) {
 				channels={props.guild.channels}
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
+				leaveGuild={props.leaveGuild}
 				serverName={props.guild.guildName}
 			></ChannelSelector>
 			<div className="selected-channel-div flex-1">

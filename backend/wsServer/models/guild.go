@@ -39,6 +39,10 @@ type JoinGuildResult struct {
 	Guild Guild `json:"guild"`
 }
 
+type LeaveGuildResult struct {
+	GuildId string `json:"guildId"`
+}
+
 // ################################## RESULTS ##############################################
 
 // ################################## BROADCASTS ##############################################

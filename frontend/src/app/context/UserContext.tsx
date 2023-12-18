@@ -3,9 +3,28 @@ import { AccessResult, LoginBroadcast, SenderDTO, UserDTO } from "../DTOs/UserDT
 import { LoginEvent, RegisterEvent } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
-import { GuildDTO, JoinGuildResult } from "../DTOs/GuildDTO"
-import { ChatMessageBroadcast, MessageDTO, SendMessageEvent } from "../DTOs/MessageDTO"
-import { ChannelDTO, CreateChannelBroadcast, CreateChannelEvent } from "../DTOs/ChannelDTO"
+import {
+	GuildDTO,
+	GuildDeleteBroadcast,
+	JoinGuildBroadcast,
+	JoinGuildResult,
+	LeaveGuildBroadcast,
+	LeaveGuildResult,
+} from "../DTOs/GuildDTO"
+import {
+	ChatMessageBroadcast,
+	DeleteMessageBroadcast,
+	MessageDTO,
+	SendMessageEvent,
+} from "../DTOs/MessageDTO"
+import {
+	ChannelDTO,
+	CreateChannelBroadcast,
+	CreateChannelEvent,
+	DeleteChannelBroadcast,
+	JoinChannelBroadcast,
+	LeaveCHannelBroadcast,
+} from "../DTOs/ChannelDTO"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -45,20 +64,44 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.R_Acess:
 				authenticate(receivedMessage)
 				break
+			case ResultType.R_JoinGuild:
+				processGuildJoinResult(receivedMessage)
+				break
+			case ResultType.R_LeaveGuild:
+				processGuildLeaveResult(receivedMessage)
+				break
 			case ResultType.B_Login:
 				processLoginBroadcast(receivedMessage)
 				break
 			case ResultType.B_Logout:
 				processLogoutBroadcast(receivedMessage.body.userId)
 				break
-			case ResultType.R_JoinGuild:
-				processGuildJoin(receivedMessage)
+			case ResultType.B_GuildDelete:
+				processGuildDeleteBroadcast(receivedMessage)
+				break
+			case ResultType.B_GuildJoin:
+				processGuildJoinBroadcast(receivedMessage)
+				break
+			case ResultType.B_GuildLeave:
+				processGuildLeaveBroadcast(receivedMessage)
 				break
 			case ResultType.B_CreateChannel:
-				processChannelCreate(receivedMessage)
+				processChannelCreateBroadcast(receivedMessage)
+				break
+			case ResultType.B_DeleteChannel:
+				processChannelDeleteBroadcast(receivedMessage)
+				break
+			case ResultType.B_JoinChannel:
+				processChannelJoinBroadcast(receivedMessage)
+				break
+			case ResultType.B_LeaveChannel:
+				processChannelLeaveBroadcast(receivedMessage)
 				break
 			case ResultType.B_ChatMessage:
-				receiveMessage(receivedMessage)
+				processMessageBroadcast(receivedMessage)
+				break
+			case ResultType.B_ChatMessageDelete:
+				processMessageDeleteBroadcast(receivedMessage)
 				break
 		}
 		setChangeFlag(!changeFlag)
@@ -68,6 +111,14 @@ export const UserContextProvider = ({ children }: any) => {
 		connectToWs((connected: boolean) => {
 			if (connected) {
 				sendWebSocketMessage(new RegisterEvent(username, password, email))
+			}
+		})
+	}
+
+	const login = async (username: string, password: string, token: string) => {
+		connectToWs((connected: boolean) => {
+			if (connected) {
+				sendWebSocketMessage(new LoginEvent(username, password, token))
 			}
 		})
 	}
@@ -91,14 +142,6 @@ export const UserContextProvider = ({ children }: any) => {
 		user.joinGuilds(state)
 	}
 
-	const login = async (username: string, password: string, token: string) => {
-		connectToWs((connected: boolean) => {
-			if (connected) {
-				sendWebSocketMessage(new LoginEvent(username, password, token))
-			}
-		})
-	}
-
 	const logout = () => {
 		disconnectFromWs()
 		setIsAuthenticated(false)
@@ -106,17 +149,12 @@ export const UserContextProvider = ({ children }: any) => {
 		localStorage.removeItem("token")
 	}
 
-	const receiveMessage = (msg: ChatMessageBroadcast) => {
-		const newMsg = msg.body.message
-		currentUser.guilds.forEach((guild) => {
-			if (guild.guildId === newMsg.guildId) {
-				guild.channels.forEach((channel) => {
-					if (channel.channelId == newMsg.channelId) {
-						channel.history = [...channel.history, newMsg]
-					}
-				})
-			}
-		})
+	const processGuildJoinResult = (msg: JoinGuildResult) => {
+		currentUser.joinGuild(msg.body.guild)
+	}
+
+	const processGuildLeaveResult = (msg: LeaveGuildResult) => {
+		currentUser.leaveGuild(msg.body.guildId)
 	}
 
 	const processLoginBroadcast = (msg: LoginBroadcast) => {
@@ -134,12 +172,27 @@ export const UserContextProvider = ({ children }: any) => {
 		})
 	}
 
-	const processGuildJoin = (msg: JoinGuildResult) => {
-		console.log(msg)
-		currentUser.joinGuild(msg.body.guild)
+	const processGuildDeleteBroadcast = (msg: GuildDeleteBroadcast) => {
+		currentUser.leaveGuild(msg.body.guildId)
 	}
 
-	const processChannelCreate = (msg: CreateChannelBroadcast) => {
+	const processGuildJoinBroadcast = (msg: JoinGuildBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.addMember(msg.body.user)
+			}
+		})
+	}
+
+	const processGuildLeaveBroadcast = (msg: LeaveGuildBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.removeMember(msg.body.userId)
+			}
+		})
+	}
+
+	const processChannelCreateBroadcast = (msg: CreateChannelBroadcast) => {
 		const channel = new ChannelDTO(
 			msg.body.channelId,
 			msg.body.guildId,
@@ -151,6 +204,62 @@ export const UserContextProvider = ({ children }: any) => {
 		currentUser.guilds.forEach((guild) => {
 			if (channel.guildId === guild.guildId) {
 				guild.channels = [...guild.channels, channel]
+			}
+		})
+	}
+
+	const processChannelDeleteBroadcast = (msg: DeleteChannelBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.removeChannel(msg.body.channelid)
+			}
+		})
+	}
+
+	const processChannelJoinBroadcast = (msg: JoinChannelBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.channels.forEach((chan) => {
+					if (chan.channelId === msg.body.channelId) {
+						chan.joinChannel(msg.body.user)
+					}
+				})
+			}
+		})
+	}
+
+	const processChannelLeaveBroadcast = (msg: LeaveCHannelBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.channels.forEach((chan) => {
+					if (chan.channelId === msg.body.channelId) {
+						chan.leaveChannel(msg.body.userId)
+					}
+				})
+			}
+		})
+	}
+
+	const processMessageBroadcast = (msg: ChatMessageBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.message.guildId) {
+				guild.channels.forEach((channel) => {
+					if (channel.channelId === msg.body.message.channelId) {
+						channel.addMessage(msg.body.message)
+					}
+				})
+			}
+		})
+	}
+
+	const processMessageDeleteBroadcast = (msg: DeleteMessageBroadcast) => {
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.channels.forEach((channel) => {
+					if (channel.channelId === msg.body.channelId) {
+						channel.removeMessage(msg.body.messageId)
+					}
+				})
 			}
 		})
 	}

@@ -34,7 +34,7 @@ type DeleteChannelEvent struct {
 }
 
 type JoinChannelEvent struct {
-	UserId    string `json:"userId"`
+	User      User   `json:"user"`
 	GuildId   string `json:"guildId"`
 	ChannelId string `json:"channelId"`
 }

@@ -25,8 +25,26 @@ export class ChannelDTO {
         this.history = history
     }
 
+    joinChannel(user: SenderDTO) {
+        if (this.channelType === "voice") {
+            this.members.push(user)
+        }
+    }
+
+    leaveChannel(userId: string) {
+        this.members = this.members.filter((member) => {
+            return member.userId != userId
+        })
+    }
+
     addMessage(message: MessageDTO) {
         this.history.push(message)
+    }
+
+    removeMessage(messageId: string) {
+        this.history = this.history.filter((msg) => {
+            return msg.messageId === messageId
+        })
     }
 }
 
@@ -56,9 +74,9 @@ export class JoinChannelEvent implements IEvent {
     type: EventType
     body: any
 
-    constructor(userId: string, guildId: string, channelId: string) {
+    constructor(user: SenderDTO, guildId: string, channelId: string) {
         this.type = EventType.CreateChannel
-        this.body = { userId, guildId, channelId }
+        this.body = { user, guildId, channelId }
     }
 }
 
@@ -95,7 +113,7 @@ export interface JoinChannelBroadcast {
     body: {
         guildId: string
         channelId: string
-        userId: string
+        user: SenderDTO
     }
 }
 

@@ -79,15 +79,15 @@ func broadcastGuildJoin(client *Client, msg models.JoinGuildEvent) {
 }
 
 func broadcastGuildLeave(client *Client, msg models.LeaveGuildEvent) {
-	client.leaveGuild(msg.GuildId)
-	delete(client.Server.Guilds, client.ID)
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_GuildLeave,
-			Body: models.GuildLeaveBroadcast{
-				UserId:  client.ID,
-				GuildId: msg.GuildId,
-			},
+		if userId != client.ID {
+			client.Server.AuthClients[userId].Send <- &models.IMessage{
+				Type: models.B_GuildLeave,
+				Body: models.GuildLeaveBroadcast{
+					UserId:  client.ID,
+					GuildId: msg.GuildId,
+				},
+			}
 		}
 	}
 }
@@ -122,16 +122,7 @@ func broadcastChannelJoin(client *Client, msg models.JoinChannelEvent) {
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_JoinChannel,
-			Body: models.JoinChannelBroadcast{
-				User: models.User{
-					UserId:   client.ID,
-					Username: client.Username,
-					Email:    "Some@Email",
-					Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-				},
-				GuildId:   msg.GuildId,
-				ChannelId: msg.ChannelId,
-			},
+			Body: models.JoinChannelBroadcast(msg),
 		}
 	}
 }

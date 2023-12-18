@@ -97,3 +97,15 @@ func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
 	}
 	broadcastGuildJoin(client, msg)
 }
+
+func handleLeaveGuild(client *Client, msg models.LeaveGuildEvent) {
+	client.leaveGuild(msg.GuildId)
+	delete(client.Server.Guilds, client.ID)
+	client.Send <- &models.IMessage{
+		Type: models.R_GuildLeave,
+		Body: models.LeaveGuildResult{
+			GuildId: msg.GuildId,
+		},
+	}
+	//broadcastGuildLeave(client, msg)
+}
