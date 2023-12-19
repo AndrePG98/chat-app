@@ -36,10 +36,13 @@ func broadcastLogin(client *Client) {
 func broadcastLogout(client *Client) {
 	defer client.Conn.Close()
 	for _, guildId := range client.Guilds {
-		var updateGuildSlice []string
+		client.Server.Update <- &models.UpdateGuilds{
+			Type:    models.R_GuildLeave,
+			GuildId: guildId,
+			UserId:  client.ID,
+		}
 		for _, userId := range client.Server.Guilds[guildId] {
 			if userId != client.ID {
-				updateGuildSlice = append(updateGuildSlice, userId)
 				client.Server.AuthClients[userId].Send <- &models.IMessage{
 					Type: models.B_Logout,
 					Body: &models.LogoutBroadcast{
@@ -49,7 +52,6 @@ func broadcastLogout(client *Client) {
 				}
 			}
 		}
-		client.Server.Guilds[guildId] = updateGuildSlice
 	}
 }
 
@@ -64,16 +66,23 @@ func broadcastGuildDelete(client *Client, msg models.DeleteGuildEvent) {
 			},
 		}
 	}
+	client.Server.Update <- &models.UpdateGuilds{
+		Type:    models.B_GuildDelete,
+		GuildId: msg.GuildId,
+		UserId:  "",
+	}
 }
 
 func broadcastGuildJoin(client *Client, msg models.JoinGuildEvent) {
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_GuildJoin,
-			Body: models.GuildJoinBroadcast{
-				User:    msg.Member,
-				GuildId: msg.GuildId,
-			},
+		if userId != client.ID {
+			client.Server.AuthClients[userId].Send <- &models.IMessage{
+				Type: models.B_GuildJoin,
+				Body: models.GuildJoinBroadcast{
+					User:    msg.Member,
+					GuildId: msg.GuildId,
+				},
+			}
 		}
 	}
 }

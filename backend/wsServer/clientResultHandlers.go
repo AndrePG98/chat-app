@@ -40,9 +40,6 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 		result, id, token, username, state = FetchUserByToken(token)
 	}
 	if result {
-		for _, guild := range state {
-			client.Server.UpdateGuild(guild.ID, id)
-		}
 		client.authenticate(id, username)
 		client.joinGuilds(state)
 		client.Server.Authenticate <- &AuthRequest{
@@ -64,7 +61,11 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 	guildId := uuid.NewString()
 	client.joinGuild(guildId)
-	client.Server.UpdateGuild(guildId, client.ID)
+	client.Server.Update <- &models.UpdateGuilds{
+		Type:    models.R_GuildJoin,
+		GuildId: guildId,
+		UserId:  client.ID,
+	}
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
 		Body: models.JoinGuildResult{
@@ -87,7 +88,11 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 }
 
 func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
-	client.Server.UpdateGuild(msg.GuildId, client.ID)
+	client.Server.Update <- &models.UpdateGuilds{
+		Type:    models.R_GuildJoin,
+		GuildId: msg.GuildId,
+		UserId:  client.ID,
+	}
 	client.joinGuild(msg.GuildId)
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
@@ -100,12 +105,16 @@ func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
 
 func handleLeaveGuild(client *Client, msg models.LeaveGuildEvent) {
 	client.leaveGuild(msg.GuildId)
-	delete(client.Server.Guilds, client.ID)
+	client.Server.Update <- &models.UpdateGuilds{
+		Type:    models.R_GuildLeave,
+		GuildId: msg.GuildId,
+		UserId:  client.ID,
+	}
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildLeave,
 		Body: models.LeaveGuildResult{
 			GuildId: msg.GuildId,
 		},
 	}
-	//broadcastGuildLeave(client, msg)
+	broadcastGuildLeave(client, msg)
 }

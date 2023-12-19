@@ -1,5 +1,11 @@
 package models
 
+type UpdateGuilds struct {
+	Type    interface{}
+	GuildId string
+	UserId  string
+}
+
 type Guild struct {
 	ID       string    `json:"guildId"`
 	OwnerId  string    `json:"ownerId"`

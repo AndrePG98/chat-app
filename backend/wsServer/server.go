@@ -17,6 +17,7 @@ type WsServer struct {
 	Connect       chan *websocket.Conn
 	Disconnect    chan string
 	Remove        chan *Client
+	Update        chan *models.UpdateGuilds
 }
 
 func NewWsServer() *WsServer {
@@ -28,6 +29,7 @@ func NewWsServer() *WsServer {
 		Connect:       make(chan *websocket.Conn),
 		Disconnect:    make(chan string),
 		Remove:        make(chan *Client),
+		Update:        make(chan *models.UpdateGuilds),
 	}
 }
 
@@ -37,6 +39,7 @@ func (server *WsServer) run() {
 	go server.listenForRemoves()
 	go server.listenForAuthReq()
 	go server.listenForDisconnections()
+	go server.listenGuildUpdates()
 	log.Println("Websocket Server listenning on", 8443)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -61,6 +64,13 @@ func (server *WsServer) listenForAuthReq() {
 		error := authReq.Error
 		if result {
 			server.AuthClients[client.ID] = client
+			for _, guild := range state {
+				client.Server.Update <- &models.UpdateGuilds{
+					Type:    models.R_GuildJoin,
+					GuildId: guild.ID,
+					UserId:  client.ID,
+				}
+			}
 			// Send initial State
 			client.Send <- &models.IMessage{
 				Type: 0,
@@ -98,16 +108,30 @@ func (server *WsServer) listenForRemoves() {
 	}
 }
 
+func (server *WsServer) listenGuildUpdates() {
+	for req := range server.Update {
+		switch req.Type {
+		case models.R_GuildJoin:
+			if users, exist := server.Guilds[req.GuildId]; exist {
+				server.Guilds[req.GuildId] = append(users, req.UserId)
+			} else {
+				server.Guilds[req.GuildId] = []string{req.UserId}
+			}
+		case models.R_GuildLeave:
+			for i, userId := range server.Guilds[req.GuildId] {
+				if userId == req.UserId {
+					server.Guilds[req.GuildId] = remove(server.Guilds[req.GuildId], i)
+					break
+				}
+			}
+		case models.B_GuildDelete:
+			delete(server.Guilds, req.GuildId)
+		}
+	}
+}
+
 func addRoutes(server *WsServer) {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		server.ServeWS(w, r)
 	})
-}
-
-func (server *WsServer) UpdateGuild(guildId string, userId string) {
-	if _, exist := server.Guilds[guildId]; !exist {
-		server.Guilds[guildId] = []string{userId}
-	} else {
-		server.Guilds[guildId] = append(server.Guilds[guildId], userId)
-	}
 }

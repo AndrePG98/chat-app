@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"slices"
 
 	"wsServer/models"
 
@@ -69,7 +68,6 @@ func (client *Client) authenticate(id string, username string) {
 }
 
 func (client *Client) handleMessage(msg models.IMessage) {
-	log.Println(msg)
 	switch msg.Type {
 
 	case models.E_Register:
@@ -146,14 +144,6 @@ func (client *Client) joinGuilds(guilds []models.Guild) {
 
 func (client *Client) joinGuild(guildId string) {
 	client.Guilds = append(client.Guilds, guildId)
-}
-
-func (client *Client) isMemberOfGuild(guildId string) bool {
-	return slices.Contains(client.Guilds, guildId)
-}
-
-func (client *Client) isAuthenticated() bool {
-	return client.Authenticated
 }
 
 func (client *Client) leaveGuild(id string) {
