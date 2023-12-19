@@ -29,11 +29,11 @@ export default function ChannelSelector(props: {
 			<div className="title text-center p-3 mb-5">{props.serverName}</div>
 			<div className="channel-buttons flex-1">
 				{props.channels.map((channel) => (
-					<div key={channel.id}>
-						{channel.type === "text" && (
+					<div key={channel.channelId}>
+						{channel.channelType === "text" && (
 							<TextChannelBtn channel={channel} selectChannel={props.selectChannel} />
 						)}
-						{channel.type === "voice" && (
+						{channel.channelType === "voice" && (
 							<VoiceChannelBtn
 								channel={channel}
 								selectChannel={props.selectChannel}
@@ -42,19 +42,18 @@ export default function ChannelSelector(props: {
 					</div>
 				))}
 			</div>
-			<div className="user-buttons">
+			<div className="user-buttons flex flex-row justify-evenly">
 				<CreateChannelModal
 					isOpen={modalOpen}
 					onOpenChange={closeModal}
 					createNewChannel={props.createNewChannel}
 				/>
 				<Button
-					fullWidth
 					size="sm"
 					radius="none"
 					variant="light"
 					isIconOnly
-					className="flex justify-center items-center w-full"
+					className="flex justify-center items-center"
 					onClick={openModal}
 				>
 					<span className="material-symbols-outlined">add</span>

@@ -32,7 +32,7 @@ export default function VoiceChannelBtn(props: {
 				variant="light"
 				radius="none"
 			>
-				{props.channel.name}
+				{props.channel.channelName}
 			</Button>
 			{channelUsers.length > 0 && (
 				<Listbox

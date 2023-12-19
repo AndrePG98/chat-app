@@ -26,6 +26,8 @@ type LoginEvent struct {
 	Token    string `json:"token"`
 }
 
+type LogoutEvent struct{}
+
 // ################################## EVENTS ###########################################
 
 // ################################## RESULTS ##############################################
@@ -35,7 +37,7 @@ type AcessResult struct {
 	Result   bool    `json:"result"`
 	Token    string  `json:"token"`
 	UserId   string  `json:"userId"`
-	Username string  `json:"userName"`
+	Username string  `json:"username"`
 	State    []Guild `json:"state"`
 	Error    string  `json:"error"`
 }

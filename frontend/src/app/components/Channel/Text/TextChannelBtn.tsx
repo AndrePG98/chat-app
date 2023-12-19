@@ -13,7 +13,7 @@ export default function TextChannelBtn(props: {
 			variant="light"
 			radius="none"
 		>
-			{props.channel.name}
+			{props.channel.channelName}
 		</Button>
 	)
 }

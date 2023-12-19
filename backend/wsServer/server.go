@@ -12,20 +12,24 @@ import (
 type WsServer struct {
 	AuthClients   map[string]*Client
 	UnAuthClients map[*Client]bool
+	Guilds        map[string][]string
 	Authenticate  chan *AuthRequest
 	Connect       chan *websocket.Conn
 	Disconnect    chan string
 	Remove        chan *Client
+	Update        chan *models.UpdateGuilds
 }
 
 func NewWsServer() *WsServer {
 	return &WsServer{
 		AuthClients:   make(map[string]*Client),
 		UnAuthClients: make(map[*Client]bool),
+		Guilds:        map[string][]string{},
 		Authenticate:  make(chan *AuthRequest),
 		Connect:       make(chan *websocket.Conn),
 		Disconnect:    make(chan string),
 		Remove:        make(chan *Client),
+		Update:        make(chan *models.UpdateGuilds),
 	}
 }
 
@@ -35,6 +39,7 @@ func (server *WsServer) run() {
 	go server.listenForRemoves()
 	go server.listenForAuthReq()
 	go server.listenForDisconnections()
+	go server.listenGuildUpdates()
 	log.Println("Websocket Server listenning on", 8443)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -59,6 +64,13 @@ func (server *WsServer) listenForAuthReq() {
 		error := authReq.Error
 		if result {
 			server.AuthClients[client.ID] = client
+			for _, guild := range state {
+				client.Server.Update <- &models.UpdateGuilds{
+					Type:    models.R_GuildJoin,
+					GuildId: guild.ID,
+					UserId:  client.ID,
+				}
+			}
 			// Send initial State
 			client.Send <- &models.IMessage{
 				Type: 0,
@@ -93,6 +105,28 @@ func (server *WsServer) listenForDisconnections() {
 func (server *WsServer) listenForRemoves() {
 	for client := range server.Remove {
 		delete(server.UnAuthClients, client)
+	}
+}
+
+func (server *WsServer) listenGuildUpdates() {
+	for req := range server.Update {
+		switch req.Type {
+		case models.R_GuildJoin:
+			if users, exist := server.Guilds[req.GuildId]; exist {
+				server.Guilds[req.GuildId] = append(users, req.UserId)
+			} else {
+				server.Guilds[req.GuildId] = []string{req.UserId}
+			}
+		case models.R_GuildLeave:
+			for i, userId := range server.Guilds[req.GuildId] {
+				if userId == req.UserId {
+					server.Guilds[req.GuildId] = remove(server.Guilds[req.GuildId], i)
+					break
+				}
+			}
+		case models.B_GuildDelete:
+			delete(server.Guilds, req.GuildId)
+		}
 	}
 }
 
