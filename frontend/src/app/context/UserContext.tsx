@@ -245,6 +245,7 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.message.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.message.channelId) {
+						console.log(channel)
 						channel.addMessage(msg.body.message)
 					}
 				})
@@ -257,6 +258,7 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.channelId) {
+						console.log(channel)
 						channel.removeMessage(msg.body.messageId)
 					}
 				})

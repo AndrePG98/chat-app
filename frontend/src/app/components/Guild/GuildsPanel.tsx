@@ -18,10 +18,10 @@ export default function GuildsPanel(props: {
 		setSelectedGuild(guild)
 	}
 
-	const leaveGuild = () => {
-		if (selectedGuild) {
-			const event = new LeaveGuildEvent(selectedGuild.guildId, currentUser.id)
-			sendWebSocketMessage(event)
+	const leaveGuild = (guildId: string) => {
+		const event = new LeaveGuildEvent(guildId, currentUser.id)
+		sendWebSocketMessage(event)
+		if (selectedGuild && selectedGuild.guildId === guildId) {
 			setSelectedGuild(undefined)
 		}
 	}
@@ -32,8 +32,9 @@ export default function GuildsPanel(props: {
 				currentUser={props.currentUser}
 				selectGuild={selectGuild}
 				createNewGuild={props.createNewGuild}
+				leaveGuild={leaveGuild}
 			/>
-			{selectedGuild && <Guild guild={selectedGuild} leaveGuild={leaveGuild} />}
+			{selectedGuild && <Guild guild={selectedGuild} />}
 		</div>
 	)
 }

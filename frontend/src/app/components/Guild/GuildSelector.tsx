@@ -10,6 +10,7 @@ export default function GuildSelector(props: {
 	currentUser: UserDTO
 	selectGuild: (guild: GuildDTO) => void
 	createNewGuild: (guildName: string) => void
+	leaveGuild: (guildId: string) => void
 }) {
 	const [modalOpen, setModalOpen] = useState(false)
 
@@ -34,6 +35,7 @@ export default function GuildSelector(props: {
 						<GuildBtn
 							guild={guild}
 							selectGuild={props.selectGuild}
+							leaveGuild={props.leaveGuild}
 							key={index}
 						></GuildBtn>
 					))}

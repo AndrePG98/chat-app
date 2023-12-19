@@ -43,7 +43,7 @@ export class ChannelDTO {
 
     removeMessage(messageId: string) {
         this.history = this.history.filter((msg) => {
-            return msg.messageId === messageId
+            return msg.messageId !== messageId
         })
     }
 }

@@ -47,7 +47,7 @@ export class DeleteMessageEvent implements IEvent {
 	body: any
 
 	constructor(userId: string, guildId: string, channelId: string, messageId: string) {
-		this.type = EventType.DeleteChannel
+		this.type = EventType.DeleteMessage
 		this.body = {
 			userId, guildId, channelId, messageId
 		}

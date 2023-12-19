@@ -10,7 +10,7 @@ import VoiceChannel from "../Channel/Voice/VoiceChannel"
 import MembersPanel from "./MembersPanel"
 import { useUserContext } from "@/app/context/UserContext"
 
-export default function Guild(props: { guild: GuildDTO; leaveGuild: () => void }) {
+export default function Guild(props: { guild: GuildDTO }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO>()
 
@@ -29,7 +29,6 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: () => void }
 				channels={props.guild.channels}
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
-				leaveGuild={props.leaveGuild}
 				serverName={props.guild.guildName}
 			></ChannelSelector>
 			<div className="selected-channel-div flex-1">

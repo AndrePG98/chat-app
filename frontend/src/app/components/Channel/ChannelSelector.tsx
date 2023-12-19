@@ -10,7 +10,6 @@ export default function ChannelSelector(props: {
 	serverName: string
 	createNewChannel: (name: string, type: string) => void
 	selectChannel: (channel: ChannelDTO) => void
-	leaveGuild: () => void
 }) {
 	const [modalOpen, setModalOpen] = useState(false)
 
@@ -58,16 +57,6 @@ export default function ChannelSelector(props: {
 					onClick={openModal}
 				>
 					<span className="material-symbols-outlined">add</span>
-				</Button>
-				<Button
-					size="sm"
-					radius="none"
-					variant="light"
-					isIconOnly
-					className="flex justify-center items-center"
-					onClick={props.leaveGuild}
-				>
-					<span className="material-symbols-outlined">close</span>
 				</Button>
 			</div>
 		</div>

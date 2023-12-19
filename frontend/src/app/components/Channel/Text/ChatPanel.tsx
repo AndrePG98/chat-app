@@ -2,10 +2,10 @@ import { MessageDTO } from "@/app/DTOs/MessageDTO"
 import { Button, Input } from "@nextui-org/react"
 import React, { useEffect, useRef } from "react"
 import Message from "./Message"
+import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
 
 interface ChatPanelProps {
-	messages: MessageDTO[]
-	channelId: string
+	channel: ChannelDTO
 	createNewMessage: (message: string) => void
 }
 
@@ -17,7 +17,7 @@ export default function ChatPanel(props: ChatPanelProps) {
 		if (chatContainerRef.current) {
 			chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
 		}
-	}, [props.messages.length])
+	}, [props.channel.history.length])
 
 	const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.key === "Enter" && input !== "") {
@@ -29,18 +29,18 @@ export default function ChatPanel(props: ChatPanelProps) {
 
 	return (
 		<div
-			className="chat-panel flex flex-col h-full px-3 pb-5"
+			className="chat-panel flex flex-col h-full px-3 pb-5 min-w-full max-w-36"
 			style={{ border: "2px solid blue" }}
 		>
 			<div
 				ref={chatContainerRef}
 				className="message-container flex flex-col gap-10 overflow-y-auto flex-1 w-full pt-5 px-3 pb-3"
 			>
-				{props.messages.map((message, index) => (
+				{props.channel.history.map((message, index) => (
 					<Message message={message} key={index}></Message>
 				))}
 			</div>
-			{props.channelId !== null && (
+			{props.channel.channelId !== null && (
 				<div>
 					<Input
 						className=""

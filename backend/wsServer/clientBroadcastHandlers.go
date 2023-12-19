@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"wsServer/models"
 
 	"github.com/google/uuid"
@@ -150,12 +151,13 @@ func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
 }
 
 func broadcastMessage(client *Client, msg models.SendMessageEvent) {
+	id := uuid.NewString()
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChatMessage,
 			Body: models.MessageBroadcast{
 				Message: models.Message{
-					ID:        uuid.NewString(),
+					ID:        id,
 					Sender:    msg.Sender,
 					GuildId:   msg.GuildId,
 					ChannelId: msg.ChannelId,
@@ -168,6 +170,7 @@ func broadcastMessage(client *Client, msg models.SendMessageEvent) {
 }
 
 func broadcastMessageDelete(client *Client, msg models.DeleteMessageEvent) {
+	log.Println(msg)
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChatMessageDelete,
