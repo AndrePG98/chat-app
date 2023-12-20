@@ -56,7 +56,7 @@ export default function GuildBtn(props: {
 								onOpen()
 							}}
 						>
-							Delete guild
+							Leave guild
 						</DropdownItem>
 					</DropdownMenu>
 				</Dropdown>
@@ -69,7 +69,7 @@ export default function GuildBtn(props: {
 				<ModalContent>
 					{(onClose) => (
 						<>
-							<ModalHeader className="flex flex-col gap-1">Delete guild?</ModalHeader>
+							<ModalHeader className="flex flex-col gap-1">Leave guild?</ModalHeader>
 							<ModalFooter>
 								<Button color="danger" variant="light" onPress={onClose}>
 									Close

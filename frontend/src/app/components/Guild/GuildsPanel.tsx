@@ -27,7 +27,7 @@ export default function GuildsPanel(props: {
 	}
 
 	return (
-		<div className="flex h-screen flex-row">
+		<div className="flex flex-row h-screen w-screen">
 			<GuildSelector
 				currentUser={props.currentUser}
 				selectGuild={selectGuild}

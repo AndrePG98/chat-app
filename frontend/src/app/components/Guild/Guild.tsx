@@ -24,14 +24,14 @@ export default function Guild(props: { guild: GuildDTO }) {
 	}
 
 	return (
-		<div className="server flex-1 flex flex-row">
+		<div className="server flex-1 flex flex-row w-full justify-between">
 			<ChannelSelector
 				channels={props.guild.channels}
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
 				serverName={props.guild.guildName}
 			></ChannelSelector>
-			<div className="selected-channel-div flex-1">
+			<div className="selected-channel-div basis-[75%] grow-0 shrink-1">
 				{selectedChannel?.channelType === "text" && (
 					<TextChannel
 						channel={selectedChannel}

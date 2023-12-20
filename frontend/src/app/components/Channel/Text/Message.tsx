@@ -14,8 +14,8 @@ export default function Message(props: { message: MessageDTO }) {
 	const { sendWebSocketMessage } = useUserContext()
 	return (
 		<div className="message flex gap-4 group" aria-label="Message">
-			<div className="flex justify-center items-center">
-				<Avatar size="lg" src={"https://source.unsplash.com/random/150x150/?avatar"} />
+			<div className="flex justify-center items-start">
+				<Avatar size="md" src={"https://source.unsplash.com/random/150x150/?avatar"} />
 			</div>
 			<div className="flex-1 overflow-auto flex justity-start items-start">
 				<div className="max-w-[90%]">
@@ -32,7 +32,7 @@ export default function Message(props: { message: MessageDTO }) {
 							radius="lg"
 							isIconOnly
 							size="sm"
-							className="flex justify-center items-center h-full w-full opacity-0 group-hover:opacity-50"
+							className="flex justify-center items-center opacity-0 group-hover:opacity-50"
 							aria-label="Message Options"
 						>
 							<span className="material-symbols-outlined">menu</span>
