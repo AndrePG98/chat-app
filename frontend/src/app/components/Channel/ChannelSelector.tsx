@@ -1,4 +1,15 @@
-import { Button, ButtonGroup } from "@nextui-org/react"
+import {
+	Button,
+	Dropdown,
+	DropdownItem,
+	DropdownMenu,
+	DropdownTrigger,
+	Modal,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	useDisclosure,
+} from "@nextui-org/react"
 import { useState } from "react"
 import { ChannelDTO, JoinChannelEvent, LeaveChannelEvent } from "../../DTOs/ChannelDTO"
 import TextChannelBtn from "./Text/TextChannelBtn"
@@ -12,8 +23,10 @@ export default function ChannelSelector(props: {
 	serverName: string
 	createNewChannel: (name: string, type: string) => void
 	selectChannel: (channel: ChannelDTO) => void
+	leaveGuild: () => void
 }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
+	const { isOpen, onOpen, onOpenChange } = useDisclosure()
 	const [modalOpen, setModalOpen] = useState(false)
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
 	const [isMute, setIsMute] = useState(false)
@@ -50,10 +63,7 @@ export default function ChannelSelector(props: {
 	}
 
 	return (
-		<div
-			className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch"
-			style={{ border: "2px solid red" }}
-		>
+		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800">
 			<div className="title text-center p-3 mb-5">{props.serverName}</div>
 			<div className="channel-buttons flex-1">
 				{props.channels.map((channel) => (
@@ -121,17 +131,108 @@ export default function ChannelSelector(props: {
 						</>
 					)}
 				</div>
-				<Button
-					size="sm"
-					radius="none"
-					variant="light"
-					isIconOnly
-					className="flex justify-center items-center w-full"
-					onClick={openModal}
-				>
-					<span className="material-symbols-outlined">add</span>
-				</Button>
+				<div className="flex flex-row">
+					<Button
+						size="sm"
+						radius="none"
+						variant="light"
+						isIconOnly
+						className="flex justify-center items-center w-full"
+						onClick={openModal}
+					>
+						<span className="material-symbols-outlined">add_comment</span>
+					</Button>
+					<Dropdown showArrow className="py-1 px-1">
+						<DropdownTrigger>
+							<Button
+								size="sm"
+								radius="none"
+								variant="light"
+								isIconOnly
+								className="flex justify-center items-center w-full"
+							>
+								<span className="material-symbols-outlined">settings</span>
+							</Button>
+						</DropdownTrigger>
+						<DropdownMenu>
+							<DropdownItem
+								key="delete"
+								className="text-danger"
+								color="danger"
+								variant="bordered"
+								startContent={
+									<span className="material-symbols-outlined">delete</span>
+								}
+								onPress={() => {
+									onOpen()
+								}}
+							>
+								Leave guild
+							</DropdownItem>
+						</DropdownMenu>
+					</Dropdown>
+					<Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
+						<ModalContent>
+							{(onClose) => (
+								<>
+									<ModalHeader className="flex flex-col gap-1">
+										Leave guild?
+									</ModalHeader>
+									<ModalFooter>
+										<Button color="danger" variant="light" onPress={onClose}>
+											Close
+										</Button>
+										<Button
+											className="w-full"
+											color="success"
+											onClick={() => {
+												onClose()
+												props.leaveGuild()
+											}}
+											endContent={
+												<span className="material-symbols-outlined">
+													check
+												</span>
+											}
+										>
+											Confirm
+										</Button>
+									</ModalFooter>
+								</>
+							)}
+						</ModalContent>
+					</Modal>
+				</div>
 			</div>
 		</div>
 	)
+}
+
+{
+	/* <Dropdown className="py-1 px-1 border border-default-200 bg-gradient-to-br from-white to-default-200 dark:from-default-50 dark:to-black">
+	<DropdownTrigger>
+		<Button
+			variant="light"
+			radius="lg"
+			isIconOnly
+			size="sm"
+			className="flex justify-center items-center"
+		>
+			<span className="material-symbols-outlined">menu</span>
+		</Button>
+	</DropdownTrigger>
+	<DropdownMenu>
+		<DropdownItem
+			key="delete"
+			className="text-danger"
+			color="danger"
+			startContent={<span className="material-symbols-outlined">delete</span>}
+			onPress={() => {
+				onOpen()
+			}}
+		>
+			Leave guild
+		</DropdownItem>
+	</DropdownMenu>
+</Dropdown> */
 }

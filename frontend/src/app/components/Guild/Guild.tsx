@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { ChannelDTO, CreateChannelEvent } from "../../DTOs/ChannelDTO"
 import { GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
@@ -9,8 +9,9 @@ import TextChannel from "../Channel/Text/TextChannel"
 import VoiceChannel from "../Channel/Voice/VoiceChannel"
 import MembersPanel from "./MembersPanel"
 import { useUserContext } from "@/app/context/UserContext"
+import { Divider } from "@nextui-org/react"
 
-export default function Guild(props: { guild: GuildDTO }) {
+export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: string) => void }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO>()
 
@@ -23,6 +24,10 @@ export default function Guild(props: { guild: GuildDTO }) {
 		sendWebSocketMessage(channel)
 	}
 
+	useEffect(() => {
+		selectChannel(props.guild.channels[0])
+	}, [props.guild])
+
 	return (
 		<div className="server flex-1 flex flex-row w-full justify-between">
 			<ChannelSelector
@@ -30,6 +35,7 @@ export default function Guild(props: { guild: GuildDTO }) {
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
 				serverName={props.guild.guildName}
+				leaveGuild={() => props.leaveGuild(props.guild.guildId)}
 			></ChannelSelector>
 			<div className="selected-channel-div basis-[75%] grow-0 shrink-1">
 				{selectedChannel?.channelType === "text" && (

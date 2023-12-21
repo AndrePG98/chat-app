@@ -7,10 +7,7 @@ import Guild from "./Guild"
 import GuildSelector from "./GuildSelector"
 import { useUserContext } from "@/app/context/UserContext"
 
-export default function GuildsPanel(props: {
-	currentUser: UserDTO
-	createNewGuild: (guildName: string) => void
-}) {
+export default function GuildsPanel(props: { currentUser: UserDTO }) {
 	const { sendWebSocketMessage, currentUser } = useUserContext()
 	const [selectedGuild, setSelectedGuild] = useState<GuildDTO>()
 
@@ -28,13 +25,8 @@ export default function GuildsPanel(props: {
 
 	return (
 		<div className="flex flex-row h-screen w-screen">
-			<GuildSelector
-				currentUser={props.currentUser}
-				selectGuild={selectGuild}
-				createNewGuild={props.createNewGuild}
-				leaveGuild={leaveGuild}
-			/>
-			{selectedGuild && <Guild guild={selectedGuild} />}
+			<GuildSelector currentUser={props.currentUser} selectGuild={selectGuild} />
+			{selectedGuild && <Guild guild={selectedGuild} leaveGuild={leaveGuild} />}
 		</div>
 	)
 }
