@@ -42,12 +42,6 @@ export class GuildDTO {
 		this.channels.push(channel)
 	}
 
-	removeChannel(channelId: string) {
-		this.channels = this.channels.filter((chan) => {
-			return chan.channelId !== channelId
-		})
-	}
-
 	setLogo(logo: string) {
 		this.logo = logo
 	}

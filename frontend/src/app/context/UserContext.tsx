@@ -211,7 +211,9 @@ export const UserContextProvider = ({ children }: any) => {
 	const processChannelDeleteBroadcast = (msg: DeleteChannelBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
-				guild.removeChannel(msg.body.channelid)
+				guild.channels = guild.channels.filter((chan) => {
+					chan.channelId != msg.body.channelid
+				})
 			}
 		})
 	}

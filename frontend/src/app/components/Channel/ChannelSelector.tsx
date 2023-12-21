@@ -22,6 +22,7 @@ export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
 	serverName: string
 	createNewChannel: (name: string, type: string) => void
+	deleteChannel: (channelId: string) => void
 	selectChannel: (channel: ChannelDTO) => void
 	leaveGuild: () => void
 }) {
@@ -69,13 +70,18 @@ export default function ChannelSelector(props: {
 				{props.channels.map((channel) => (
 					<div key={channel.channelId}>
 						{channel.channelType === "text" && (
-							<TextChannelBtn channel={channel} selectChannel={props.selectChannel} />
+							<TextChannelBtn
+								channel={channel}
+								selectChannel={props.selectChannel}
+								deleteChannel={props.deleteChannel}
+							/>
 						)}
 						{channel.channelType === "voice" && (
 							<VoiceChannelBtn
 								channel={channel}
 								selectChannel={props.selectChannel}
 								addChannelUser={addChannelUser}
+								deleteChannel={props.deleteChannel}
 							/>
 						)}
 					</div>

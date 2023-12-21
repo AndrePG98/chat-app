@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-import { ChannelDTO, CreateChannelEvent } from "../../DTOs/ChannelDTO"
+import { ChannelDTO, CreateChannelEvent, DeleteChannelEvent } from "../../DTOs/ChannelDTO"
 import { GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
 import ChannelSelector from "../Channel/ChannelSelector"
 import TextChannel from "../Channel/Text/TextChannel"
@@ -20,8 +20,13 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 	}
 
 	const createNewChannel = (name: string, type: string) => {
-		const channel = new CreateChannelEvent(currentUser.id, props.guild.guildId, name, type)
-		sendWebSocketMessage(channel)
+		const event = new CreateChannelEvent(currentUser.id, props.guild.guildId, name, type)
+		sendWebSocketMessage(event)
+	}
+
+	const deleteChannel = (channelId: string) => {
+		const event = new DeleteChannelEvent(currentUser.id, props.guild.guildId, channelId)
+		sendWebSocketMessage(event)
 	}
 
 	useEffect(() => {
@@ -34,6 +39,7 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 				channels={props.guild.channels}
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
+				deleteChannel={deleteChannel}
 				serverName={props.guild.guildName}
 				leaveGuild={() => props.leaveGuild(props.guild.guildId)}
 			></ChannelSelector>
