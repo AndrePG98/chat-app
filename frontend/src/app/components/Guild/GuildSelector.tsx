@@ -9,6 +9,7 @@ import { UserDTO } from "@/app/DTOs/UserDTO"
 export default function GuildSelector(props: {
 	currentUser: UserDTO
 	selectGuild: (guild: GuildDTO) => void
+	selectedGuildId: string | undefined
 }) {
 	return (
 		<aside className="basis-[15%] py-5 border-r border-gray-800 flex flex-col">
@@ -16,7 +17,12 @@ export default function GuildSelector(props: {
 			<Divider className="mb-2"></Divider>
 			<div className="my-3 flex flex-col gap-3 h-full">
 				{props.currentUser.getGuilds().map((guild, index) => (
-					<GuildBtn guild={guild} selectGuild={props.selectGuild} key={index}></GuildBtn>
+					<GuildBtn
+						guild={guild}
+						selectGuild={props.selectGuild}
+						selectedGuildId={props.selectedGuildId}
+						key={index}
+					></GuildBtn>
 				))}
 			</div>
 		</aside>

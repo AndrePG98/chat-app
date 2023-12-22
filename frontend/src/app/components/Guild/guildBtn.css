@@ -1,0 +1,24 @@
+.guildBtn {
+	position: relative;
+	border-right: 3px solid rgba(0, 212, 255, 100);
+	background-image: linear-gradient(to left, rgba(0, 212, 255, 0.2) 0%, rgba(2, 0, 36, 0) 85%);
+}
+
+.guildBtn::before,
+.guildBtn::after {
+	content: "";
+	position: absolute;
+	right: 0%;
+	height: 2px;
+	background: linear-gradient(to left, rgba(0, 212, 255, 1), rgba(2, 0, 36, 0));
+}
+
+.guildBtn::before {
+	width: 95%;
+	top: 0;
+}
+
+.guildBtn::after {
+	width: 100%;
+	bottom: 0;
+}

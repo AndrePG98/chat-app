@@ -43,27 +43,23 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 				</Button>
 			</div>
 			<div className="flex flex-row">
-				<Tooltip content="New guild" showArrow offset={-5} closeDelay={0} delay={500}>
-					<Button
-						isIconOnly
-						radius="none"
-						variant="light"
-						className="flex justify-center items-center w-full"
-						onClick={openModal}
-					>
-						<span className="material-symbols-outlined">add</span>
-					</Button>
-				</Tooltip>
-				<Tooltip content="User settings" showArrow offset={-5} closeDelay={0} delay={500}>
-					<Button
-						isIconOnly
-						radius="none"
-						variant="light"
-						className="flex justify-center items-center w-full"
-					>
-						<span className="material-symbols-outlined">manage_accounts</span>
-					</Button>
-				</Tooltip>
+				<Button
+					isIconOnly
+					radius="none"
+					variant="light"
+					className="flex justify-center items-center w-full"
+					onClick={openModal}
+				>
+					<span className="material-symbols-outlined">add</span>
+				</Button>
+				<Button
+					isIconOnly
+					radius="none"
+					variant="light"
+					className="flex justify-center items-center w-full"
+				>
+					<span className="material-symbols-outlined">manage_accounts</span>
+				</Button>
 				<CreateGuildModal
 					isOpen={modalOpen}
 					onOpenChange={closeModal}

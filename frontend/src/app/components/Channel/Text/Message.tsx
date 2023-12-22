@@ -7,6 +7,7 @@ import {
 	DropdownItem,
 	DropdownMenu,
 	DropdownTrigger,
+	User,
 } from "@nextui-org/react"
 import React from "react"
 
@@ -14,9 +15,16 @@ export default function Message(props: { message: MessageDTO }) {
 	const { sendWebSocketMessage } = useUserContext()
 	return (
 		<div className="message flex gap-4 group" aria-label="Message">
-			<div className="flex justify-center items-start">
+			<User
+				className="text-xs"
+				name={props.message.sender.username}
+				description={props.message.sendAt}
+				avatarProps={{ src: props.message.sender.logo }}
+			/>
+			{/* <div className="flex flex-col justify-center items-center gap-2">
 				<Avatar size="md" src={"https://source.unsplash.com/random/150x150/?avatar"} />
-			</div>
+				<div className="text-xs">{props.message.sendAt}</div>
+			</div> */}
 			<div className="flex-1 overflow-auto flex justity-start items-start">
 				<div className="max-w-[90%]">
 					<p className="text-sm break-words text-pretty break-all">
@@ -43,6 +51,7 @@ export default function Message(props: { message: MessageDTO }) {
 							key="delete"
 							className="text-danger"
 							color="danger"
+							variant="bordered"
 							startContent={<span className="material-symbols-outlined">delete</span>}
 							onPress={() => {
 								const event = new DeleteMessageEvent(

@@ -25,7 +25,11 @@ export default function GuildsPanel(props: { currentUser: UserDTO }) {
 
 	return (
 		<div className="flex flex-row h-screen w-screen">
-			<GuildSelector currentUser={props.currentUser} selectGuild={selectGuild} />
+			<GuildSelector
+				currentUser={props.currentUser}
+				selectGuild={selectGuild}
+				selectedGuildId={selectedGuild?.guildId}
+			/>
 			{selectedGuild && <Guild guild={selectedGuild} leaveGuild={leaveGuild} />}
 		</div>
 	)

@@ -9,6 +9,7 @@ import {
 	ModalFooter,
 	ModalHeader,
 	useDisclosure,
+	Tooltip,
 } from "@nextui-org/react"
 import { useState } from "react"
 import { ChannelDTO, JoinChannelEvent, LeaveChannelEvent } from "../../DTOs/ChannelDTO"
