@@ -9,7 +9,7 @@
 	content: "";
 	position: absolute;
 	right: 0%;
-	height: 2px;
+	height: 1px;
 	background: linear-gradient(to left, rgba(0, 212, 255, 1), rgba(2, 0, 36, 0));
 }
 
