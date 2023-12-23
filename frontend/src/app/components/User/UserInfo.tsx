@@ -24,7 +24,7 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 		sendWebSocketMessage(guild)
 	}
 	return (
-		<div className="flex flex-col gap-3 px-3">
+		<div className="flex flex-col gap-3 px-3 border-b-1 border-faded">
 			<div className="flex flex-row justify-between items-center">
 				<User
 					name={props.currentUser.username}

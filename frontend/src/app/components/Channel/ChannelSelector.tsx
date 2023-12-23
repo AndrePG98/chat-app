@@ -35,6 +35,13 @@ export default function ChannelSelector(props: {
 	const [isMute, setIsMute] = useState(false)
 	const [isDeafen, setIsDeafen] = useState(false)
 
+	const deleteChannel = (channelId: string) => {
+		if (channelId === currentChannel?.channelId) {
+			removeChannelUser(currentChannel)
+		}
+		props.deleteChannel(channelId)
+	}
+
 	const openModal = () => {
 		setModalOpen(true)
 	}
@@ -75,7 +82,7 @@ export default function ChannelSelector(props: {
 							<TextChannelBtn
 								channel={channel}
 								selectChannel={props.selectChannel}
-								deleteChannel={props.deleteChannel}
+								deleteChannel={deleteChannel}
 							/>
 						)}
 						{channel.channelType === "voice" && (
@@ -83,7 +90,7 @@ export default function ChannelSelector(props: {
 								channel={channel}
 								selectChannel={props.selectChannel}
 								addChannelUser={addChannelUser}
-								deleteChannel={props.deleteChannel}
+								deleteChannel={deleteChannel}
 							/>
 						)}
 					</div>

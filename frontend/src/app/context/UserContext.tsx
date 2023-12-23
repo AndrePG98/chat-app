@@ -212,7 +212,7 @@ export const UserContextProvider = ({ children }: any) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels = guild.channels.filter((chan) => {
-					chan.channelId != msg.body.channelid
+					return chan.channelId != msg.body.channelId
 				})
 			}
 		})

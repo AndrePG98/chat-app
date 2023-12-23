@@ -104,7 +104,7 @@ export interface DeleteChannelBroadcast {
     type: ResultType
     body: {
         guildId: string
-        channelid: string
+        channelId: string
     }
 }
 
