@@ -8,18 +8,10 @@ import { useUserContext } from "./context/UserContext"
 export default function App() {
 	const { isAuthenticated, currentUser, sendWebSocketMessage } = useUserContext()
 
-	const createNewGuild = (guildName: string) => {
-		const guild = new CreateGuildEvent(currentUser.id, guildName)
-		sendWebSocketMessage(guild)
-	}
-
 	return (
-		<div>
+		<div className="bg-surface-300">
 			{isAuthenticated ? (
-				<GuildsPanel
-					currentUser={currentUser}
-					createNewGuild={createNewGuild}
-				></GuildsPanel>
+				<GuildsPanel currentUser={currentUser}></GuildsPanel>
 			) : (
 				<RegisterLoginOption />
 			)}

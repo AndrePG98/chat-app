@@ -65,7 +65,7 @@ export class DeleteChannelEvent implements IEvent {
     body: any
 
     constructor(userId: string, guildId: string, channelId: string) {
-        this.type = EventType.CreateChannel
+        this.type = EventType.DeleteChannel
         this.body = { userId, guildId, channelId }
     }
 }
@@ -75,7 +75,7 @@ export class JoinChannelEvent implements IEvent {
     body: any
 
     constructor(user: SenderDTO, guildId: string, channelId: string) {
-        this.type = EventType.CreateChannel
+        this.type = EventType.JoinChannel
         this.body = { user, guildId, channelId }
     }
 }
@@ -85,7 +85,7 @@ export class LeaveChannelEvent implements IEvent {
     body: any
 
     constructor(userId: string, guildId: string, channelId: string) {
-        this.type = EventType.CreateChannel
+        this.type = EventType.LeaveChannel
         this.body = { userId, guildId, channelId }
     }
 }

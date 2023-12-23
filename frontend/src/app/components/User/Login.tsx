@@ -24,7 +24,7 @@ export default function Login() {
 
 	return (
 		<div>
-			<Modal isOpen={isOpen} placement="center">
+			<Modal isOpen={isOpen} placement="center" className="bg-surface-200">
 				<ModalContent>
 					<>
 						<ModalHeader className="flex flex-col gap-1">Login User</ModalHeader>
@@ -33,8 +33,34 @@ export default function Login() {
 								label="Username"
 								value={userNameInput}
 								onValueChange={setUserNameInput}
+								classNames={{
+									input: ["bg-transparent"],
+									innerWrapper: "bg-transparent",
+									inputWrapper: [
+										"bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"dark:bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"hover:bg-surface-400 ",
+										"dark:hover:bg-surface-400",
+										"focus:bg-surface-400 active:bg-surface-400",
+										"dark:focus:bg-surface-400 active:bg-surface-300",
+										"!cursor-text",
+									],
+								}}
 							></Input>
 							<Input
+								classNames={{
+									input: ["bg-transparent"],
+									innerWrapper: "bg-transparent",
+									inputWrapper: [
+										"bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"dark:bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"hover:bg-surface-400 ",
+										"dark:hover:bg-surface-400",
+										"focus:bg-surface-400 active:bg-surface-400",
+										"dark:focus:bg-surface-400 active:bg-surface-300",
+										"!cursor-text",
+									],
+								}}
 								label="Password"
 								value={userPasswordInput}
 								onValueChange={setUserPasswordInput}
@@ -42,12 +68,13 @@ export default function Login() {
 						</ModalBody>
 						<ModalFooter>
 							<Button
+								className="bg-surface-400"
 								onPress={() => {
 									handleLogin(userNameInput, userPasswordInput)
 									setIsOpen(false)
 								}}
 							>
-								Create User
+								Log in
 							</Button>
 						</ModalFooter>
 					</>
