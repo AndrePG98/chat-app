@@ -20,15 +20,19 @@ export default function RegisterLoginOption() {
 	return (
 		<div>
 			<div>
-				<Modal isOpen={true}>
+				<Modal isOpen={true} className="bg-surface-200">
 					<ModalContent>
 						<>
 							<ModalHeader className="flex flex-col gap-1">
 								Welcome to ChatApp
 							</ModalHeader>
 							<ModalBody>
-								<Button onPress={handleShowLogin}>Login</Button>
-								<Button onPress={handleShowRegister}>Register</Button>
+								<Button onPress={handleShowLogin} className="bg-surface-300">
+									Login
+								</Button>
+								<Button onPress={handleShowRegister} className="bg-surface-300">
+									Register
+								</Button>
 							</ModalBody>
 							<ModalFooter></ModalFooter>
 						</>

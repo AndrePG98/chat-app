@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	--color-primary: rgb(40, 53, 147);
+	--color-secondary: #152028;
+	--color-tertiary: #202945;
+	--color-background: #19272a;
+	--color-surface-100: #222a30;
+	--color-surface-200: rgb(34, 43, 49);
+	--color-surface-300: #1d2429;
+	--color-surface-400: #344049;
+	--color-text: #ffffff;
+	--color-highlight: rgb(245, 245, 245);
+	--color-disabled: #e0e0e0;
+	--color-error: #ff4400;
+	--color-success: #4caf50;
+
+	--color-btnFade: rgba(54, 69, 78, 0.5);
+	--color-btn: rgb(54, 69, 78);
+}
 
 body,
 html {
@@ -10,26 +28,4 @@ html {
 	overflow: hidden;
 	margin: 0;
 	padding: 0;
-}
-
-
-:root {
-	--foreground-rgb: 0, 0, 0;
-	--background-start-rgb: 214, 219, 220;
-	--background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--foreground-rgb: 255, 255, 255;
-		--background-start-rgb: 0, 0, 0;
-		--background-end-rgb: 0, 0, 0;
-	}
-}
-
-body {
-	color: rgb(var(--foreground-rgb));
-	background: linear-gradient(to bottom,
-			transparent,
-			rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }

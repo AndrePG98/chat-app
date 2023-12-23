@@ -12,10 +12,10 @@ export default function GuildSelector(props: {
 	selectedGuildId: string | undefined
 }) {
 	return (
-		<aside className="basis-[15%] py-5 border-r border-gray-800 flex flex-col">
+		<aside className="basis-[15%] py-5 border-r border-gray-800 flex flex-col bg-surface-200 drop-shadow-2xl">
 			<UserInfo currentUser={props.currentUser}></UserInfo>
 			<Divider className="mb-2"></Divider>
-			<div className="my-3 flex flex-col gap-3 h-full">
+			<div className="my-3 flex flex-col gap-3 h-full ">
 				{props.currentUser.getGuilds().map((guild, index) => (
 					<GuildBtn
 						guild={guild}

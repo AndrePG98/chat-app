@@ -1,7 +1,8 @@
 .guildBtn {
+	border-right: 1px solid var(--color-btn);
+	background-image: linear-gradient(to left, rgba(0, 213, 255, 0) 0%, rgba(0, 0, 0, 0) 0%);
 	position: relative;
-	border-right: 3px solid rgba(0, 212, 255, 100);
-	background-image: linear-gradient(to left, rgba(0, 212, 255, 0.2) 0%, rgba(2, 0, 36, 0) 85%);
+	font-size: 1rem;
 }
 
 .guildBtn::before,
@@ -10,15 +11,67 @@
 	position: absolute;
 	right: 0%;
 	height: 1px;
-	background: linear-gradient(to left, rgba(0, 212, 255, 1), rgba(2, 0, 36, 0));
+	background: linear-gradient(to left, rgba(0, 213, 255, 0), rgba(2, 0, 36, 0));
 }
 
-.guildBtn::before {
+.guildBtn:hover {
+	border-right: 2px solid var(--color-btn);
+	background-image: linear-gradient(to left, var(--color-btnFade) 0%, rgba(0, 0, 0, 0) 8%);
+	position: relative;
+}
+
+.guildBtn:hover::before,
+.guildBtn:hover::after {
+	content: "";
+	position: absolute;
+	right: 0%;
+	height: 2px;
+	background: linear-gradient(to left, var(--color-btnFade), rgba(0, 0, 0, 0));
+}
+
+.guildBtn:hover::before {
+	width: 15%;
+	top: 0;
+}
+
+.guildBtn:hover::after {
+	width: 10%;
+	bottom: 0;
+}
+
+.guildBtn.selected {
+	border-right: 2px solid var(--color-btn);
+	background-image: linear-gradient(to left, var(--color-btnFade) 0%, rgba(0, 0, 0, 0) 60%);
+	font-size: 1.1rem;
+}
+
+.guildBtn.selected::before,
+.guildBtn.selected::after {
+	content: "";
+	position: absolute;
+	right: 0%;
+	height: 2px;
+	background: linear-gradient(to left, var(--color-btn), rgba(0, 0, 0, 0));
+	transition: all 0.3s ease-in-out;
+}
+
+.guildBtn.selected::before {
 	width: 95%;
 	top: 0;
 }
 
-.guildBtn::after {
+.guildBtn.selected::after {
 	width: 100%;
 	bottom: 0;
+}
+
+.notificationIndicator {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: orange;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	display: block;
 }

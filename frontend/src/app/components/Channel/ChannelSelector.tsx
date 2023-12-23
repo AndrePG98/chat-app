@@ -18,6 +18,7 @@ import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
 import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
 import { SenderDTO } from "@/app/DTOs/UserDTO"
+import "./chanSelectorstyle.css"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -65,7 +66,7 @@ export default function ChannelSelector(props: {
 	}
 
 	return (
-		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800">
+		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800 bg-surface-100">
 			<div className="title text-center p-3 mb-5">{props.serverName}</div>
 			<div className="channel-buttons flex-1">
 				{props.channels.map((channel) => (
@@ -138,28 +139,18 @@ export default function ChannelSelector(props: {
 						</>
 					)}
 				</div>
-				<div className="flex flex-row">
-					<Button
-						size="sm"
-						radius="none"
-						variant="light"
-						isIconOnly
-						className="flex justify-center items-center w-full"
+				<div className="flex flex-row pb-3">
+					<button
 						onClick={openModal}
+						className="flex justify-center items-center w-full chan-selector-btn"
 					>
 						<span className="material-symbols-outlined">add_comment</span>
-					</Button>
-					<Dropdown showArrow className="py-1 px-1">
+					</button>
+					<Dropdown showArrow>
 						<DropdownTrigger>
-							<Button
-								size="sm"
-								radius="none"
-								variant="light"
-								isIconOnly
-								className="flex justify-center items-center w-full"
-							>
+							<button className="flex justify-center items-center w-full chan-selector-btn">
 								<span className="material-symbols-outlined">settings</span>
-							</Button>
+							</button>
 						</DropdownTrigger>
 						<DropdownMenu>
 							<DropdownItem

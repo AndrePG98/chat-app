@@ -1,0 +1,9 @@
+.chan-selector-btn {
+	color: var(--text-color);
+	transform: scale(1);
+	transition: all 0.2s ease-in-out;
+}
+
+.chan-selector-btn:hover .material-symbols-outlined {
+	transform: scale(1.1);
+}

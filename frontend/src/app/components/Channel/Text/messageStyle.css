@@ -1,0 +1,14 @@
+.msg-sender {
+	position: relative;
+	padding-right: 1%;
+}
+
+.msg-sender::after {
+	content: "";
+	height: 100%;
+	width: 1px;
+	position: absolute;
+	background-image: linear-gradient(var(--color-btnFade), rgba(0, 212, 255, 0.3));
+	top: 0;
+	right: 0;
+}

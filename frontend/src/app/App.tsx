@@ -9,7 +9,7 @@ export default function App() {
 	const { isAuthenticated, currentUser, sendWebSocketMessage } = useUserContext()
 
 	return (
-		<div>
+		<div className="bg-surface-300">
 			{isAuthenticated ? (
 				<GuildsPanel currentUser={currentUser}></GuildsPanel>
 			) : (

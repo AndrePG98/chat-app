@@ -20,7 +20,12 @@ export default function CreateChannelModal(props: {
 	const [channelName, setChannelName] = useState("")
 
 	return (
-		<Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange} placement="center">
+		<Modal
+			isOpen={props.isOpen}
+			onOpenChange={props.onOpenChange}
+			placement="center"
+			className="bg-surface-200"
+		>
 			<ModalContent>
 				{(onClose) => (
 					<>
@@ -39,6 +44,19 @@ export default function CreateChannelModal(props: {
 						<ModalBody>
 							<Input
 								type="name"
+								classNames={{
+									input: ["bg-transparent"],
+									innerWrapper: "bg-transparent",
+									inputWrapper: [
+										"bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"dark:bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"hover:bg-surface-400 ",
+										"dark:hover:bg-surface-400",
+										"focus:bg-surface-400 active:bg-surface-400",
+										"dark:focus:bg-surface-400 active:bg-surface-300",
+										"!cursor-text",
+									],
+								}}
 								label="Channel Name"
 								placeholder="Enter the desired channel name"
 								value={channelName}

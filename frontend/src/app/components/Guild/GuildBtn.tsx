@@ -18,30 +18,12 @@ export default function GuildBtn(props: {
 	return (
 		<button
 			className={`${
-				isSelected ? "guildBtn" : ""
-			} w-full flex flex-row items-center justify-between h-[5%] pl-10 pr-5`}
+				isSelected ? "guildBtn selected" : "guildBtn"
+			} w-full flex flex-row items-center justify-center h-[6%]`}
 			onClick={() => props.selectGuild(props.guild)}
 		>
-			<div className="text-xl flex justify-center items-center h-full">
-				{props.guild.guildName}
-			</div>
-			{notifications && (
-				<Badge
-					color="warning"
-					size="sm"
-					className="flex justify-center items-center w-5 h-5 border-0"
-					content={
-						<div className="flex justify-center items-center">
-							<span className="material-symbols-outlined">priority_high</span>
-						</div>
-					}
-					variant="solid"
-					placement="top-right"
-					shape="circle"
-				>
-					<></>
-				</Badge>
-			)}
+			<div className="flex justify-center items-center h-full">{props.guild.guildName}</div>
+			{notifications && <div className="notificationIndicator"></div>}
 		</button>
 	)
 }

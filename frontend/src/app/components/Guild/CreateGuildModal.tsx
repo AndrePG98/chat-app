@@ -17,7 +17,12 @@ export default function CreateGuildModal(props: {
 	const [guildName, setGuildName] = useState("")
 
 	return (
-		<Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange} placement="center">
+		<Modal
+			isOpen={props.isOpen}
+			onOpenChange={props.onOpenChange}
+			placement="center"
+			className="bg-surface-200"
+		>
 			<ModalContent>
 				{(onClose) => (
 					<>
@@ -26,9 +31,23 @@ export default function CreateGuildModal(props: {
 						</ModalHeader>
 						<ModalBody>
 							<Input
+								disableAnimation
+								classNames={{
+									input: ["bg-transparent"],
+									innerWrapper: "bg-transparent",
+									inputWrapper: [
+										"bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"dark:bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
+										"hover:bg-surface-400 ",
+										"dark:hover:bg-surface-400",
+										"focus:bg-surface-400 active:bg-surface-400",
+										"dark:focus:bg-surface-400 active:bg-surface-300",
+										"!cursor-text",
+									],
+								}}
 								type="name"
 								label="Channel Name"
-								placeholder="Enter the desired channel name"
+								placeholder="Enter the desired server name"
 								value={guildName}
 								onChange={(e) => setGuildName(e.target.value)}
 							/>
