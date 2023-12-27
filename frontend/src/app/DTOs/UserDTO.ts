@@ -50,6 +50,10 @@ export class UserDTO {
 			}
 		})
 	}
+
+	convert() {
+		return new SenderDTO(this.id, this.username, this.email, this.logo)
+	}
 }
 
 export class SenderDTO {

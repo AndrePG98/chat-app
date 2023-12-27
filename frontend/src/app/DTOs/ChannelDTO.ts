@@ -37,6 +37,18 @@ export class ChannelDTO {
         })
     }
 
+    hasMember(userId: string) {
+        let member = this.members.find((user) => {
+            if (user.userId === userId) {
+                return user
+            }
+        })
+        if (member) {
+            return true
+        }
+        return false
+    }
+
     addMessage(message: MessageDTO) {
         this.history.push(message)
     }

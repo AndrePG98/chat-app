@@ -222,6 +222,10 @@ export const UserContextProvider = ({ children }: any) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels.forEach((chan) => {
+					if (chan.hasMember(currentUser.id)) {
+						console.log("Inside channel", chan)
+						chan.leaveChannel(currentUser.id)
+					}
 					if (chan.channelId === msg.body.channelId) {
 						chan.joinChannel(msg.body.user)
 					}

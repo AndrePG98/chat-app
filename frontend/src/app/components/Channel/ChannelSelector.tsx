@@ -25,7 +25,7 @@ export default function ChannelSelector(props: {
 	serverName: string
 	createNewChannel: (name: string, type: string) => void
 	deleteChannel: (channelId: string) => void
-	selectChannel: (channel: ChannelDTO) => void
+	selectChannel: (channel: ChannelDTO | undefined) => void
 	leaveGuild: () => void
 }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
@@ -58,24 +58,23 @@ export default function ChannelSelector(props: {
 				currentUser.email,
 				currentUser.logo
 			)
+
 			let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
 			sendWebSocketMessage(event)
 			setCurrentChannel(channel)
 		}
 	}
 
-	function removeChannelUser(channel: ChannelDTO) {
-		if (currentChannel?.channelId === channel.channelId) {
-			let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
-			sendWebSocketMessage(event)
-			setCurrentChannel(undefined)
-		}
+	async function removeChannelUser(channel: ChannelDTO) {
+		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
+		sendWebSocketMessage(event)
+		setCurrentChannel(undefined)
 	}
 
 	return (
 		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800 bg-surface-100">
 			<div className="title text-center p-3 mb-5">{props.serverName}</div>
-			<div className="channel-buttons flex-1">
+			<div className="channel-buttons flex-1 overflow-y-scroll">
 				{props.channels.map((channel) => (
 					<div key={channel.channelId}>
 						{channel.channelType === "text" && (
@@ -96,7 +95,7 @@ export default function ChannelSelector(props: {
 					</div>
 				))}
 			</div>
-			<div className="user-buttons flex flex-col justify-evenly">
+			<div className="user-buttons flex flex-col justify-evenly gap-2">
 				<CreateChannelModal
 					isOpen={modalOpen}
 					onOpenChange={closeModal}
@@ -153,7 +152,7 @@ export default function ChannelSelector(props: {
 					>
 						<span className="material-symbols-outlined">add_comment</span>
 					</button>
-					<Dropdown showArrow>
+					<Dropdown className="bg-surface-200 border-2 border-surface-100">
 						<DropdownTrigger>
 							<button className="flex justify-center items-center w-full chan-selector-btn">
 								<span className="material-symbols-outlined">settings</span>
@@ -176,7 +175,12 @@ export default function ChannelSelector(props: {
 							</DropdownItem>
 						</DropdownMenu>
 					</Dropdown>
-					<Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
+					<Modal
+						isOpen={isOpen}
+						onOpenChange={onOpenChange}
+						placement="center"
+						className="bg-surface-200"
+					>
 						<ModalContent>
 							{(onClose) => (
 								<>

@@ -9,6 +9,7 @@ import {
 	ListboxItem,
 	User,
 } from "@nextui-org/react"
+import "./voiceChannelBtn.css"
 import { ChannelDTO, JoinChannelEvent } from "@/app/DTOs/ChannelDTO"
 import { useUserContext } from "@/app/context/UserContext"
 import { SenderDTO } from "@/app/DTOs/UserDTO"
@@ -20,8 +21,12 @@ export default function VoiceChannelBtn(props: {
 	deleteChannel: (channelId: string) => void
 }) {
 	return (
-		<div>
-			<div className="flex flex-row group h-12">
+		<div className="relative flex flex-col gap-2">
+			<div
+				className={`${
+					props.channel.members.length > 0 ? "voiceChanBtn" : ""
+				} flex flex-row group h-12`}
+			>
 				<button
 					onClick={() => props.addChannelUser(props.channel)}
 					className="w-full text-lg flex justify-between group-hover:bg-surface-400 pl-2"
@@ -31,7 +36,7 @@ export default function VoiceChannelBtn(props: {
 						{props.channel.channelName}
 					</div>
 				</button>
-				<Dropdown showArrow size="sm">
+				<Dropdown size="sm" className="bg-surface-200 border-2 border-surface-100">
 					<DropdownTrigger>
 						<button className="bg-transparent group-hover:bg-surface-400 flex justify-center items-center p-2">
 							<span className="material-symbols-outlined">list</span>
@@ -62,7 +67,7 @@ export default function VoiceChannelBtn(props: {
 					}}
 				>
 					{props.channel.members.map((member, index) => (
-						<ListboxItem key={index}>
+						<ListboxItem key={index} className="listboxitem">
 							<User
 								key={index}
 								className="flex justify-start items-center py-.5 px-.5"
