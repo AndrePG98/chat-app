@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 	"wsServer/models"
 
 	"github.com/google/uuid"
@@ -133,6 +134,30 @@ func broadcastChannelJoin(client *Client, msg models.JoinChannelEvent) {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_JoinChannel,
 			Body: models.JoinChannelBroadcast(msg),
+		}
+	}
+}
+
+func broadcastNewChannelJoin(client *Client, msg models.JoinNewChannelEvent) {
+	doneChan := make(chan bool)
+	go func() {
+		broadcastChannelLeave(client, models.LeaveChannelEvent{
+			UserId:    msg.User.UserId,
+			GuildId:   msg.PrevChannel.GuildId,
+			ChannelId: msg.PrevChannel.ChannelId,
+		})
+		time.Sleep(time.Millisecond * 2)
+		doneChan <- true
+	}()
+
+	for isDone := range doneChan {
+		if isDone {
+			broadcastChannelJoin(client, models.JoinChannelEvent{
+				User:      msg.User,
+				GuildId:   msg.NewChannel.GuildId,
+				ChannelId: msg.NewChannel.ChannelId,
+			})
+			return
 		}
 	}
 }

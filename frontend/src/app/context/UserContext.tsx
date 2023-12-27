@@ -23,7 +23,9 @@ import {
 	CreateChannelEvent,
 	DeleteChannelBroadcast,
 	JoinChannelBroadcast,
+	JoinNewChannelBroadcast,
 	LeaveCHannelBroadcast,
+	LeaveChannelEvent,
 } from "../DTOs/ChannelDTO"
 
 interface UserContextProps {
@@ -93,6 +95,9 @@ export const UserContextProvider = ({ children }: any) => {
 				break
 			case ResultType.B_JoinChannel:
 				processChannelJoinBroadcast(receivedMessage)
+				break
+			case ResultType.B_JoinNewChannel:
+				processNewChannelJoinBroadcast(receivedMessage)
 				break
 			case ResultType.B_LeaveChannel:
 				processChannelLeaveBroadcast(receivedMessage)
@@ -219,20 +224,23 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const processChannelJoinBroadcast = (msg: JoinChannelBroadcast) => {
-		currentUser.guilds.forEach((guild) => {
-			if (guild.guildId === msg.body.guildId) {
-				guild.channels.forEach((chan) => {
-					if (chan.hasMember(currentUser.id)) {
-						console.log("Inside channel", chan)
-						chan.leaveChannel(currentUser.id)
-					}
-					if (chan.channelId === msg.body.channelId) {
-						chan.joinChannel(msg.body.user)
-					}
-				})
-			}
+		return new Promise((resolve, reject) => {
+			currentUser.guilds.forEach((guild) => {
+				if (guild.guildId === msg.body.guildId) {
+					guild.channels.forEach((chan) => {
+						if (chan.channelId === msg.body.channelId) {
+							chan.joinChannel(msg.body.user)
+							currentUser.currentChannel = chan
+							resolve(true)
+						}
+					})
+				}
+			})
+			reject(false)
 		})
 	}
+
+	const processNewChannelJoinBroadcast = async (msg: JoinNewChannelBroadcast) => {}
 
 	const processChannelLeaveBroadcast = (msg: LeaveCHannelBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
@@ -240,6 +248,8 @@ export const UserContextProvider = ({ children }: any) => {
 				guild.channels.forEach((chan) => {
 					if (chan.channelId === msg.body.channelId) {
 						chan.leaveChannel(msg.body.userId)
+						currentUser.currentChannel = undefined
+						console.log(currentUser.currentChannel)
 					}
 				})
 			}
@@ -251,7 +261,6 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.message.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.message.channelId) {
-						console.log(channel)
 						channel.addMessage(msg.body.message)
 					}
 				})
@@ -264,7 +273,6 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.channelId) {
-						console.log(channel)
 						channel.removeMessage(msg.body.messageId)
 					}
 				})

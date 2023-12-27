@@ -1,3 +1,4 @@
+import { ChannelDTO } from "./ChannelDTO"
 import { GuildDTO } from "./GuildDTO"
 import { IEvent, EventType, ResultType } from "./Types"
 
@@ -7,6 +8,7 @@ export class UserDTO {
 	email: string
 	guilds: GuildDTO[] = []
 	logo: string
+	currentChannel: ChannelDTO | undefined
 
 	constructor(id: string, username: string, email: string, logo: string) {
 		this.id = id
@@ -49,6 +51,14 @@ export class UserDTO {
 				return true
 			}
 		})
+	}
+
+	joinChannel(chan: ChannelDTO) {
+		this.currentChannel = chan
+	}
+
+	leaveChannel() {
+		this.currentChannel = undefined
 	}
 
 	convert() {

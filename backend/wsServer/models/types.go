@@ -11,6 +11,7 @@ const (
 	E_CreateChannel
 	E_DeleteChannel
 	E_JoinChannel
+	E_JoinNewChannel
 	E_LeaveChannel
 	E_ChatMessage
 	E_DeleteMessage
@@ -28,6 +29,7 @@ const (
 	B_ChannelCreate
 	B_ChannelDelete
 	B_JoinChannel
+	B_JoinNewChannel
 	B_LeaveChannel
 	B_ChatMessage
 	B_ChatMessageDelete

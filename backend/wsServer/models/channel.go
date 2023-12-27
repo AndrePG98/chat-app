@@ -1,12 +1,12 @@
 package models
 
 type Channel struct {
-	ID      string    `json:"channelId"`
-	GuildId string    `json:"guildID"`
-	Name    string    `json:"channelName"`
-	Type    string    `json:"channelType"`
-	Members []User    `json:"members"`
-	History []Message `json:"history"`
+	ChannelId string    `json:"channelId"`
+	GuildId   string    `json:"guildId"`
+	Name      string    `json:"channelName"`
+	Type      string    `json:"channelType"`
+	Members   []User    `json:"members"`
+	History   []Message `json:"history"`
 }
 
 type Message struct {
@@ -37,6 +37,12 @@ type JoinChannelEvent struct {
 	User      User   `json:"user"`
 	GuildId   string `json:"guildId"`
 	ChannelId string `json:"channelId"`
+}
+
+type JoinNewChannelEvent struct {
+	User        User    `json:"user"`
+	PrevChannel Channel `json:"prevChannel"`
+	NewChannel  Channel `json:"newChannel"`
 }
 
 type LeaveChannelEvent struct {

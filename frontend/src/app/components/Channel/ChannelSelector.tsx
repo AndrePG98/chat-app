@@ -11,8 +11,13 @@ import {
 	useDisclosure,
 	Tooltip,
 } from "@nextui-org/react"
-import { useState } from "react"
-import { ChannelDTO, JoinChannelEvent, LeaveChannelEvent } from "../../DTOs/ChannelDTO"
+import { useEffect, useState } from "react"
+import {
+	ChannelDTO,
+	JoinChannelEvent,
+	JoinNewChannelEvent,
+	LeaveChannelEvent,
+} from "../../DTOs/ChannelDTO"
 import TextChannelBtn from "./Text/TextChannelBtn"
 import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
 import CreateChannelModal from "./CreateChannelModal"
@@ -35,6 +40,10 @@ export default function ChannelSelector(props: {
 	const [isMute, setIsMute] = useState(false)
 	const [isDeafen, setIsDeafen] = useState(false)
 
+	useEffect(() => {
+		setCurrentChannel(currentUser.currentChannel)
+	}, [currentUser.currentChannel])
+
 	const deleteChannel = (channelId: string) => {
 		if (channelId === currentChannel?.channelId) {
 			removeChannelUser(currentChannel)
@@ -52,23 +61,20 @@ export default function ChannelSelector(props: {
 
 	function addChannelUser(channel: ChannelDTO) {
 		if (currentChannel?.channelId !== channel.channelId) {
-			let member = new SenderDTO(
-				currentUser.id,
-				currentUser.username,
-				currentUser.email,
-				currentUser.logo
-			)
-
-			let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
-			sendWebSocketMessage(event)
-			setCurrentChannel(channel)
+			let member = currentUser.convert()
+			if (currentUser.currentChannel) {
+				let event = new JoinNewChannelEvent(member, currentUser.currentChannel, channel)
+				sendWebSocketMessage(event)
+			} else {
+				let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
+				sendWebSocketMessage(event)
+			}
 		}
 	}
 
-	async function removeChannelUser(channel: ChannelDTO) {
+	function removeChannelUser(channel: ChannelDTO) {
 		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
 		sendWebSocketMessage(event)
-		setCurrentChannel(undefined)
 	}
 
 	return (

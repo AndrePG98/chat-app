@@ -15,6 +15,7 @@ export enum EventType {
     CreateChannel,
     DeleteChannel,
     JoinChannel,
+    JoinNewChannel,
     LeaveChannel,
     ChatMessage,
     DeleteMessage,
@@ -32,6 +33,7 @@ export enum ResultType {
     B_CreateChannel,
     B_DeleteChannel,
     B_JoinChannel,
+    B_JoinNewChannel,
     B_LeaveChannel,
     B_ChatMessage,
     B_ChatMessageDelete

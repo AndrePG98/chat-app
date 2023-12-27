@@ -118,6 +118,11 @@ func (client *Client) handleMessage(msg models.IMessage) {
 		mapstructure.Decode(msg.Body, &body)
 		broadcastChannelJoin(client, body)
 
+	case models.E_JoinNewChannel:
+		var body models.JoinNewChannelEvent
+		mapstructure.Decode(msg.Body, &body)
+		broadcastNewChannelJoin(client, body)
+
 	case models.E_LeaveChannel:
 		var body models.LeaveChannelEvent
 		mapstructure.Decode(msg.Body, &body)
