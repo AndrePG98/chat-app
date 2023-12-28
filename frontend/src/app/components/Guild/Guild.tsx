@@ -6,7 +6,6 @@ import { ChannelDTO, CreateChannelEvent, DeleteChannelEvent } from "../../DTOs/C
 import { GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
 import ChannelSelector from "../Channel/ChannelSelector"
 import TextChannel from "../Channel/Text/TextChannel"
-import VoiceChannel from "../Channel/Voice/voiceChannel"
 import MembersPanel from "./MembersPanel"
 import { useUserContext } from "@/app/context/UserContext"
 import { Divider } from "@nextui-org/react"
@@ -58,9 +57,6 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 						channel={selectedChannel}
 						guildId={props.guild.guildId}
 					></TextChannel>
-				)}
-				{selectedChannel?.channelType === "voice" && (
-					<VoiceChannel channnel={selectedChannel}></VoiceChannel>
 				)}
 			</div>
 			<MembersPanel members={props.guild.members} />

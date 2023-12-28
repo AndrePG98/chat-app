@@ -152,17 +152,25 @@ export default function ChannelSelector(props: {
 					)}
 				</div>
 				<div className="flex flex-row pb-3">
-					<button
-						onClick={openModal}
-						className="flex justify-center items-center w-full chan-selector-btn"
+					<Button
+						radius="none"
+						variant="light"
+						isIconOnly
+						onPress={openModal}
+						className="flex justify-center items-center w-full"
 					>
 						<span className="material-symbols-outlined">add_comment</span>
-					</button>
+					</Button>
 					<Dropdown className="bg-surface-200 border-2 border-surface-100">
 						<DropdownTrigger>
-							<button className="flex justify-center items-center w-full chan-selector-btn">
+							<Button
+								radius="none"
+								variant="light"
+								isIconOnly
+								className="flex justify-center items-center w-full"
+							>
 								<span className="material-symbols-outlined">settings</span>
-							</button>
+							</Button>
 						</DropdownTrigger>
 						<DropdownMenu>
 							<DropdownItem
@@ -221,33 +229,4 @@ export default function ChannelSelector(props: {
 			</div>
 		</div>
 	)
-}
-
-{
-	/* <Dropdown className="py-1 px-1 border border-default-200 bg-gradient-to-br from-white to-default-200 dark:from-default-50 dark:to-black">
-	<DropdownTrigger>
-		<Button
-			variant="light"
-			radius="lg"
-			isIconOnly
-			size="sm"
-			className="flex justify-center items-center"
-		>
-			<span className="material-symbols-outlined">menu</span>
-		</Button>
-	</DropdownTrigger>
-	<DropdownMenu>
-		<DropdownItem
-			key="delete"
-			className="text-danger"
-			color="danger"
-			startContent={<span className="material-symbols-outlined">delete</span>}
-			onPress={() => {
-				onOpen()
-			}}
-		>
-			Leave guild
-		</DropdownItem>
-	</DropdownMenu>
-</Dropdown> */
 }
