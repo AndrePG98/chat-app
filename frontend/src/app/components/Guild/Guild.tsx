@@ -34,7 +34,12 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 	}
 
 	useEffect(() => {
-		selectChannel(props.guild.channels[0])
+		const chan = props.guild.channels.find((chan) => chan.channelType === "text")
+		if (chan) {
+			setSelectedChannel(chan)
+		} else {
+			setSelectedChannel(undefined)
+		}
 	}, [props.guild])
 
 	return (
