@@ -18,6 +18,7 @@ const config: Config = {
         'primary': 'var(--color-primary)',
         'secondary': 'var(--color-secondary)',
         'tertiary': 'var(--color-tertiary)',
+        'faded': 'var(--color-btnFade)',
         'background': 'var(--color-background)',
         'surface-100': 'var(--color-surface-100)',
         'surface-200': 'var(--color-surface-200)',

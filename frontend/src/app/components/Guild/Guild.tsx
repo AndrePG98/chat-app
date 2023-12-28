@@ -6,16 +6,16 @@ import { ChannelDTO, CreateChannelEvent, DeleteChannelEvent } from "../../DTOs/C
 import { GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
 import ChannelSelector from "../Channel/ChannelSelector"
 import TextChannel from "../Channel/Text/TextChannel"
-import VoiceChannel from "../Channel/Voice/VoiceChannel"
 import MembersPanel from "./MembersPanel"
 import { useUserContext } from "@/app/context/UserContext"
 import { Divider } from "@nextui-org/react"
+import { SenderDTO } from "@/app/DTOs/UserDTO"
 
 export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: string) => void }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
-	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO>()
+	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO | undefined>()
 
-	const selectChannel = (channel: ChannelDTO) => {
+	const selectChannel = (channel: ChannelDTO | undefined) => {
 		setSelectedChannel(channel)
 	}
 
@@ -25,12 +25,20 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 	}
 
 	const deleteChannel = (channelId: string) => {
+		if (selectedChannel?.channelId === channelId) {
+			setSelectedChannel(undefined)
+		}
 		const event = new DeleteChannelEvent(currentUser.id, props.guild.guildId, channelId)
 		sendWebSocketMessage(event)
 	}
 
 	useEffect(() => {
-		selectChannel(props.guild.channels[0])
+		const chan = props.guild.channels.find((chan) => chan.channelType === "text")
+		if (chan) {
+			setSelectedChannel(chan)
+		} else {
+			setSelectedChannel(undefined)
+		}
 	}, [props.guild])
 
 	return (
@@ -49,9 +57,6 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 						channel={selectedChannel}
 						guildId={props.guild.guildId}
 					></TextChannel>
-				)}
-				{selectedChannel?.channelType === "voice" && (
-					<VoiceChannel channnel={selectedChannel}></VoiceChannel>
 				)}
 			</div>
 			<MembersPanel members={props.guild.members} />

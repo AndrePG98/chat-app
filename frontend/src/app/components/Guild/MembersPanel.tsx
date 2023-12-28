@@ -9,7 +9,7 @@ export default function MembersPanel(props: { members: SenderDTO[] }) {
 			{props.members.map((member, index) => (
 				<User
 					key={index}
-					className="text-amber-100"
+					className="text-white"
 					name={member.username}
 					avatarProps={{
 						src: member.logo,

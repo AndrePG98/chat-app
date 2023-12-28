@@ -24,7 +24,7 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 		sendWebSocketMessage(guild)
 	}
 	return (
-		<div className="flex flex-col gap-3 px-3">
+		<div className="flex flex-col gap-3 px-3 border-b-1 border-faded">
 			<div className="flex flex-row justify-between items-center">
 				<User
 					name={props.currentUser.username}
@@ -44,15 +44,23 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 				</Button>
 			</div>
 			<div className="flex flex-row py-2 px-1">
-				<button
-					className="user-btn flex justify-center items-center w-full"
-					onClick={openModal}
+				<Button
+					variant="light"
+					radius="none"
+					isIconOnly
+					className="flex justify-center items-center w-full"
+					onPress={openModal}
 				>
 					<span className="material-symbols-outlined">add</span>
-				</button>
-				<button className="user-btn flex justify-center items-center w-full">
+				</Button>
+				<Button
+					className="flex justify-center items-center w-full"
+					variant="light"
+					radius="none"
+					isIconOnly
+				>
 					<span className="material-symbols-outlined">manage_accounts</span>
-				</button>
+				</Button>
 				<CreateGuildModal
 					isOpen={modalOpen}
 					onOpenChange={closeModal}

@@ -24,7 +24,7 @@ export default function TextChannelBtn(props: {
 					{props.channel.channelName}
 				</div>
 			</button>
-			<Dropdown showArrow size="sm">
+			<Dropdown size="sm" className="bg-surface-200 border-2 border-surface-100">
 				<DropdownTrigger>
 					<button className="bg-transparent group-hover:bg-surface-400 flex justify-center items-center p-2">
 						<span className="material-symbols-outlined">list</span>

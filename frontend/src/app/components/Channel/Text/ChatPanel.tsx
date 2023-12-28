@@ -50,8 +50,7 @@ export default function ChatPanel(props: ChatPanelProps) {
 						endContent={
 							<Button
 								isIconOnly
-								className="bg-transparent outline-none"
-								color="primary"
+								className="bg-transparent outline-none text-white"
 								disableRipple
 								variant="flat"
 								onPress={() => {

@@ -11,8 +11,13 @@ import {
 	useDisclosure,
 	Tooltip,
 } from "@nextui-org/react"
-import { useState } from "react"
-import { ChannelDTO, JoinChannelEvent, LeaveChannelEvent } from "../../DTOs/ChannelDTO"
+import { useEffect, useState } from "react"
+import {
+	ChannelDTO,
+	JoinChannelEvent,
+	JoinNewChannelEvent,
+	LeaveChannelEvent,
+} from "../../DTOs/ChannelDTO"
 import TextChannelBtn from "./Text/TextChannelBtn"
 import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
 import CreateChannelModal from "./CreateChannelModal"
@@ -25,7 +30,7 @@ export default function ChannelSelector(props: {
 	serverName: string
 	createNewChannel: (name: string, type: string) => void
 	deleteChannel: (channelId: string) => void
-	selectChannel: (channel: ChannelDTO) => void
+	selectChannel: (channel: ChannelDTO | undefined) => void
 	leaveGuild: () => void
 }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
@@ -34,6 +39,17 @@ export default function ChannelSelector(props: {
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
 	const [isMute, setIsMute] = useState(false)
 	const [isDeafen, setIsDeafen] = useState(false)
+
+	useEffect(() => {
+		setCurrentChannel(currentUser.currentChannel)
+	}, [currentUser.currentChannel])
+
+	const deleteChannel = (channelId: string) => {
+		if (channelId === currentChannel?.channelId) {
+			removeChannelUser(currentChannel)
+		}
+		props.deleteChannel(channelId)
+	}
 
 	const openModal = () => {
 		setModalOpen(true)
@@ -45,37 +61,33 @@ export default function ChannelSelector(props: {
 
 	function addChannelUser(channel: ChannelDTO) {
 		if (currentChannel?.channelId !== channel.channelId) {
-			let member = new SenderDTO(
-				currentUser.id,
-				currentUser.username,
-				currentUser.email,
-				currentUser.logo
-			)
-			let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
-			sendWebSocketMessage(event)
-			setCurrentChannel(channel)
+			let member = currentUser.convert()
+			if (currentUser.currentChannel) {
+				let event = new JoinNewChannelEvent(member, currentUser.currentChannel, channel)
+				sendWebSocketMessage(event)
+			} else {
+				let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
+				sendWebSocketMessage(event)
+			}
 		}
 	}
 
 	function removeChannelUser(channel: ChannelDTO) {
-		if (currentChannel?.channelId === channel.channelId) {
-			let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
-			sendWebSocketMessage(event)
-			setCurrentChannel(undefined)
-		}
+		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
+		sendWebSocketMessage(event)
 	}
 
 	return (
 		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800 bg-surface-100">
 			<div className="title text-center p-3 mb-5">{props.serverName}</div>
-			<div className="channel-buttons flex-1">
+			<div className="channel-buttons flex-1 overflow-y-scroll">
 				{props.channels.map((channel) => (
 					<div key={channel.channelId}>
 						{channel.channelType === "text" && (
 							<TextChannelBtn
 								channel={channel}
 								selectChannel={props.selectChannel}
-								deleteChannel={props.deleteChannel}
+								deleteChannel={deleteChannel}
 							/>
 						)}
 						{channel.channelType === "voice" && (
@@ -83,13 +95,13 @@ export default function ChannelSelector(props: {
 								channel={channel}
 								selectChannel={props.selectChannel}
 								addChannelUser={addChannelUser}
-								deleteChannel={props.deleteChannel}
+								deleteChannel={deleteChannel}
 							/>
 						)}
 					</div>
 				))}
 			</div>
-			<div className="user-buttons flex flex-col justify-evenly">
+			<div className="user-buttons flex flex-col justify-evenly gap-2">
 				<CreateChannelModal
 					isOpen={modalOpen}
 					onOpenChange={closeModal}
@@ -140,17 +152,25 @@ export default function ChannelSelector(props: {
 					)}
 				</div>
 				<div className="flex flex-row pb-3">
-					<button
-						onClick={openModal}
-						className="flex justify-center items-center w-full chan-selector-btn"
+					<Button
+						radius="none"
+						variant="light"
+						isIconOnly
+						onPress={openModal}
+						className="flex justify-center items-center w-full"
 					>
 						<span className="material-symbols-outlined">add_comment</span>
-					</button>
-					<Dropdown showArrow>
+					</Button>
+					<Dropdown className="bg-surface-200 border-2 border-surface-100">
 						<DropdownTrigger>
-							<button className="flex justify-center items-center w-full chan-selector-btn">
+							<Button
+								radius="none"
+								variant="light"
+								isIconOnly
+								className="flex justify-center items-center w-full"
+							>
 								<span className="material-symbols-outlined">settings</span>
-							</button>
+							</Button>
 						</DropdownTrigger>
 						<DropdownMenu>
 							<DropdownItem
@@ -169,7 +189,12 @@ export default function ChannelSelector(props: {
 							</DropdownItem>
 						</DropdownMenu>
 					</Dropdown>
-					<Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
+					<Modal
+						isOpen={isOpen}
+						onOpenChange={onOpenChange}
+						placement="center"
+						className="bg-surface-200"
+					>
 						<ModalContent>
 							{(onClose) => (
 								<>
@@ -204,33 +229,4 @@ export default function ChannelSelector(props: {
 			</div>
 		</div>
 	)
-}
-
-{
-	/* <Dropdown className="py-1 px-1 border border-default-200 bg-gradient-to-br from-white to-default-200 dark:from-default-50 dark:to-black">
-	<DropdownTrigger>
-		<Button
-			variant="light"
-			radius="lg"
-			isIconOnly
-			size="sm"
-			className="flex justify-center items-center"
-		>
-			<span className="material-symbols-outlined">menu</span>
-		</Button>
-	</DropdownTrigger>
-	<DropdownMenu>
-		<DropdownItem
-			key="delete"
-			className="text-danger"
-			color="danger"
-			startContent={<span className="material-symbols-outlined">delete</span>}
-			onPress={() => {
-				onOpen()
-			}}
-		>
-			Leave guild
-		</DropdownItem>
-	</DropdownMenu>
-</Dropdown> */
 }

@@ -37,6 +37,18 @@ export class ChannelDTO {
         })
     }
 
+    hasMember(userId: string) {
+        let member = this.members.find((user) => {
+            if (user.userId === userId) {
+                return user
+            }
+        })
+        if (member) {
+            return true
+        }
+        return false
+    }
+
     addMessage(message: MessageDTO) {
         this.history.push(message)
     }
@@ -80,6 +92,17 @@ export class JoinChannelEvent implements IEvent {
     }
 }
 
+
+export class JoinNewChannelEvent implements IEvent {
+    type: EventType;
+    body: any;
+
+    constructor(user: SenderDTO, prevChannel: ChannelDTO, newChannel: ChannelDTO) {
+        this.type = EventType.JoinNewChannel
+        this.body = { user, prevChannel, newChannel }
+    }
+}
+
 export class LeaveChannelEvent implements IEvent {
     type: EventType
     body: any
@@ -104,7 +127,7 @@ export interface DeleteChannelBroadcast {
     type: ResultType
     body: {
         guildId: string
-        channelid: string
+        channelId: string
     }
 }
 
@@ -117,6 +140,14 @@ export interface JoinChannelBroadcast {
     }
 }
 
+export interface JoinNewChannelBroadcast {
+    type: ResultType
+    body: {
+        user: SenderDTO
+        prevChannel: ChannelDTO
+        newChannel: ChannelDTO
+    }
+}
 
 export interface LeaveCHannelBroadcast {
     type: ResultType

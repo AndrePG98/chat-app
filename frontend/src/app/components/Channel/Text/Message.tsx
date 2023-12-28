@@ -31,7 +31,7 @@ export default function Message(props: { message: MessageDTO }) {
 				</div>
 			</div>
 			<div>
-				<Dropdown>
+				<Dropdown className="bg-surface-200 border-2 border-surface-100">
 					<DropdownTrigger>
 						<Button
 							variant="light"
