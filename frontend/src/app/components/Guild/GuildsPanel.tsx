@@ -1,6 +1,6 @@
 "use client"
 
-import { GuildDTO, LeaveGuildEvent } from "@/app/DTOs/GuildDTO"
+import { DeleteGuildEvent, GuildDTO, LeaveGuildEvent } from "@/app/DTOs/GuildDTO"
 import { UserDTO } from "@/app/DTOs/UserDTO"
 import { useState } from "react"
 import Guild from "./Guild"
@@ -16,8 +16,13 @@ export default function GuildsPanel(props: { currentUser: UserDTO }) {
 	}
 
 	const leaveGuild = (guildId: string) => {
-		const event = new LeaveGuildEvent(guildId, currentUser.id)
-		sendWebSocketMessage(event)
+		if (currentUser.id === selectedGuild?.ownerId) {
+			const event = new DeleteGuildEvent(currentUser.id, selectedGuild.guildId)
+			sendWebSocketMessage(event)
+		} else {
+			const event = new LeaveGuildEvent(guildId, currentUser.id)
+			sendWebSocketMessage(event)
+		}
 		if (selectedGuild && selectedGuild.guildId === guildId) {
 			setSelectedGuild(undefined)
 		}

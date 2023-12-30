@@ -172,14 +172,19 @@ func (db *Database) CreateGuild(id string, name string, ownerId string) error {
 	return nil
 }
 
-func (db *Database) DeleteGuild(id string, name string, ownerId string) error {
+func (db *Database) DeleteGuild(id string, ownerId string) error {
 	tx, err := db.db.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
-	deleteGuild := `DELETE FROM guilds WHERE id = $1 and name = $2 and owner_id = $3`
-	_, err = tx.Exec(deleteGuild, id, name, ownerId)
+	removeUsers := `DELETE FROM guild_users WHERE guild_id = $1`
+	_, err = tx.Exec(removeUsers, id)
+	if err != nil {
+		return fmt.Errorf("error deleting guild users: %v", err)
+	}
+	deleteGuild := `DELETE FROM guilds WHERE id = $1 and owner_id = $2`
+	_, err = tx.Exec(deleteGuild, id, ownerId)
 	if err != nil {
 		return fmt.Errorf("error deleting guild: %v", err)
 	}
@@ -190,9 +195,41 @@ func (db *Database) DeleteGuild(id string, name string, ownerId string) error {
 	return nil
 }
 
-func JoinGuild() {}
+func (db *Database) JoinGuild(guildId string, userId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	joinGuild := `INSERT INTO guild_users (guild_id, user_id) VALUES ($1, $2)`
+	_, err = tx.Exec(joinGuild, guildId, userId)
+	if err != nil {
+		return fmt.Errorf("error joining guild: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
-func LeaveGuild() {}
+func (db *Database) LeaveGuild(guildId string, userId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	leaveGuild := `DELETE FROM guild_users WHERE guild_id = $1 and user_id = $2`
+	_, err = tx.Exec(leaveGuild, guildId, userId)
+	if err != nil {
+		return fmt.Errorf("error leaving guild: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
 func CreateChannel() {}
 

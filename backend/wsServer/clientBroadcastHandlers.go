@@ -58,6 +58,11 @@ func broadcastLogout(client *Client) {
 }
 
 func broadcastGuildDelete(client *Client, msg models.DeleteGuildEvent) {
+	err := client.Server.Database.DeleteGuild(msg.GuildId, msg.UserId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	client.leaveGuild(msg.GuildId)
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].leaveGuild(msg.GuildId)

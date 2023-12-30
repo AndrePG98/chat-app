@@ -24,10 +24,11 @@ import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
 import { SenderDTO } from "@/app/DTOs/UserDTO"
 import "./chanSelectorstyle.css"
+import { GuildDTO } from "@/app/DTOs/GuildDTO"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
-	serverName: string
+	guild: GuildDTO
 	createNewChannel: (name: string, type: string) => void
 	deleteChannel: (channelId: string) => void
 	selectChannel: (channel: ChannelDTO | undefined) => void
@@ -79,7 +80,7 @@ export default function ChannelSelector(props: {
 
 	return (
 		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800 bg-surface-100">
-			<div className="title text-center p-3 mb-5">{props.serverName}</div>
+			<div className="title text-center p-3 mb-5">{props.guild.guildName}</div>
 			<div className="channel-buttons flex-1 overflow-y-scroll">
 				{props.channels.map((channel) => (
 					<div key={channel.channelId}>
@@ -185,7 +186,9 @@ export default function ChannelSelector(props: {
 									onOpen()
 								}}
 							>
-								Leave guild
+								{currentUser.id === props.guild.ownerId
+									? "Delete Guild"
+									: "Leave Guild"}
 							</DropdownItem>
 						</DropdownMenu>
 					</Dropdown>
@@ -199,7 +202,9 @@ export default function ChannelSelector(props: {
 							{(onClose) => (
 								<>
 									<ModalHeader className="flex flex-col gap-1">
-										Leave guild?
+										{currentUser.id === props.guild.ownerId
+											? "Delete Guild?"
+											: "Leave Guild?"}
 									</ModalHeader>
 									<ModalFooter>
 										<Button color="danger" variant="light" onPress={onClose}>

@@ -100,6 +100,11 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 }
 
 func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
+	err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	client.Server.Update <- &models.UpdateGuilds{
 		Type:    models.R_GuildJoin,
 		GuildId: msg.GuildId,
@@ -116,6 +121,11 @@ func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
 }
 
 func handleLeaveGuild(client *Client, msg models.LeaveGuildEvent) {
+	err := client.Server.Database.LeaveGuild(msg.GuildId, msg.MemberId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	client.leaveGuild(msg.GuildId)
 	client.Server.Update <- &models.UpdateGuilds{
 		Type:    models.R_GuildLeave,

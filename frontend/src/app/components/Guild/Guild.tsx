@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react"
 
 import { ChannelDTO, CreateChannelEvent, DeleteChannelEvent } from "../../DTOs/ChannelDTO"
-import { GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
+import { GuildDTO } from "../../DTOs/GuildDTO"
 import ChannelSelector from "../Channel/ChannelSelector"
 import TextChannel from "../Channel/Text/TextChannel"
 import MembersPanel from "./MembersPanel"
 import { useUserContext } from "@/app/context/UserContext"
-import { Divider } from "@nextui-org/react"
-import { SenderDTO } from "@/app/DTOs/UserDTO"
 
 export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: string) => void }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
@@ -48,7 +46,7 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 				createNewChannel={createNewChannel}
 				selectChannel={selectChannel}
 				deleteChannel={deleteChannel}
-				serverName={props.guild.guildName}
+				guild={props.guild}
 				leaveGuild={() => props.leaveGuild(props.guild.guildId)}
 			></ChannelSelector>
 			<div className="selected-channel-div basis-[75%] grow-0 shrink-1">
