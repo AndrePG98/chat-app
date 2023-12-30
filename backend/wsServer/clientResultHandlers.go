@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"wsServer/models"
 
 	"github.com/google/uuid"
@@ -61,6 +62,16 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 
 func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 	guildId := uuid.NewString()
+	_, email, err := client.Server.Database.FetchUserInfo(msg.OwnerId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	err = client.Server.Database.CreateGuild(guildId, msg.GuildName, msg.OwnerId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	client.joinGuild(guildId)
 	client.Server.Update <- &models.UpdateGuilds{
 		Type:    models.R_GuildJoin,
@@ -78,7 +89,7 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 					{
 						UserId:   client.ID,
 						Username: client.Username,
-						Email:    "Some@Emai",
+						Email:    email,
 						Logo:     "https://source.unsplash.com/random/150x150/?avatar",
 					},
 				},

@@ -131,7 +131,46 @@ func (db *Database) FetchUserByPassword(username string, password string) (strin
 	return userId, token, []models.Guild{}, nil
 }
 
-func CreateGuild() {}
+func (db *Database) FetchUserInfo(userId string) (string, string, error) { // TODO : return avatar
+
+	tx, err := db.db.Begin()
+	if err != nil {
+		return "", "", fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	query := `SELECT username,email FROM users WHERE id = $1`
+	var username, email string
+	err = tx.QueryRow(query, userId).Scan(&username, &email)
+	if err != nil {
+		return "", "", fmt.Errorf("error finding user: %v", err)
+	}
+
+	return username, email, nil
+}
+
+func (db *Database) CreateGuild(id string, name string, ownerId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	insertGuild := `INSERT INTO guilds (id, owner_id, name) VALUES ($1, $2, $3)`
+	_, err = tx.Exec(insertGuild, id, ownerId, name)
+	if err != nil {
+		return fmt.Errorf("error inserting guild: %v", err)
+	}
+	insertGuildMember := `INSERT INTO guild_users (guild_id, user_id) VALUES ($1, $2)`
+	_, err = tx.Exec(insertGuildMember, id, ownerId)
+	if err != nil {
+		return fmt.Errorf("error inserting guild member: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
 func DeleteGuild() {}
 
