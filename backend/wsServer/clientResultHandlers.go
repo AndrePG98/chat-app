@@ -9,20 +9,21 @@ import (
 func handleRegistration(client *Client, regEvent models.RegisterEvent) {
 	username := regEvent.Username
 	password := regEvent.Password
+	email := regEvent.Email
 
-	result, id, token := CreateUser(username, password) // create user in db and return uuid
-	if result {
+	id, token, err := client.Server.Database.CreateUser(username, password, email) // create user in db and return uuid
+	if err != nil {
+		client.Server.Authenticate <- &AuthRequest{
+			Result: false,
+			Client: client,
+			Error:  err.Error(),
+		}
+	} else {
 		client.authenticate(id, username)
 		client.Server.Authenticate <- &AuthRequest{
 			Result: true,
 			Client: client,
 			Token:  token,
-		}
-	} else {
-		client.Server.Authenticate <- &AuthRequest{
-			Result: false,
-			Client: client,
-			Error:  "Some Error",
 		}
 	}
 }

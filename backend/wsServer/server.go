@@ -18,6 +18,7 @@ type WsServer struct {
 	Disconnect    chan string
 	Remove        chan *Client
 	Update        chan *models.UpdateGuilds
+	Database      *Database
 }
 
 func NewWsServer() *WsServer {
@@ -30,11 +31,14 @@ func NewWsServer() *WsServer {
 		Disconnect:    make(chan string),
 		Remove:        make(chan *Client),
 		Update:        make(chan *models.UpdateGuilds),
+		Database:      NewDatabase(),
 	}
 }
 
 func (server *WsServer) run() {
 	addRoutes(server)
+	go server.Database.Connect()
+	defer server.Database.Disconnect()
 	go server.listenForNewConnections()
 	go server.listenForRemoves()
 	go server.listenForAuthReq()

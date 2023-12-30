@@ -18,6 +18,7 @@ type RegisterEvent struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
+	Avatar   []byte `json:"avatar"`
 }
 
 type LoginEvent struct {

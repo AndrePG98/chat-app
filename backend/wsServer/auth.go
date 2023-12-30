@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -10,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-/* func hashPassword(username string, password string) string {
+func hashPassword(username string, password string) string {
 
 	saltedPassword := fmt.Sprintf("%s%s", password, username)
 
@@ -19,13 +21,13 @@ import (
 	hashedPassword := hex.EncodeToString(hash.Sum(nil))
 
 	return hashedPassword
-} */
+}
 
 func generateToken(userId string, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"userId":   userId,
 		"username": username,
-		"exp":      jwt.NewNumericDate(time.Now().AddDate(0, 0, 7)),
+		"exp":      jwt.NewNumericDate(time.Now().AddDate(0, 0, 1)),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(getEnvKey())

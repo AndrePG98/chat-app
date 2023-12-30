@@ -129,18 +129,20 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const authenticate = (msg: AccessResult) => {
-		const user = new UserDTO(
-			msg.body.userId,
-			msg.body.username,
-			"Email",
-			"https://source.unsplash.com/random/?avatar"
-		)
-		localStorage.setItem("token", msg.body.token)
-		if (msg.body.state !== null) {
-			proccessInitialState(msg.body.state, user)
+		if (msg.body.error.length === 0) {
+			const user = new UserDTO(
+				msg.body.userId,
+				msg.body.username,
+				"Email",
+				"https://source.unsplash.com/random/?avatar"
+			)
+			localStorage.setItem("token", msg.body.token)
+			if (msg.body.state !== null) {
+				proccessInitialState(msg.body.state, user)
+			}
+			setCurrentUser(user)
+			setIsAuthenticated(true)
 		}
-		setCurrentUser(user)
-		setIsAuthenticated(true)
 	}
 
 	const proccessInitialState = (state: GuildDTO[], user: UserDTO) => {
