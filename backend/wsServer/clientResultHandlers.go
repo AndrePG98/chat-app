@@ -32,15 +32,21 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	username := logEvent.Username
 	password := logEvent.Password
 	token := logEvent.Token
-	var result bool
+	var err error
 	var id string
 	var state []models.Guild
 	if len(token) == 0 {
-		result, id, token, state = FetchUserByPassword(username, password)
+		id, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
 	} else {
-		result, id, token, username, state = FetchUserByToken(token)
+		id, token, username, state, err = client.Server.Database.FetchUserByToken(token)
 	}
-	if result {
+	if err != nil {
+		client.Server.Authenticate <- &AuthRequest{
+			Result: false,
+			Client: client,
+			Error:  err.Error(),
+		}
+	} else {
 		client.authenticate(id, username)
 		client.joinGuilds(state)
 		client.Server.Authenticate <- &AuthRequest{
@@ -50,12 +56,6 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 			Token:  token,
 		}
 		broadcastLogin(client)
-	} else {
-		client.Server.Authenticate <- &AuthRequest{
-			Result: false,
-			Client: client,
-			Error:  "Some Error",
-		}
 	}
 }
 

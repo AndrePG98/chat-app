@@ -38,20 +38,6 @@ func generateToken(userId string, username string) (string, error) {
 	return tokenString, nil
 }
 
-func refreshToken(oldToken string) (string, string, string, error) {
-	claims, err := verifyToken(oldToken)
-	if err != nil {
-		log.Println("error validating token")
-	}
-	id, _ := claims["userId"].(string)
-	username, _ := claims["username"].(string)
-	newToken, err := generateToken(id, username)
-	if err != nil {
-		log.Println("error generating new token")
-	}
-	return newToken, id, username, nil
-}
-
 func verifyToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Check the signing method

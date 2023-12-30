@@ -60,7 +60,7 @@ func (db *Database) CreateUser(username string, password string, email string) (
 		return "", "", fmt.Errorf("error checking emails: %v", err)
 	}
 	if count > 0 {
-		return "", "", fmt.Errorf("error email already in use: %v", email)
+		return "", "", fmt.Errorf("email already in use: %v", email)
 	}
 
 	insertQuery := `INSERT INTO users (id, username, email, avatar, password) VALUES ($1, $2, $3, $4, $5)`
@@ -81,23 +81,54 @@ func (db *Database) CreateUser(username string, password string, email string) (
 	return id, token, nil
 }
 
-func FetchUserByToken(token string) (bool, string, string, string, []models.Guild) {
-	newToken, id, username, err := refreshToken(token)
+func (db *Database) FetchUserByToken(token string) (string, string, string, []models.Guild, error) {
+	claims, err := verifyToken(token)
 	if err != nil {
-		log.Println("error refreshing token")
+		return "", "", "", []models.Guild{}, fmt.Errorf("error verifying token: %v", err)
 	}
-	return true, id, newToken, username, []models.Guild{}
+	id, _ := claims["userId"].(string)
+	username, _ := claims["username"].(string)
+	tx, err := db.db.Begin()
+	if err != nil {
+		return "", "", "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	query := `SELECT COUNT(*) FROM users WHERE id = $1 AND username = $2`
+	var count int
+	_ = tx.QueryRow(query, id, username).Scan(&count)
+	if count != 1 {
+		return "", "", "", []models.Guild{}, fmt.Errorf("error bad token: %v", count)
+	}
+
+	newToken, err := generateToken(id, username)
+	if err != nil {
+		return "", "", "", []models.Guild{}, fmt.Errorf("error generating new token: %v", err)
+	}
+	return id, newToken, username, []models.Guild{}, nil
 }
 
-func FetchUserByPassword(username string, password string) (bool, string, string, []models.Guild) {
-	// hashedPw, _ := hashPassword(username, password)
-	// Search db for username
-	// compore hashedPw with db hashedPw if true return user state
-	id := uuid.NewString()
+func (db *Database) FetchUserByPassword(username string, password string) (string, string, []models.Guild, error) {
+	hashedPw := hashPassword(username, password)
 
-	token, _ := generateToken(id, username)
-	return true, id, token, []models.Guild{}
-	//return user info for initial state and app init
+	tx, err := db.db.Begin()
+	if err != nil {
+		return "", "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	query := `SELECT id FROM users WHERE username = $1 AND password = $2`
+	var userId string
+	err = tx.QueryRow(query, username, hashedPw).Scan(&userId)
+	if err != nil {
+		return "", "", []models.Guild{}, fmt.Errorf("error finding user: %v", err)
+	}
+
+	token, err := generateToken(userId, username)
+	if err != nil {
+		return "", "", []models.Guild{}, fmt.Errorf("error generating token: %v", err)
+	}
+
+	return userId, token, []models.Guild{}, nil
 }
 
 func CreateGuild() {}
