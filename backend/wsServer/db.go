@@ -172,7 +172,23 @@ func (db *Database) CreateGuild(id string, name string, ownerId string) error {
 	return nil
 }
 
-func DeleteGuild() {}
+func (db *Database) DeleteGuild(id string, name string, ownerId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	deleteGuild := `DELETE FROM guilds WHERE id = $1 and name = $2 and owner_id = $3`
+	_, err = tx.Exec(deleteGuild, id, name, ownerId)
+	if err != nil {
+		return fmt.Errorf("error deleting guild: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
 func JoinGuild() {}
 
