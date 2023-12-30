@@ -178,6 +178,16 @@ func (db *Database) DeleteGuild(id string, ownerId string) error {
 		return fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
+	removeChanMembers := `DELETE FROM channel_members WHERE guild_id = $1`
+	_, err = tx.Exec(removeChanMembers, id)
+	if err != nil {
+		return fmt.Errorf("error deleting channel members: %v", err)
+	}
+	removeChannels := `DELETE FROM channels WHERE guild_id = $1`
+	_, err = tx.Exec(removeChannels, id)
+	if err != nil {
+		return fmt.Errorf("error deleting guild channels: %v", err)
+	}
 	removeUsers := `DELETE FROM guild_users WHERE guild_id = $1`
 	_, err = tx.Exec(removeUsers, id)
 	if err != nil {
@@ -267,9 +277,42 @@ func (db *Database) DeleteChannel(guildId string, channelId string) error {
 	return nil
 }
 
-func JoinChannel() {}
+func (db *Database) JoinChannel(guildId string, channelId string, userId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	joinChannel := `INSERT INTO channel_members (channel_id, guild_id, user_id) VALUES ($1, $2, $3)`
+	_, err = tx.Exec(joinChannel, channelId, guildId, userId)
+	if err != nil {
+		return fmt.Errorf("error joining channel: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
-func LeaveChannel() {}
+func (db *Database) LeaveChannel(guildId string, channelId string, userId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	leaveChannel := `DELETE FROM channel_members WHERE channel_id = $1 AND guild_id = $2 AND user_id = $3`
+	result, err := tx.Exec(leaveChannel, channelId, guildId, userId)
+	if err != nil {
+		return fmt.Errorf("error leaving channel: %v", err)
+	}
+	log.Println(result.RowsAffected())
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
 func SaveMessage() {}
 

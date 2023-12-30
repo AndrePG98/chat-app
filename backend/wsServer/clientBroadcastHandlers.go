@@ -146,6 +146,11 @@ func broadcastChannelDelete(client *Client, msg models.DeleteChannelEvent) {
 }
 
 func broadcastChannelJoin(client *Client, msg models.JoinChannelEvent) {
+	err := client.Server.Database.JoinChannel(msg.GuildId, msg.ChannelId, msg.User.UserId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_JoinChannel,
@@ -179,6 +184,11 @@ func broadcastNewChannelJoin(client *Client, msg models.JoinNewChannelEvent) {
 }
 
 func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
+	err := client.Server.Database.LeaveChannel(msg.GuildId, msg.ChannelId, msg.UserId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_LeaveChannel,
