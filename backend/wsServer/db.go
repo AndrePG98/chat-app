@@ -231,9 +231,41 @@ func (db *Database) LeaveGuild(guildId string, userId string) error {
 	return nil
 }
 
-func CreateChannel() {}
+func (db *Database) CreateChannel(guildId string, channelId string, chanType string, name string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	createChan := `INSERT INTO channels (id, guild_id, type, name) VALUES ($1, $2, $3, $4)`
+	_, err = tx.Exec(createChan, channelId, guildId, chanType, name)
+	if err != nil {
+		return fmt.Errorf("error creating channel: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
-func DeleteChannel() {}
+func (db *Database) DeleteChannel(guildId string, channelId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	deleteChan := `DELETE FROM channels WHERE id = $1 and guild_id = $2`
+	_, err = tx.Exec(deleteChan, channelId, guildId)
+	if err != nil {
+		return fmt.Errorf("error deleting channel: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
 func JoinChannel() {}
 

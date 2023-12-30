@@ -109,12 +109,18 @@ func broadcastGuildLeave(client *Client, msg models.LeaveGuildEvent) {
 }
 
 func broadcastChannelCreate(client *Client, msg models.CreateChannelEvent) {
+	chanId := uuid.NewString()
+	err := client.Server.Database.CreateChannel(msg.GuildId, chanId, msg.ChannelType, msg.ChannelName)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChannelCreate,
 			Body: models.CreateChannelBroadcast{
 				GuildId:     msg.GuildId,
-				ChannelId:   uuid.NewString(),
+				ChannelId:   chanId,
 				ChannelName: msg.ChannelName,
 				ChannelType: msg.ChannelType,
 			},
@@ -123,6 +129,11 @@ func broadcastChannelCreate(client *Client, msg models.CreateChannelEvent) {
 }
 
 func broadcastChannelDelete(client *Client, msg models.DeleteChannelEvent) {
+	err := client.Server.Database.DeleteChannel(msg.GuildId, msg.ChannelId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChannelDelete,
