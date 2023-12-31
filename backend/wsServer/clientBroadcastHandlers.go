@@ -203,6 +203,11 @@ func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
 
 func broadcastMessage(client *Client, msg models.SendMessageEvent) {
 	id := uuid.NewString()
+	err := client.Server.Database.SaveMessage(id, msg.GuildId, msg.ChannelId, msg.Sender.UserId, msg.Content, msg.SendAt)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChatMessage,
@@ -221,7 +226,11 @@ func broadcastMessage(client *Client, msg models.SendMessageEvent) {
 }
 
 func broadcastMessageDelete(client *Client, msg models.DeleteMessageEvent) {
-	log.Println(msg)
+	err := client.Server.Database.DeleteMessage(msg.MessageId, msg.GuildId, msg.ChannelId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	for _, userId := range client.Server.Guilds[msg.GuildId] {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChatMessageDelete,

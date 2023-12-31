@@ -302,11 +302,10 @@ func (db *Database) LeaveChannel(guildId string, channelId string, userId string
 	}
 	defer tx.Rollback()
 	leaveChannel := `DELETE FROM channel_members WHERE channel_id = $1 AND guild_id = $2 AND user_id = $3`
-	result, err := tx.Exec(leaveChannel, channelId, guildId, userId)
+	_, err = tx.Exec(leaveChannel, channelId, guildId, userId)
 	if err != nil {
 		return fmt.Errorf("error leaving channel: %v", err)
 	}
-	log.Println(result.RowsAffected())
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("error committing transaction: %v", err)
@@ -314,6 +313,39 @@ func (db *Database) LeaveChannel(guildId string, channelId string, userId string
 	return nil
 }
 
-func SaveMessage() {}
+func (db *Database) SaveMessage(messageId string, guildId string, channelId string, senderId string, content string, sendAt string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	saveMessage := `INSERT INTO messages (id, guild_id, channel_id, sender_id, content , send_time) 
+	VALUES ($1, $2, $3, $4, $5, TO_DATE($6, 'DD/MM/YYYY'))`
+	_, err = tx.Exec(saveMessage, messageId, guildId, channelId, senderId, content, sendAt)
+	if err != nil {
+		return fmt.Errorf("error inserting message: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
 
-func DeleteMessage() {}
+func (db *Database) DeleteMessage(messageId string, guildId string, channelId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	deleteMessage := `DELETE FROM messages WHERE id = $1 AND guild_id = $2 AND channel_id = $3`
+	_, err = tx.Exec(deleteMessage, messageId, guildId, channelId)
+	if err != nil {
+		return fmt.Errorf("error deleting message: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
