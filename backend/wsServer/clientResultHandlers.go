@@ -56,7 +56,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 			State:  state,
 			Token:  token,
 		}
-		broadcastLogin(client)
+		//broadcastLogin(client)
 	}
 }
 

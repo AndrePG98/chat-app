@@ -251,7 +251,6 @@ export const UserContextProvider = ({ children }: any) => {
 					if (chan.channelId === msg.body.channelId) {
 						chan.leaveChannel(msg.body.userId)
 						currentUser.currentChannel = undefined
-						console.log(currentUser.currentChannel)
 					}
 				})
 			}
@@ -263,7 +262,7 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.message.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.message.channelId) {
-						channel.addMessage(msg.body.message)
+						channel.history.push(msg.body.message)
 					}
 				})
 			}
@@ -275,7 +274,11 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.channelId) {
-						channel.removeMessage(msg.body.messageId)
+						for (let i = 0; i < channel.history.length; i++) {
+							if (channel.history[i].messageId === msg.body.messageId) {
+								channel.history.splice(i)
+							}
+						}
 					}
 				})
 			}

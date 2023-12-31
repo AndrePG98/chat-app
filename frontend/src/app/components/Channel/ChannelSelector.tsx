@@ -9,7 +9,6 @@ import {
 	ModalFooter,
 	ModalHeader,
 	useDisclosure,
-	Tooltip,
 } from "@nextui-org/react"
 import { useEffect, useState } from "react"
 import {
@@ -22,7 +21,6 @@ import TextChannelBtn from "./Text/TextChannelBtn"
 import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
 import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
-import { SenderDTO } from "@/app/DTOs/UserDTO"
 import "./chanSelectorstyle.css"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
 

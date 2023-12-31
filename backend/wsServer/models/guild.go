@@ -1,5 +1,9 @@
 package models
 
+import (
+	"fmt"
+)
+
 type UpdateGuilds struct {
 	Type    interface{}
 	GuildId string
@@ -12,6 +16,16 @@ type Guild struct {
 	Name     string    `json:"guildName"`
 	Members  []User    `json:"members"`
 	Channels []Channel `json:"channels"`
+}
+
+func (g *Guild) GetMember(memberId string) (User, error) {
+	for _, user := range g.Members {
+		if user.UserId == memberId {
+			return user, nil
+		}
+
+	}
+	return User{}, fmt.Errorf("error user not found")
 }
 
 // ################################## EVENTS ###########################################

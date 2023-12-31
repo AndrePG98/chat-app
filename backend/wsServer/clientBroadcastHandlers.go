@@ -17,23 +17,6 @@ type AuthRequest struct {
 }
 
 // Add client guildIds to the models.User so the receivers know which guilds to update
-func broadcastLogin(client *Client) {
-	for _, guildId := range client.Guilds {
-		for _, userId := range client.Server.Guilds[guildId] {
-			client.Server.AuthClients[userId].Send <- &models.IMessage{
-				Type: models.B_Login,
-				Body: &models.LoginBroadcast{
-					User: models.User{
-						UserId:   client.ID,
-						Username: client.Username,
-						Email:    "Some@Email",
-						Logo:     "https://source.unsplash.com/random/150x150/?avatar",
-					},
-				},
-			}
-		}
-	}
-}
 
 func broadcastLogout(client *Client) {
 	defer client.Conn.Close()
