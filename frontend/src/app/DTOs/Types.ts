@@ -19,12 +19,14 @@ export enum EventType {
     LeaveChannel,
     ChatMessage,
     DeleteMessage,
+    UploadLogo,
 }
 
 export enum ResultType {
     R_Acess,
     R_JoinGuild,
     R_LeaveGuild,
+    R_UploadLogo,
     B_Login,
     B_Logout,
     B_GuildDelete,
@@ -33,8 +35,8 @@ export enum ResultType {
     B_CreateChannel,
     B_DeleteChannel,
     B_JoinChannel,
-    B_JoinNewChannel,
     B_LeaveChannel,
     B_ChatMessage,
-    B_ChatMessageDelete
+    B_ChatMessageDelete,
+    B_UploadLogo
 }

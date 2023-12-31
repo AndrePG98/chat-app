@@ -1,12 +1,11 @@
 "use client"
 
-import { CreateGuildEvent, GuildDTO } from "./DTOs/GuildDTO"
 import GuildsPanel from "./components/Guild/GuildsPanel"
 import RegisterLoginOption from "./components/User/RegisterLoginOption"
 import { useUserContext } from "./context/UserContext"
 
 export default function App() {
-	const { isAuthenticated, currentUser, sendWebSocketMessage } = useUserContext()
+	const { isAuthenticated, currentUser } = useUserContext()
 
 	return (
 		<div className="bg-surface-300">

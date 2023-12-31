@@ -137,7 +137,10 @@ func (client *Client) handleMessage(msg models.IMessage) {
 		var body models.DeleteMessageEvent
 		mapstructure.Decode(msg.Body, &body)
 		broadcastMessageDelete(client, body)
-
+	case models.E_UploadLogo:
+		var body models.UploadLogoEvent
+		mapstructure.Decode(msg.Body, &body)
+		handleUploadLogo(client, body)
 	}
 }
 

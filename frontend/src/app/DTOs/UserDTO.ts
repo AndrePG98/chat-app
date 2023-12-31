@@ -106,8 +106,19 @@ export class LogoutEvent implements IEvent {
 	type: EventType;
 	body: any
 
-	constructor() {
+	constructor(userId: string) {
 		this.type = EventType.Logout
+		this.body = { userId }
+	}
+}
+
+export class UploadLogoEvent implements IEvent {
+	type: EventType;
+	body: any
+
+	constructor(image: string, userId: string) {
+		this.type = EventType.UploadLogo
+		this.body = { image, userId }
 	}
 }
 
@@ -118,7 +129,17 @@ export interface AccessResult {
 		token: string
 		userId: string
 		username: string
+		email: string
+		logo: string
 		state: GuildDTO[]
+		error: string
+	}
+}
+
+export interface UploadLogoResult {
+	type: ResultType
+	body: {
+		image: string
 		error: string
 	}
 }

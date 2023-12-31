@@ -92,7 +92,6 @@ export default function ChannelSelector(props: {
 						{channel.channelType === "voice" && (
 							<VoiceChannelBtn
 								channel={channel}
-								selectChannel={props.selectChannel}
 								addChannelUser={addChannelUser}
 								deleteChannel={deleteChannel}
 							/>

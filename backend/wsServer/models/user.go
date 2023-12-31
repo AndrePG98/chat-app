@@ -18,7 +18,7 @@ type RegisterEvent struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
-	Avatar   []byte `json:"avatar"`
+	Logo     []byte `json:"logo"`
 }
 
 type LoginEvent struct {
@@ -27,7 +27,14 @@ type LoginEvent struct {
 	Token    string `json:"token"`
 }
 
-type LogoutEvent struct{}
+type LogoutEvent struct {
+	UserId string `json:"userId"`
+}
+
+type UploadLogoEvent struct {
+	Image  string `json:"image"`
+	UserId string `json:"userId"`
+}
 
 // ################################## EVENTS ###########################################
 
@@ -39,8 +46,15 @@ type AcessResult struct {
 	Token    string  `json:"token"`
 	UserId   string  `json:"userId"`
 	Username string  `json:"username"`
+	Email    string  `json:"email"`
+	Logo     string  `json:"logo"`
 	State    []Guild `json:"state"`
 	Error    string  `json:"error"`
+}
+
+type UploadLogoResult struct {
+	Image string `json:"image"`
+	Error string `json:"error"`
 }
 
 // ################################## BROADCASTS ##############################################

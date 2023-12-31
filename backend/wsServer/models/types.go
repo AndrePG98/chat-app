@@ -15,12 +15,14 @@ const (
 	E_LeaveChannel
 	E_ChatMessage
 	E_DeleteMessage
+	E_UploadLogo
 )
 
 const (
 	R_Acess int = iota // Equivalent to R_Login & R_Register
 	R_GuildJoin
 	R_GuildLeave
+	R_UploadLogo
 	B_Login
 	B_Logout
 	B_GuildDelete
@@ -29,8 +31,8 @@ const (
 	B_ChannelCreate
 	B_ChannelDelete
 	B_JoinChannel
-	B_JoinNewChannel
 	B_LeaveChannel
 	B_ChatMessage
 	B_ChatMessageDelete
+	B_UploadLogo
 )

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"log"
 	"wsServer/models"
 
@@ -24,6 +25,8 @@ func handleRegistration(client *Client, regEvent models.RegisterEvent) {
 		client.Server.Authenticate <- &AuthRequest{
 			Result: true,
 			Client: client,
+			Email:  email,
+			Logo:   "",
 			Token:  token,
 		}
 	}
@@ -35,11 +38,13 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	token := logEvent.Token
 	var err error
 	var id string
+	var email string
+	var logo string
 	var state []models.Guild
 	if len(token) == 0 {
-		id, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
+		id, email, logo, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
 	} else {
-		id, token, username, state, err = client.Server.Database.FetchUserByToken(token)
+		id, username, email, logo, token, state, err = client.Server.Database.FetchUserByToken(token)
 	}
 	if err != nil {
 		client.Server.Authenticate <- &AuthRequest{
@@ -53,6 +58,8 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 		client.Server.Authenticate <- &AuthRequest{
 			Result: true,
 			Client: client,
+			Email:  email,
+			Logo:   logo,
 			State:  state,
 			Token:  token,
 		}
@@ -62,7 +69,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 
 func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 	guildId := uuid.NewString()
-	_, email, err := client.Server.Database.FetchUserInfo(msg.OwnerId)
+	_, email, logo, err := client.Server.Database.FetchUserInfo(msg.OwnerId)
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -73,11 +80,6 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 		return
 	}
 	client.joinGuild(guildId)
-	client.Server.Update <- &models.UpdateGuilds{
-		Type:    models.R_GuildJoin,
-		GuildId: guildId,
-		UserId:  client.ID,
-	}
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
 		Body: models.JoinGuildResult{
@@ -90,7 +92,7 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 						UserId:   client.ID,
 						Username: client.Username,
 						Email:    email,
-						Logo:     "https://source.unsplash.com/random/150x150/?avatar",
+						Logo:     logo,
 					},
 				},
 				Channels: []models.Channel{},
@@ -100,43 +102,54 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 }
 
 func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
-	err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId)
+	userIds, guild, err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId)
 	if err != nil {
 		log.Println(err.Error())
 		return
-	}
-	client.Server.Update <- &models.UpdateGuilds{
-		Type:    models.R_GuildJoin,
-		GuildId: msg.GuildId,
-		UserId:  client.ID,
 	}
 	client.joinGuild(msg.GuildId)
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
 		Body: models.JoinGuildResult{
-			Guild: models.Guild{}, // fetch from database
+			Guild: guild,
 		},
 	}
-	broadcastGuildJoin(client, msg)
+	broadcastGuildJoin(client, userIds, msg.GuildId, msg.Member)
 }
 
 func handleLeaveGuild(client *Client, msg models.LeaveGuildEvent) {
-	err := client.Server.Database.LeaveGuild(msg.GuildId, msg.MemberId)
+	userIds, err := client.Server.Database.LeaveGuild(msg.GuildId, msg.MemberId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 	client.leaveGuild(msg.GuildId)
-	client.Server.Update <- &models.UpdateGuilds{
-		Type:    models.R_GuildLeave,
-		GuildId: msg.GuildId,
-		UserId:  client.ID,
-	}
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildLeave,
 		Body: models.LeaveGuildResult{
 			GuildId: msg.GuildId,
 		},
 	}
-	broadcastGuildLeave(client, msg)
+	broadcastGuildLeave(client, userIds, msg.GuildId)
+}
+
+func handleUploadLogo(client *Client, msg models.UploadLogoEvent) {
+	decodedImage, err := base64.StdEncoding.DecodeString(msg.Image)
+	if err != nil {
+		log.Printf("error decoding image: %v", err)
+		return
+	}
+	err = client.Server.Database.UploadLogo(decodedImage, msg.UserId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	client.Send <- &models.IMessage{
+		Type: models.R_UploadLogo,
+		Body: models.UploadLogoResult{
+			Image: msg.Image,
+			Error: "",
+		},
+	}
+
 }

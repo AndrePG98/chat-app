@@ -11,43 +11,32 @@ import (
 type AuthRequest struct {
 	Result bool
 	Client *Client
+	Email  string
+	Logo   string
 	Token  string
 	Error  string
 	State  []models.Guild
 }
 
-// Add client guildIds to the models.User so the receivers know which guilds to update
-
 func broadcastLogout(client *Client) {
 	defer client.Conn.Close()
-	for _, guildId := range client.Guilds {
-		client.Server.Update <- &models.UpdateGuilds{
-			Type:    models.R_GuildLeave,
-			GuildId: guildId,
-			UserId:  client.ID,
-		}
-		for _, userId := range client.Server.Guilds[guildId] {
-			if userId != client.ID {
-				client.Server.AuthClients[userId].Send <- &models.IMessage{
-					Type: models.B_Logout,
-					Body: &models.LogoutBroadcast{
-						Username: client.Username,
-						GuildIds: client.Guilds,
-					},
-				}
-			}
-		}
+	channelId, guildId, err := client.Server.Database.GetCurrentUserChannel(client.ID)
+	if err != nil {
+		log.Println(err.Error())
+		return
 	}
+	broadcastChannelLeave(client, models.LeaveChannelEvent{UserId: client.ID, GuildId: guildId, ChannelId: channelId})
+
 }
 
 func broadcastGuildDelete(client *Client, msg models.DeleteGuildEvent) {
-	err := client.Server.Database.DeleteGuild(msg.GuildId, msg.UserId)
+	userIds, err := client.Server.Database.DeleteGuild(msg.GuildId, msg.UserId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 	client.leaveGuild(msg.GuildId)
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].leaveGuild(msg.GuildId)
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_GuildDelete,
@@ -56,35 +45,30 @@ func broadcastGuildDelete(client *Client, msg models.DeleteGuildEvent) {
 			},
 		}
 	}
-	client.Server.Update <- &models.UpdateGuilds{
-		Type:    models.B_GuildDelete,
-		GuildId: msg.GuildId,
-		UserId:  "",
-	}
 }
 
-func broadcastGuildJoin(client *Client, msg models.JoinGuildEvent) {
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+func broadcastGuildJoin(client *Client, userIds []string, guildId string, member models.User) {
+	for _, userId := range userIds {
 		if userId != client.ID {
 			client.Server.AuthClients[userId].Send <- &models.IMessage{
 				Type: models.B_GuildJoin,
 				Body: models.GuildJoinBroadcast{
-					User:    msg.Member,
-					GuildId: msg.GuildId,
+					User:    member,
+					GuildId: guildId,
 				},
 			}
 		}
 	}
 }
 
-func broadcastGuildLeave(client *Client, msg models.LeaveGuildEvent) {
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+func broadcastGuildLeave(client *Client, userIds []string, guildId string) {
+	for _, userId := range userIds {
 		if userId != client.ID {
 			client.Server.AuthClients[userId].Send <- &models.IMessage{
 				Type: models.B_GuildLeave,
 				Body: models.GuildLeaveBroadcast{
 					UserId:  client.ID,
-					GuildId: msg.GuildId,
+					GuildId: guildId,
 				},
 			}
 		}
@@ -93,12 +77,12 @@ func broadcastGuildLeave(client *Client, msg models.LeaveGuildEvent) {
 
 func broadcastChannelCreate(client *Client, msg models.CreateChannelEvent) {
 	chanId := uuid.NewString()
-	err := client.Server.Database.CreateChannel(msg.GuildId, chanId, msg.ChannelType, msg.ChannelName)
+	userIds, err := client.Server.Database.CreateChannel(msg.GuildId, chanId, msg.ChannelType, msg.ChannelName)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChannelCreate,
 			Body: models.CreateChannelBroadcast{
@@ -112,12 +96,12 @@ func broadcastChannelCreate(client *Client, msg models.CreateChannelEvent) {
 }
 
 func broadcastChannelDelete(client *Client, msg models.DeleteChannelEvent) {
-	err := client.Server.Database.DeleteChannel(msg.GuildId, msg.ChannelId)
+	userIds, err := client.Server.Database.DeleteChannel(msg.GuildId, msg.ChannelId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChannelDelete,
 			Body: models.DeleteChannelBroadcast{
@@ -129,12 +113,12 @@ func broadcastChannelDelete(client *Client, msg models.DeleteChannelEvent) {
 }
 
 func broadcastChannelJoin(client *Client, msg models.JoinChannelEvent) {
-	err := client.Server.Database.JoinChannel(msg.GuildId, msg.ChannelId, msg.User.UserId)
+	userIds, err := client.Server.Database.JoinChannel(msg.GuildId, msg.ChannelId, msg.User.UserId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_JoinChannel,
 			Body: models.JoinChannelBroadcast(msg),
@@ -167,12 +151,13 @@ func broadcastNewChannelJoin(client *Client, msg models.JoinNewChannelEvent) {
 }
 
 func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
-	err := client.Server.Database.LeaveChannel(msg.GuildId, msg.ChannelId, msg.UserId)
+	log.Println("here")
+	userIds, err := client.Server.Database.LeaveChannel(msg.GuildId, msg.ChannelId, msg.UserId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_LeaveChannel,
 			Body: models.LeaveChannelBroadcast{
@@ -186,12 +171,12 @@ func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
 
 func broadcastMessage(client *Client, msg models.SendMessageEvent) {
 	id := uuid.NewString()
-	err := client.Server.Database.SaveMessage(id, msg.GuildId, msg.ChannelId, msg.Sender.UserId, msg.Content, msg.SendAt)
+	userIds, err := client.Server.Database.SaveMessage(id, msg.GuildId, msg.ChannelId, msg.Sender.UserId, msg.Content, msg.SendAt)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChatMessage,
 			Body: models.MessageBroadcast{
@@ -209,12 +194,12 @@ func broadcastMessage(client *Client, msg models.SendMessageEvent) {
 }
 
 func broadcastMessageDelete(client *Client, msg models.DeleteMessageEvent) {
-	err := client.Server.Database.DeleteMessage(msg.MessageId, msg.GuildId, msg.ChannelId)
+	userIds, err := client.Server.Database.DeleteMessage(msg.MessageId, msg.GuildId, msg.ChannelId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	for _, userId := range client.Server.Guilds[msg.GuildId] {
+	for _, userId := range userIds {
 		client.Server.AuthClients[userId].Send <- &models.IMessage{
 			Type: models.B_ChatMessageDelete,
 			Body: models.MessageDeleteBroadcast{
