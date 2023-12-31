@@ -81,59 +81,61 @@ func (db *Database) CreateUser(username string, password string, email string) (
 	return id, token, nil
 }
 
-func (db *Database) FetchUserByToken(token string) (string, string, string, string, string, []models.Guild, error) {
+func (db *Database) FetchUserByToken(token string) (string, string, string, []byte, string, []models.Guild, error) {
 	claims, err := verifyToken(token)
 	if err != nil {
-		return "", "", "", "", "", []models.Guild{}, fmt.Errorf("error verifying token: %v", err)
+		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error verifying token: %v", err)
 	}
 	id, _ := claims["userId"].(string)
 	username, _ := claims["username"].(string)
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", "", "", "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
-	query := `SELECT emai,logo  FROM users WHERE id = $1 AND username = $2`
-	var email, logo string
+	query := `SELECT email,logo  FROM users WHERE id = $1 AND username = $2`
+	var email string
+	var logo []byte
 	err = tx.QueryRow(query, id, username).Scan(&email, &logo)
 	if err != nil {
-		return "", "", "", "", "", []models.Guild{}, fmt.Errorf("error bad credentials: %v", err)
+		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error bad credentials: %v", err)
 	}
 
 	newToken, err := generateToken(id, username)
 	if err != nil {
-		return "", "", "", "", "", []models.Guild{}, fmt.Errorf("error generating new token: %v", err)
+		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error generating new token: %v", err)
 	}
 	state, err := db.GetState(id)
 	if err != nil {
-		return "", "", "", "", "", []models.Guild{}, err
+		return "", "", "", []byte{}, "", []models.Guild{}, err
 	}
 	return id, username, email, logo, newToken, state, nil
 }
 
-func (db *Database) FetchUserByPassword(username string, password string) (string, string, string, string, []models.Guild, error) {
+func (db *Database) FetchUserByPassword(username string, password string) (string, string, []byte, string, []models.Guild, error) {
 	hashedPw := hashPassword(username, password)
 
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", "", "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 
 	query := `SELECT id, email, logo FROM users WHERE username = $1 AND password = $2`
-	var userId, email, logo string
+	var userId, email string
+	var logo []byte
 	err = tx.QueryRow(query, username, hashedPw).Scan(&userId, &email, &logo)
 	if err != nil {
-		return "", "", "", "", []models.Guild{}, fmt.Errorf("error bad credentials: %v", err)
+		return "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error bad credentials: %v", err)
 	}
 
 	token, err := generateToken(userId, username)
 	if err != nil {
-		return "", "", "", "", []models.Guild{}, fmt.Errorf("error generating token: %v", err)
+		return "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error generating token: %v", err)
 	}
 	state, err := db.GetState(userId)
 	if err != nil {
-		return "", "", "", "", []models.Guild{}, err
+		return "", "", []byte{}, "", []models.Guild{}, err
 	}
 	return userId, email, logo, token, state, nil
 }

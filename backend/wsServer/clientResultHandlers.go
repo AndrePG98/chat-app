@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"log"
+	"strings"
 	"wsServer/models"
 
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ func handleRegistration(client *Client, regEvent models.RegisterEvent) {
 	password := regEvent.Password
 	email := regEvent.Email
 
-	id, token, err := client.Server.Database.CreateUser(username, password, email) // create user in db and return uuid
+	id, token, err := client.Server.Database.CreateUser(username, password, email)
 	if err != nil {
 		client.Server.Authenticate <- &AuthRequest{
 			Result: false,
@@ -39,12 +40,15 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	var err error
 	var id string
 	var email string
-	var logo string
+	var logo []byte
+	var base64Image string
 	var state []models.Guild
 	if len(token) == 0 {
 		id, email, logo, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
+		base64Image = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	} else {
 		id, username, email, logo, token, state, err = client.Server.Database.FetchUserByToken(token)
+		base64Image = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	}
 	if err != nil {
 		client.Server.Authenticate <- &AuthRequest{
@@ -59,7 +63,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 			Result: true,
 			Client: client,
 			Email:  email,
-			Logo:   logo,
+			Logo:   base64Image,
 			State:  state,
 			Token:  token,
 		}
@@ -134,7 +138,8 @@ func handleLeaveGuild(client *Client, msg models.LeaveGuildEvent) {
 }
 
 func handleUploadLogo(client *Client, msg models.UploadLogoEvent) {
-	decodedImage, err := base64.StdEncoding.DecodeString(msg.Image)
+	split := strings.Split(msg.Image, ",")
+	decodedImage, err := base64.StdEncoding.DecodeString(split[1])
 	if err != nil {
 		log.Printf("error decoding image: %v", err)
 		return

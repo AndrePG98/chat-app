@@ -27,6 +27,7 @@ import {
 	LeaveCHannelBroadcast,
 	LeaveChannelEvent,
 } from "../DTOs/ChannelDTO"
+import { access } from "fs"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -131,7 +132,12 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const authenticate = (msg: AccessResult) => {
 		if (msg.body.error.length === 0) {
-			const user = new UserDTO(msg.body.userId, msg.body.username, "Email", "")
+			const user = new UserDTO(
+				msg.body.userId,
+				msg.body.username,
+				msg.body.email,
+				msg.body.logo
+			)
 			localStorage.setItem("token", msg.body.token)
 			if (msg.body.state !== null) {
 				proccessInitialState(msg.body.state, user)

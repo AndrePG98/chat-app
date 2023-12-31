@@ -19,19 +19,29 @@ export default function UserProfileModal(props: {
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const selectedFile = e.target.files?.[0]
 
-		if (selectedFile) {
-			const reader = new FileReader()
-
-			reader.onload = (event) => {
-				if (event.target?.result) {
-					const convertedFile = event.target.result.toString().split(",")[1]
-					const imgEvent = new UploadLogoEvent(convertedFile, currentUser.id)
-					sendWebSocketMessage(imgEvent)
-				}
-			}
-
-			reader.readAsDataURL(selectedFile)
+		if (
+			!selectedFile ||
+			!["image/png", "image/jpg", "image/jpeg"].includes(selectedFile.type)
+		) {
+			alert("Please select a valid image file (PNG, JPG, JPEG).")
+			return
 		}
+
+		const reader = new FileReader()
+
+		reader.onload = (event) => {
+			if (event.target?.result) {
+				const base64Image = event.target.result.toString()
+				const imgEvent = new UploadLogoEvent(base64Image, currentUser.id)
+				sendWebSocketMessage(imgEvent)
+			}
+		}
+
+		reader.onerror = (error) => {
+			console.error(`Error reading file: ${error}`)
+		}
+
+		reader.readAsDataURL(selectedFile)
 	}
 	return (
 		<Modal

@@ -43,10 +43,17 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 		<div className="flex flex-col gap-3 px-3 border-b-1 border-faded">
 			<div className="flex flex-row justify-between items-center">
 				<User
+					key={imageSrc}
 					name={props.currentUser.username}
 					avatarProps={{
+						src: imageSrc,
 						imgProps: {
-							src: imageSrc,
+							style: {
+								objectFit: "cover",
+								objectPosition: "center",
+								height: "100%",
+								width: "100%",
+							},
 						},
 					}}
 				/>
