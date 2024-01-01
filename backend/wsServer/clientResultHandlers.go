@@ -74,6 +74,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 	guildId := uuid.NewString()
 	_, email, logo, err := client.Server.Database.FetchUserInfo(msg.OwnerId)
+	base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -96,7 +97,7 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 						UserId:   client.ID,
 						Username: client.Username,
 						Email:    email,
-						Logo:     logo,
+						Logo:     base64Image,
 					},
 				},
 				Channels: []models.Channel{},

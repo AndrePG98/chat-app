@@ -38,13 +38,15 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 			setSelectedChannel(undefined)
 		}
 		props.guild.channels.forEach((chan) => {
-			let user = chan.members.find((user) => {
-				if (user.userId === currentUser.id) {
-					return user
+			if (chan.channelType === "voice") {
+				let user = chan.members.find((user) => {
+					if (user.userId === currentUser.id) {
+						return user
+					}
+				})
+				if (user) {
+					currentUser.currentChannel = chan
 				}
-			})
-			if (user) {
-				currentUser.currentChannel = chan
 			}
 		})
 	}, [props.guild])

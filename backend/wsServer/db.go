@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"wsServer/models"
@@ -52,15 +53,15 @@ func (db *Database) CreateUser(username string, password string, email string) (
 	}
 	defer tx.Rollback()
 
-	selectQuery := `SELECT COUNT(*) FROM users WHERE email = $1`
+	selectQuery := `SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2`
 	var count int
-	row := tx.QueryRow(selectQuery, email)
+	row := tx.QueryRow(selectQuery, username, email)
 	err = row.Scan(&count)
 	if err != nil {
-		return "", "", fmt.Errorf("error checking emails: %v", err)
+		return "", "", fmt.Errorf("error checking credentials: %v", err)
 	}
 	if count > 0 {
-		return "", "", fmt.Errorf("email already in use: %v", email)
+		return "", "", fmt.Errorf("email/username already in use: %v", email)
 	}
 
 	insertQuery := `INSERT INTO users (id, username, email, logo, password) VALUES ($1, $2, $3, $4, $5)`
@@ -196,8 +197,11 @@ func (db *Database) fetchGuildState(tx *sql.Tx, guildId string, userId string) (
 	users.Close()
 	for _, userId := range userIds {
 		var user models.User
+		var logo []byte
 		userInfo := tx.QueryRow(`SELECT id, username, email, logo FROM users WHERE id = $1`, userId)
-		err = userInfo.Scan(&user.UserId, &user.Username, &user.Email, &user.Logo)
+		err = userInfo.Scan(&user.UserId, &user.Username, &user.Email, &logo)
+		base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
+		user.Logo = base64Image
 		if err != nil {
 			return guild, fmt.Errorf("error scanning users: %v", err)
 		}
@@ -286,19 +290,20 @@ func (db *Database) fetchChannelState(tx *sql.Tx, guild *models.Guild, channelId
 	return channel, nil
 }
 
-func (db *Database) FetchUserInfo(userId string) (string, string, string, error) { // TODO : return avatar
+func (db *Database) FetchUserInfo(userId string) (string, string, []byte, error) { // TODO : return avatar
 
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", "", fmt.Errorf("error starting transaction: %v", err)
+		return "", "", []byte{}, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 
 	query := `SELECT username,email,logo FROM users WHERE id = $1`
-	var username, email, logo string
+	var username, email string
+	var logo []byte
 	err = tx.QueryRow(query, userId).Scan(&username, &email, &logo)
 	if err != nil {
-		return "", "", "", fmt.Errorf("error finding user: %v", err)
+		return "", "", []byte{}, fmt.Errorf("error finding user: %v", err)
 	}
 
 	return username, email, logo, nil

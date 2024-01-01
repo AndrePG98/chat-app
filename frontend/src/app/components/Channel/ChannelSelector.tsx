@@ -106,7 +106,7 @@ export default function ChannelSelector(props: {
 					createNewChannel={props.createNewChannel}
 				/>
 				<div className="flex flex-row">
-					{currentChannel && (
+					{currentChannel && currentChannel.guildId === props.guild.guildId && (
 						<>
 							<Button
 								size="sm"
