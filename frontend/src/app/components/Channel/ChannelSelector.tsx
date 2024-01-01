@@ -77,7 +77,7 @@ export default function ChannelSelector(props: {
 	}
 
 	return (
-		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch border-r border-gray-800 bg-surface-100">
+		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch bg-surface-100">
 			<div className="title text-center p-3 mb-5">{props.guild.guildName}</div>
 			<div className="channel-buttons flex-1 overflow-y-scroll">
 				{props.channels.map((channel) => (

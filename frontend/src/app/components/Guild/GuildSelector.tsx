@@ -23,7 +23,7 @@ export default function GuildSelector(props: {
 	}, [props.currentUser.guilds.length])
 
 	return (
-		<aside className="basis-[15%] pt-3 pb-1 border-r border-gray-800 flex flex-col bg-surface-200 drop-shadow-2xl h-full ">
+		<aside className="basis-[15%] pt-3 pb-1 borde-r flex flex-col bg-surface-200 drop-shadow-custom h-full ">
 			<UserInfo currentUser={props.currentUser}></UserInfo>
 			<div
 				ref={scrollContainerRef}
