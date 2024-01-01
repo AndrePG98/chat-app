@@ -263,7 +263,7 @@ func (db *Database) fetchChannelState(tx *sql.Tx, guild *models.Guild, channelId
 			channel.Members = []models.User{}
 		}
 	} else {
-		chanMessages := `SELECT * FROM messages WHERE channel_id = $1 AND guild_id = $2`
+		chanMessages := `SELECT id, guild_id, channel_id, sender_id, content, TO_CHAR(send_time, 'DD/MM/YYYY') AS formatted_date FROM messages WHERE channel_id = $1 AND guild_id = $2`
 		messageResult, err := tx.Query(chanMessages, channelId, guild.ID)
 		if err != nil {
 			return channel, fmt.Errorf("error querying channel messages: %v", err)
