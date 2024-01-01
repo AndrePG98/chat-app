@@ -1,14 +1,7 @@
 import { UploadLogoEvent } from "@/app/DTOs/UserDTO"
 import { useUserContext } from "@/app/context/UserContext"
-import {
-	Button,
-	Modal,
-	ModalBody,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	Switch,
-} from "@nextui-org/react"
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react"
+import ThemeSwitch from "./ThemeSwitch"
 import React, { useRef, useState } from "react"
 import { useTheme } from "next-themes"
 
@@ -99,27 +92,7 @@ export default function UserProfileModal(props: {
 									<span className="material-symbols-outlined">image</span>
 								</Button>
 							</div>
-							<Switch
-								defaultSelected
-								size="lg"
-								color="success"
-								isSelected={isSelected}
-								onValueChange={changeTheme}
-								startContent={
-									<div className="flex justify-center items-center w-2 h-2">
-										<span className="material-symbols-outlined flex justify-center items-center w-2 h-2">
-											light_mode
-										</span>
-									</div>
-								}
-								endContent={
-									<div className="flex justify-center items-center">
-										<span className="material-symbols-outlined flex justify-center items-center">
-											dark_mode
-										</span>
-									</div>
-								}
-							></Switch>
+							<ThemeSwitch changeTheme={changeTheme}></ThemeSwitch>
 						</ModalBody>
 						<ModalFooter>
 							<Button

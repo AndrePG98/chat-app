@@ -16,7 +16,7 @@ import React from "react"
 export default function Message(props: { message: MessageDTO }) {
 	const { sendWebSocketMessage } = useUserContext()
 	return (
-		<div className="message flex gap-4 group" aria-label="Message">
+		<div className="message flex gap-3 group" aria-label="Message">
 			<User
 				className="msg-sender text-xs"
 				name={props.message.sender.username}
