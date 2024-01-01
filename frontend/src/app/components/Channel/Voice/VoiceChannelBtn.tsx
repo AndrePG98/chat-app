@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react"
+import React from "react"
 import {
-	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
@@ -10,13 +9,10 @@ import {
 	User,
 } from "@nextui-org/react"
 import "./voiceChannelBtn.css"
-import { ChannelDTO, JoinChannelEvent } from "@/app/DTOs/ChannelDTO"
-import { useUserContext } from "@/app/context/UserContext"
-import { SenderDTO } from "@/app/DTOs/UserDTO"
+import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
 
 export default function VoiceChannelBtn(props: {
 	channel: ChannelDTO
-	selectChannel: (channel: ChannelDTO) => void
 	addChannelUser: (channel: ChannelDTO) => void
 	deleteChannel: (channelId: string) => void
 }) {

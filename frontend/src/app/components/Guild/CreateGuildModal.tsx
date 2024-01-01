@@ -46,7 +46,7 @@ export default function CreateGuildModal(props: {
 									],
 								}}
 								type="name"
-								label="Channel Name"
+								label="Server Name"
 								placeholder="Enter the desired server name"
 								value={guildName}
 								onChange={(e) => setGuildName(e.target.value)}

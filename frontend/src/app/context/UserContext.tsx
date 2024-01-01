@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { AccessResult, LoginBroadcast, SenderDTO, UserDTO } from "../DTOs/UserDTO"
+import { AccessResult, LoginBroadcast, SenderDTO, UploadLogoResult, UserDTO } from "../DTOs/UserDTO"
 import { LoginEvent, RegisterEvent } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
@@ -27,6 +27,7 @@ import {
 	LeaveCHannelBroadcast,
 	LeaveChannelEvent,
 } from "../DTOs/ChannelDTO"
+import { access } from "fs"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -56,8 +57,9 @@ export const UserContextProvider = ({ children }: any) => {
 				}
 			})
 		}
+
 		return () => {
-			disconnectFromWs()
+			logout()
 		}
 	}, [])
 
@@ -96,9 +98,6 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.B_JoinChannel:
 				processChannelJoinBroadcast(receivedMessage)
 				break
-			case ResultType.B_JoinNewChannel:
-				processNewChannelJoinBroadcast(receivedMessage)
-				break
 			case ResultType.B_LeaveChannel:
 				processChannelLeaveBroadcast(receivedMessage)
 				break
@@ -107,6 +106,9 @@ export const UserContextProvider = ({ children }: any) => {
 				break
 			case ResultType.B_ChatMessageDelete:
 				processMessageDeleteBroadcast(receivedMessage)
+				break
+			case ResultType.R_UploadLogo:
+				processUploadLogoResult(receivedMessage)
 				break
 		}
 		setChangeFlag(!changeFlag)
@@ -129,33 +131,35 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const authenticate = (msg: AccessResult) => {
-		const user = new UserDTO(
-			msg.body.userId,
-			msg.body.username,
-			"Email",
-			"https://source.unsplash.com/random/?avatar"
-		)
-		localStorage.setItem("token", msg.body.token)
-		if (msg.body.state !== null) {
-			proccessInitialState(msg.body.state, user)
+		if (msg.body.error.length === 0) {
+			const user = new UserDTO(
+				msg.body.userId,
+				msg.body.username,
+				msg.body.email,
+				msg.body.logo
+			)
+			localStorage.setItem("token", msg.body.token)
+			if (msg.body.state !== null) {
+				proccessInitialState(msg.body.state, user)
+			}
+			setCurrentUser(user)
+			setIsAuthenticated(true)
 		}
-		setCurrentUser(user)
-		setIsAuthenticated(true)
 	}
 
 	const proccessInitialState = (state: GuildDTO[], user: UserDTO) => {
-		user.joinGuilds(state)
+		user.guilds = state
 	}
 
 	const logout = () => {
-		disconnectFromWs()
+		disconnectFromWs(currentUser.id)
 		setIsAuthenticated(false)
 		setCurrentUser(new UserDTO("", "", "", ""))
 		localStorage.removeItem("token")
 	}
 
 	const processGuildJoinResult = (msg: JoinGuildResult) => {
-		currentUser.joinGuild(msg.body.guild)
+		currentUser.guilds.push(msg.body.guild)
 	}
 
 	const processGuildLeaveResult = (msg: LeaveGuildResult) => {
@@ -224,36 +228,37 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const processChannelJoinBroadcast = (msg: JoinChannelBroadcast) => {
-		return new Promise((resolve, reject) => {
-			currentUser.guilds.forEach((guild) => {
-				if (guild.guildId === msg.body.guildId) {
-					guild.channels.forEach((chan) => {
-						if (chan.channelId === msg.body.channelId) {
-							chan.joinChannel(msg.body.user)
-							currentUser.currentChannel = chan
-							resolve(true)
-						}
-					})
-				}
-			})
-			reject(false)
+		currentUser.guilds.forEach((guild) => {
+			if (guild.guildId === msg.body.guildId) {
+				guild.channels.forEach((chan) => {
+					if (chan.channelId === msg.body.channelId) {
+						chan.members.push(msg.body.user)
+						currentUser.currentChannel = chan
+					}
+				})
+			}
 		})
 	}
-
-	const processNewChannelJoinBroadcast = async (msg: JoinNewChannelBroadcast) => {}
 
 	const processChannelLeaveBroadcast = (msg: LeaveCHannelBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels.forEach((chan) => {
 					if (chan.channelId === msg.body.channelId) {
-						chan.leaveChannel(msg.body.userId)
-						currentUser.currentChannel = undefined
-						console.log(currentUser.currentChannel)
+						var newMembersList: SenderDTO[] = []
+						chan.members.forEach((member) => {
+							if (member.userId !== msg.body.userId) {
+								newMembersList.push(member)
+							}
+						})
+						chan.members = newMembersList
 					}
 				})
 			}
 		})
+		if (currentUser.id === msg.body.userId) {
+			currentUser.currentChannel = undefined
+		}
 	}
 
 	const processMessageBroadcast = (msg: ChatMessageBroadcast) => {
@@ -261,7 +266,7 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.message.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.message.channelId) {
-						channel.addMessage(msg.body.message)
+						channel.history.push(msg.body.message)
 					}
 				})
 			}
@@ -273,11 +278,19 @@ export const UserContextProvider = ({ children }: any) => {
 			if (guild.guildId === msg.body.guildId) {
 				guild.channels.forEach((channel) => {
 					if (channel.channelId === msg.body.channelId) {
-						channel.removeMessage(msg.body.messageId)
+						for (let i = 0; i < channel.history.length; i++) {
+							if (channel.history[i].messageId === msg.body.messageId) {
+								channel.history.splice(i)
+							}
+						}
 					}
 				})
 			}
 		})
+	}
+
+	const processUploadLogoResult = (msg: UploadLogoResult) => {
+		currentUser.logo = msg.body.image
 	}
 
 	return (

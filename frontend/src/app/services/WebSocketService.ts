@@ -8,10 +8,8 @@ const useWebSocket = () => {
 
 	const connectToWs = async (onConnectionEstablished: (status: boolean) => void) => {
 		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws`)
-		//const socket = socketRef.current
 
 		socketRef.current.onopen = () => {
-			// send username and password for authentication
 			onConnectionEstablished(true)
 		}
 
@@ -32,9 +30,9 @@ const useWebSocket = () => {
 
 	}
 
-	const disconnectFromWs = () => {
+	const disconnectFromWs = (userId: string) => {
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-			var message: string = JSON.stringify(new LogoutEvent())
+			var message: string = JSON.stringify(new LogoutEvent(userId))
 			socketRef.current.send(message)
 		} else {
 			console.error("WebSocket is not open")

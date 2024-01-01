@@ -14,12 +14,7 @@ export default function TextChannel(props: TextChannelProps) {
 	const { sendWebSocketMessage, currentUser } = useUserContext()
 
 	const createNewMessage = (message: string) => {
-		const sender = new SenderDTO(
-			currentUser.id,
-			currentUser.username,
-			currentUser.email,
-			currentUser.logo
-		)
+		const sender = currentUser.convert()
 		const msg = new SendMessageEvent(sender, props.guildId, props.channel.channelId, message)
 		sendWebSocketMessage(msg)
 	}
