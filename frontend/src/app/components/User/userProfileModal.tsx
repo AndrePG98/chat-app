@@ -145,7 +145,7 @@ export default function UserProfileModal(props: {
 							</div>
 						</ModalBody>
 						<ModalFooter>
-							<Button
+							{/* <Button
 								color="success"
 								size="sm"
 								onClick={() => {
@@ -157,7 +157,7 @@ export default function UserProfileModal(props: {
 								}
 							>
 								Apply
-							</Button>
+							</Button> */}
 						</ModalFooter>
 					</>
 				)}
