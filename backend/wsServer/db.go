@@ -505,11 +505,18 @@ func (db *Database) DeleteChannel(guildId string, channelId string) ([]string, e
 	}
 	rows.Close()
 
+	deleteMessages := `DELETE FROM messages WHERE guild_id = $1 AND channel_id = $2`
+	_, err = tx.Exec(deleteMessages, guildId, channelId)
+	if err != nil {
+		return []string{}, fmt.Errorf("error deleting messages: %v", err)
+	}
+
 	deleteChan := `DELETE FROM channels WHERE id = $1 and guild_id = $2`
 	_, err = tx.Exec(deleteChan, channelId, guildId)
 	if err != nil {
 		return []string{}, fmt.Errorf("error deleting channel: %v", err)
 	}
+
 	err = tx.Commit()
 	if err != nil {
 		return []string{}, fmt.Errorf("error committing transaction: %v", err)

@@ -151,7 +151,6 @@ func broadcastNewChannelJoin(client *Client, msg models.JoinNewChannelEvent) {
 }
 
 func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
-	log.Println("here")
 	userIds, err := client.Server.Database.LeaveChannel(msg.GuildId, msg.ChannelId, msg.UserId)
 	if err != nil {
 		log.Println(err.Error())
