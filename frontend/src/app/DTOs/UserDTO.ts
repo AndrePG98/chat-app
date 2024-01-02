@@ -159,3 +159,12 @@ export interface LogoutBroadcast {
 		guildIds: string[]
 	}
 }
+
+export interface UploadLogoBroadcast {
+	type: ResultType
+	body: {
+		userId: string
+		guildIds: string[]
+		image: string
+	}
+}

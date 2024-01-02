@@ -263,7 +263,7 @@ func (db *Database) fetchChannelState(tx *sql.Tx, guild *models.Guild, channelId
 			channel.Members = []models.User{}
 		}
 	} else {
-		chanMessages := `SELECT * FROM messages WHERE channel_id = $1 AND guild_id = $2`
+		chanMessages := `SELECT id, guild_id, channel_id, sender_id, content, TO_CHAR(send_time, 'DD/MM/YYYY') AS formatted_date FROM messages WHERE channel_id = $1 AND guild_id = $2`
 		messageResult, err := tx.Query(chanMessages, channelId, guild.ID)
 		if err != nil {
 			return channel, fmt.Errorf("error querying channel messages: %v", err)
@@ -505,11 +505,18 @@ func (db *Database) DeleteChannel(guildId string, channelId string) ([]string, e
 	}
 	rows.Close()
 
+	deleteMessages := `DELETE FROM messages WHERE guild_id = $1 AND channel_id = $2`
+	_, err = tx.Exec(deleteMessages, guildId, channelId)
+	if err != nil {
+		return []string{}, fmt.Errorf("error deleting messages: %v", err)
+	}
+
 	deleteChan := `DELETE FROM channels WHERE id = $1 and guild_id = $2`
 	_, err = tx.Exec(deleteChan, channelId, guildId)
 	if err != nil {
 		return []string{}, fmt.Errorf("error deleting channel: %v", err)
 	}
+
 	err = tx.Commit()
 	if err != nil {
 		return []string{}, fmt.Errorf("error committing transaction: %v", err)
@@ -670,20 +677,37 @@ func (db *Database) GetCurrentUserChannel(userId string) (string, string, error)
 	return channelId, guildId, nil
 }
 
-func (db *Database) UploadLogo(image []byte, userId string) error {
+func (db *Database) UploadLogo(image []byte, userId string, guildIds []string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
+		return []string{}, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
+	var userIds []string
+	for _, guildId := range guildIds {
+		rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
+		if err != nil {
+			return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		}
+		for rows.Next() {
+			var userId string
+			err = rows.Scan(&userId)
+			if err != nil {
+				return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			}
+			userIds = append(userIds, userId)
+		}
+		rows.Close()
+
+	}
 	query := `UPDATE users SET logo = $1 WHERE id = $2`
 	_, err = tx.Exec(query, image, userId)
 	if err != nil {
-		return fmt.Errorf("error updating user logo: %v", err)
+		return []string{}, fmt.Errorf("error updating user logo: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("error comitting transaction: %v", err)
+		return []string{}, fmt.Errorf("error comitting transaction: %v", err)
 	}
-	return nil
+	return userIds, nil
 }

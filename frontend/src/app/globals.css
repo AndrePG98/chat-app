@@ -3,7 +3,27 @@
 @tailwind utilities;
 
 :root {
-	--color-primary: rgb(40, 53, 147);
+	--color-primary: rgb(102, 118, 233);
+	--color-secondary: #202945;
+	--color-tertiary: #19272a;
+	--color-background: #ffffff;
+	--color-surface-100: #fafafa;
+	--color-surface-200: rgb(225, 225, 225);
+	--color-surface-300: #dadada;
+	--color-surface-400: #cccccc;
+	--color-text: #333333;
+	--color-highlight: #ff4400;
+	--color-disabled: #e0e0e0;
+	--color-error: #ff4400;
+	--color-success: #4caf50;
+	--color-btnFade: rgba(200, 200, 200, 0.5);
+	--color-btn: rgba(200, 200, 200, 1);
+	--shadow-custom: 0 25px 25px rgba(0, 0, 0, 0.3);
+	--message-fade: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
+}
+
+.dark {
+	--color-primary: rgb(102, 118, 233);
 	--color-secondary: #152028;
 	--color-tertiary: #202945;
 	--color-background: #19272a;
@@ -16,9 +36,10 @@
 	--color-disabled: #e0e0e0;
 	--color-error: #ff4400;
 	--color-success: #4caf50;
-
 	--color-btnFade: rgba(54, 69, 78, 0.5);
 	--color-btn: rgb(54, 69, 78);
+	--shadow-custom: 0 25px 25px rgba(0, 0, 0, 0.2);
+	--message-fade: linear-gradient(var(--color-btnFade), rgba(0, 212, 255, 0.3));
 }
 
 body,

@@ -28,7 +28,7 @@ export default function ChatPanel(props: ChatPanelProps) {
 	}
 
 	return (
-		<div className="chat-panel flex flex-col h-full shadow-custom px-3 pb-5 bg-surface-300">
+		<div className="chat-panel flex flex-col h-full shadow-chatPanel px-3 pb-5 bg-surface-300">
 			<div
 				ref={chatContainerRef}
 				className="message-container flex flex-col gap-10 overflow-y-auto h-full pt-5 px-3 pb-3"

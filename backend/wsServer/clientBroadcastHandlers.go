@@ -151,7 +151,6 @@ func broadcastNewChannelJoin(client *Client, msg models.JoinNewChannelEvent) {
 }
 
 func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
-	log.Println("here")
 	userIds, err := client.Server.Database.LeaveChannel(msg.GuildId, msg.ChannelId, msg.UserId)
 	if err != nil {
 		log.Println(err.Error())
@@ -206,6 +205,21 @@ func broadcastMessageDelete(client *Client, msg models.DeleteMessageEvent) {
 				GuildId:   msg.GuildId,
 				ChannelId: msg.ChannelId,
 				MessageId: msg.MessageId,
+			},
+		}
+	}
+}
+
+func broadcastUpdateLogo(client *Client, userIds []string, guildIds []string, img string) {
+	// loop through userIds and send the guildids and the userId each needs to update the image
+	// in the client the user loops through each guild, each channel ,each message and member and update the image if the id matches the userId
+	for _, userId := range userIds {
+		client.Server.AuthClients[userId].Send <- &models.IMessage{
+			Type: models.B_UploadLogo,
+			Body: models.UploadLogoBroadcast{
+				UserId:   client.ID,
+				GuildIds: guildIds,
+				Image:    img,
 			},
 		}
 	}

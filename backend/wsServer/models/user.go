@@ -69,4 +69,10 @@ type LogoutBroadcast struct {
 	GuildIds []string `json:"guildIds"`
 }
 
+type UploadLogoBroadcast struct {
+	UserId   string   `json:"userId"`
+	GuildIds []string `json:"guildIds"`
+	Image    string   `json:"image"`
+}
+
 // #############################################################################################

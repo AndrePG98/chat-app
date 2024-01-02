@@ -1,5 +1,12 @@
-import { createContext, useContext, useEffect, useState } from "react"
-import { AccessResult, LoginBroadcast, SenderDTO, UploadLogoResult, UserDTO } from "../DTOs/UserDTO"
+import { createContext, use, useContext, useEffect, useState } from "react"
+import {
+	AccessResult,
+	LoginBroadcast,
+	SenderDTO,
+	UploadLogoBroadcast,
+	UploadLogoResult,
+	UserDTO,
+} from "../DTOs/UserDTO"
 import { LoginEvent, RegisterEvent } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
@@ -109,6 +116,9 @@ export const UserContextProvider = ({ children }: any) => {
 				break
 			case ResultType.R_UploadLogo:
 				processUploadLogoResult(receivedMessage)
+				break
+			case ResultType.B_UploadLogo:
+				processUploadLogoBroadcast(receivedMessage)
 				break
 		}
 		setChangeFlag(!changeFlag)
@@ -291,6 +301,34 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const processUploadLogoResult = (msg: UploadLogoResult) => {
 		currentUser.logo = msg.body.image
+	}
+
+	const processUploadLogoBroadcast = (msg: UploadLogoBroadcast) => {
+		msg.body.guildIds.forEach((guildId) => {
+			const guild = currentUser.getGuild(guildId)
+			if (guild) {
+				guild.members.forEach((member) => {
+					if (member.userId === msg.body.userId) {
+						member.logo = msg.body.image
+					}
+				})
+				guild.channels.forEach((channel) => {
+					if (channel.channelType === "voice") {
+						channel.members.forEach((user) => {
+							if (user.userId === msg.body.userId) {
+								user.logo = msg.body.image
+							}
+						})
+					} else {
+						channel.history.forEach((message) => {
+							if (message.sender.userId === msg.body.userId) {
+								message.sender.logo = msg.body.image
+							}
+						})
+					}
+				})
+			}
+		})
 	}
 
 	return (
