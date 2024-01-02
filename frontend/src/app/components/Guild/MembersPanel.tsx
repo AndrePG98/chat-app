@@ -1,7 +1,6 @@
-import React, { useState } from "react"
+import React from "react"
 import { User } from "@nextui-org/react"
-import { GuildDTO } from "@/app/DTOs/GuildDTO"
-import { SenderDTO, UserDTO } from "@/app/DTOs/UserDTO"
+import { SenderDTO } from "@/app/DTOs/UserDTO"
 
 export default function MembersPanel(props: { members: SenderDTO[] }) {
 	return (

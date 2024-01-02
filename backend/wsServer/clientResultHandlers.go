@@ -145,7 +145,7 @@ func handleUploadLogo(client *Client, msg models.UploadLogoEvent) {
 		log.Printf("error decoding image: %v", err)
 		return
 	}
-	err = client.Server.Database.UploadLogo(decodedImage, msg.UserId)
+	userIds, err := client.Server.Database.UploadLogo(decodedImage, msg.UserId, client.Guilds)
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -157,5 +157,6 @@ func handleUploadLogo(client *Client, msg models.UploadLogoEvent) {
 			Error: "",
 		},
 	}
+	broadcastUpdateLogo(client, userIds, client.Guilds, msg.Image)
 
 }

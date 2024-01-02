@@ -17,10 +17,10 @@ const ThemeSwitch = ({ changeTheme }) => {
 					{...getWrapperProps()}
 					className={slots.wrapper({
 						class: [
-							"w-10 h-10",
+							"w-9 h-9",
 							"flex items-center justify-center",
-							"rounded-none",
-							isSelected ? "bg-white" : "bg-surface-300",
+							"rounded-md",
+							isSelected ? "bg-primary" : "bg-surface-300",
 						],
 					})}
 				>
@@ -31,7 +31,6 @@ const ThemeSwitch = ({ changeTheme }) => {
 					)}
 				</div>
 			</Component>
-			<p className="select-none">{isSelected ? "Light mode" : "Dark mode"}</p>
 		</div>
 	)
 }

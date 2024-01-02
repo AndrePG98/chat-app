@@ -670,20 +670,37 @@ func (db *Database) GetCurrentUserChannel(userId string) (string, string, error)
 	return channelId, guildId, nil
 }
 
-func (db *Database) UploadLogo(image []byte, userId string) error {
+func (db *Database) UploadLogo(image []byte, userId string, guildIds []string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
+		return []string{}, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
+	var userIds []string
+	for _, guildId := range guildIds {
+		rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
+		if err != nil {
+			return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		}
+		for rows.Next() {
+			var userId string
+			err = rows.Scan(&userId)
+			if err != nil {
+				return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			}
+			userIds = append(userIds, userId)
+		}
+		rows.Close()
+
+	}
 	query := `UPDATE users SET logo = $1 WHERE id = $2`
 	_, err = tx.Exec(query, image, userId)
 	if err != nil {
-		return fmt.Errorf("error updating user logo: %v", err)
+		return []string{}, fmt.Errorf("error updating user logo: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("error comitting transaction: %v", err)
+		return []string{}, fmt.Errorf("error comitting transaction: %v", err)
 	}
-	return nil
+	return userIds, nil
 }

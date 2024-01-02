@@ -9,6 +9,7 @@ import {
 	ModalFooter,
 	ModalHeader,
 	useDisclosure,
+	ScrollShadow,
 } from "@nextui-org/react"
 import { useEffect, useState } from "react"
 import {
@@ -79,7 +80,7 @@ export default function ChannelSelector(props: {
 	return (
 		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch bg-surface-100">
 			<div className="title text-center p-3 mb-5">{props.guild.guildName}</div>
-			<div className="channel-buttons flex-1 overflow-y-scroll">
+			<ScrollShadow hideScrollBar size={100} className="flex-1">
 				{props.channels.map((channel) => (
 					<div key={channel.channelId}>
 						{channel.channelType === "text" && (
@@ -98,7 +99,7 @@ export default function ChannelSelector(props: {
 						)}
 					</div>
 				))}
-			</div>
+			</ScrollShadow>
 			<div className="user-buttons flex flex-col justify-evenly gap-2">
 				<CreateChannelModal
 					isOpen={modalOpen}

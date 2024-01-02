@@ -210,3 +210,18 @@ func broadcastMessageDelete(client *Client, msg models.DeleteMessageEvent) {
 		}
 	}
 }
+
+func broadcastUpdateLogo(client *Client, userIds []string, guildIds []string, img string) {
+	// loop through userIds and send the guildids and the userId each needs to update the image
+	// in the client the user loops through each guild, each channel ,each message and member and update the image if the id matches the userId
+	for _, userId := range userIds {
+		client.Server.AuthClients[userId].Send <- &models.IMessage{
+			Type: models.B_UploadLogo,
+			Body: models.UploadLogoBroadcast{
+				UserId:   client.ID,
+				GuildIds: guildIds,
+				Image:    img,
+			},
+		}
+	}
+}
