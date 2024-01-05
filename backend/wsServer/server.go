@@ -56,25 +56,19 @@ func (server *WsServer) listenForNewConnections() {
 
 func (server *WsServer) listenForAuthReq() {
 	for authReq := range server.Authenticate {
-		result := authReq.Result
 		client := authReq.Client
-		email := authReq.Email
-		logo := authReq.Logo
-		state := authReq.State
-		token := authReq.Token
-		error := authReq.Error
-		if result {
+		if authReq.Result {
 			server.AuthClients[client.ID] = client
 			client.Send <- &models.IMessage{
 				Type: 0,
 				Body: models.AcessResult{
-					Result:   result,
-					Token:    token,
+					Result:   authReq.Result,
+					Token:    authReq.Token,
 					UserId:   client.ID,
 					Username: client.Username,
-					Email:    email,
-					Logo:     logo,
-					State:    state,
+					Email:    authReq.Email,
+					Logo:     authReq.Logo,
+					State:    authReq.State,
 				},
 			}
 			log.Println("New Client connection from:", client.Conn.RemoteAddr())
@@ -82,8 +76,8 @@ func (server *WsServer) listenForAuthReq() {
 			client.Send <- &models.IMessage{
 				Type: 0,
 				Body: models.AcessResult{
-					Result: result,
-					Error:  error,
+					Result: authReq.Result,
+					Error:  authReq.Error,
 				},
 			}
 		}
