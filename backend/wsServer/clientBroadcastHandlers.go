@@ -26,7 +26,6 @@ func broadcastLogout(client *Client) {
 		return
 	}
 	broadcastChannelLeave(client, models.LeaveChannelEvent{UserId: client.ID, GuildId: guildId, ChannelId: channelId})
-
 }
 
 func broadcastGuildDelete(client *Client, msg models.DeleteGuildEvent) {

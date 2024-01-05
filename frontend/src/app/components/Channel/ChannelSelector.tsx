@@ -11,7 +11,7 @@ import {
 	useDisclosure,
 	ScrollShadow,
 } from "@nextui-org/react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
 	ChannelDTO,
 	JoinChannelEvent,
@@ -34,12 +34,14 @@ export default function ChannelSelector(props: {
 	selectChannel: (channel: ChannelDTO | undefined) => void
 	leaveGuild: () => void
 }) {
-	const { currentUser, sendWebSocketMessage, connectToRTCServer } = useUserContext()
+	const { currentUser, sendWebSocketMessage, connectToRTCServer, disconnectRTC } =
+		useUserContext()
 	const { isOpen, onOpen, onOpenChange } = useDisclosure()
 	const [modalOpen, setModalOpen] = useState(false)
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
 	const [isMute, setIsMute] = useState(false)
 	const [isDeafen, setIsDeafen] = useState(false)
+	const audioRef = useRef<HTMLAudioElement | null>(null)
 
 	useEffect(() => {
 		setCurrentChannel(currentUser.currentChannel)
@@ -60,6 +62,24 @@ export default function ChannelSelector(props: {
 		setModalOpen(false)
 	}
 
+	useEffect(() => {
+		if (currentUser.currentChannel) {
+			connectToRTCServer(
+				currentUser.id,
+				currentUser.currentChannel.channelId,
+				currentUser.currentChannel.guildId
+			)
+		}
+		window.addEventListener("beforeunload", (event) => {
+			disconnectRTC()
+		})
+		return () => {
+			window.removeEventListener("beforeunload", (event) => {
+				disconnectRTC()
+			})
+		}
+	}, [])
+
 	async function addChannelUser(channel: ChannelDTO) {
 		connectToRTCServer(currentUser.id, channel.channelId, channel.guildId)
 		if (currentChannel?.channelId !== channel.channelId) {
@@ -74,65 +94,8 @@ export default function ChannelSelector(props: {
 		}
 	}
 
-	/* async function addChannelUser(channel: ChannelDTO, audioEle: HTMLAudioElement) {
-		let member = currentUser.convert()
-		const config = {
-			iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-		}
-
-		const peerConnection = new RTCPeerConnection(config)
-
-		const stream = await navigator.mediaDevices.getUserMedia({
-			audio: true,
-		})
-
-		for (const track of stream.getTracks()) {
-			peerConnection.addTrack(track, stream)
-		}
-
-		peerConnection.onicecandidate = async (event) => {
-			if (event.candidate) {
-				let iceCandidateEvent = new IceCandidateEvent(event.candidate.toJSON())
-				sendWebSocketMessage(iceCandidateEvent)
-			}
-		}
-
-		peerConnection.ontrack = ({ track, streams }) => {
-			track.onunmute = () => {
-				audioEle.srcObject = streams[0]
-				audioEle.play()
-			}
-		}
-
-		const offerOptions = {
-			offerToReceiveAudio: true,
-			offerToReceiveVideo: true,
-			voiceActivityDetection: true,
-			iceRestart: true,
-			audioCodecSettings: {
-				opus: {
-					maxaveragebitrate: 64000,
-				},
-			},
-		}
-
-		const offer = await peerConnection.createOffer(offerOptions)
-
-		await peerConnection.setLocalDescription(offer)
-
-		if (peerConnection.localDescription) {
-			let event = new JoinChannelEvent(
-				member,
-				channel.guildId,
-				channel.channelId
-				//peerConnection.localDescription.sdp
-			)
-			currentUser.peerConn = peerConnection
-			sendWebSocketMessage(event)
-		}
-	} */
-
 	function removeChannelUser(channel: ChannelDTO) {
+		disconnectRTC()
 		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
 		sendWebSocketMessage(event)
 	}

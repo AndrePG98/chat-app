@@ -37,6 +37,7 @@ interface UserContextProps {
 	receivedMessage: IEvent
 	sendWebSocketMessage: (data: any) => void
 	connectToRTCServer: (userId: string, channelId: string, guildId: string) => void
+	disconnectRTC: () => void
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
@@ -44,7 +45,7 @@ const UserContext = createContext<UserContextProps | undefined>(undefined)
 export const UserContextProvider = ({ children }: any) => {
 	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", ""))
 	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } = useWebSocket() // only available inside user context
-	const { connectToRTCServer } = useWebRTC()
+	const { connectToRTCServer, disconnectRTC } = useWebRTC()
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
 
 	const [changeFlag, setChangeFlag] = useState(false)
@@ -336,6 +337,7 @@ export const UserContextProvider = ({ children }: any) => {
 				sendWebSocketMessage,
 				receivedMessage,
 				connectToRTCServer,
+				disconnectRTC,
 			}}
 		>
 			{children}

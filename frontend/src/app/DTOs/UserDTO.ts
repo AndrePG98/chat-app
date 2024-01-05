@@ -9,6 +9,7 @@ export class UserDTO {
 	guilds: GuildDTO[] = []
 	logo: string
 	currentChannel: ChannelDTO | undefined
+	peerConnection: RTCPeerConnection | undefined
 
 	constructor(id: string, username: string, email: string, logo: string) {
 		this.id = id
