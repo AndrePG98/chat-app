@@ -1,5 +1,6 @@
-import React from "react"
+import React, { MutableRefObject, useRef } from "react"
 import {
+	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
@@ -10,6 +11,7 @@ import {
 } from "@nextui-org/react"
 import "./voiceChannelBtn.css"
 import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
+import { useUserContext } from "@/app/context/UserContext"
 
 export default function VoiceChannelBtn(props: {
 	channel: ChannelDTO
@@ -24,7 +26,9 @@ export default function VoiceChannelBtn(props: {
 				} flex flex-row group h-12`}
 			>
 				<button
-					onClick={() => props.addChannelUser(props.channel)}
+					onClick={() => {
+						props.addChannelUser(props.channel)
+					}}
 					className="w-full text-lg flex justify-between group-hover:bg-surface-400 pl-2"
 				>
 					<div className="flex flex-row justify-center items-center gap-2">

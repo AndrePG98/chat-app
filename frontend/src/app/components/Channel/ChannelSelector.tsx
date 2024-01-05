@@ -24,6 +24,7 @@ import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
 import "./chanSelectorstyle.css"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
+import { off } from "process"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -59,7 +60,7 @@ export default function ChannelSelector(props: {
 		setModalOpen(false)
 	}
 
-	function addChannelUser(channel: ChannelDTO) {
+	async function addChannelUser(channel: ChannelDTO) {
 		if (currentChannel?.channelId !== channel.channelId) {
 			let member = currentUser.convert()
 			if (currentUser.currentChannel) {
@@ -71,6 +72,64 @@ export default function ChannelSelector(props: {
 			}
 		}
 	}
+
+	/* async function addChannelUser(channel: ChannelDTO, audioEle: HTMLAudioElement) {
+		let member = currentUser.convert()
+		const config = {
+			iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+		}
+
+		const peerConnection = new RTCPeerConnection(config)
+
+		const stream = await navigator.mediaDevices.getUserMedia({
+			audio: true,
+		})
+
+		for (const track of stream.getTracks()) {
+			peerConnection.addTrack(track, stream)
+		}
+
+		peerConnection.onicecandidate = async (event) => {
+			if (event.candidate) {
+				let iceCandidateEvent = new IceCandidateEvent(event.candidate.toJSON())
+				sendWebSocketMessage(iceCandidateEvent)
+			}
+		}
+
+		peerConnection.ontrack = ({ track, streams }) => {
+			track.onunmute = () => {
+				audioEle.srcObject = streams[0]
+				audioEle.play()
+			}
+		}
+
+		const offerOptions = {
+			offerToReceiveAudio: true,
+			offerToReceiveVideo: true,
+			voiceActivityDetection: true,
+			iceRestart: true,
+			audioCodecSettings: {
+				opus: {
+					maxaveragebitrate: 64000,
+				},
+			},
+		}
+
+		const offer = await peerConnection.createOffer(offerOptions)
+
+		await peerConnection.setLocalDescription(offer)
+
+		if (peerConnection.localDescription) {
+			let event = new JoinChannelEvent(
+				member,
+				channel.guildId,
+				channel.channelId
+				//peerConnection.localDescription.sdp
+			)
+			currentUser.peerConn = peerConnection
+			sendWebSocketMessage(event)
+		}
+	} */
 
 	function removeChannelUser(channel: ChannelDTO) {
 		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)

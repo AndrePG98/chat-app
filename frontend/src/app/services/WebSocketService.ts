@@ -23,8 +23,8 @@ const useWebSocket = () => {
 		}
 
 		socketRef.current.onmessage = (event) => {
-			console.log("Received:", event.data)
 			var newReceivedData = JSON.parse(event.data) as IEvent
+			//console.log("Received:", newReceivedData)
 			setReceivedMessage(newReceivedData)
 		}
 
@@ -40,7 +40,7 @@ const useWebSocket = () => {
 	}
 
 	const sendWebSocketMessage = (data: any) => {
-		console.log("Sent:", data)
+		//console.log("Sent:", data)
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			var message: string = JSON.stringify(data)
 			socketRef.current.send(message)

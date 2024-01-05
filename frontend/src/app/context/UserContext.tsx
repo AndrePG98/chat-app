@@ -1,4 +1,4 @@
-import { createContext, use, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import {
 	AccessResult,
 	LoginBroadcast,
@@ -18,23 +18,14 @@ import {
 	LeaveGuildBroadcast,
 	LeaveGuildResult,
 } from "../DTOs/GuildDTO"
-import {
-	ChatMessageBroadcast,
-	DeleteMessageBroadcast,
-	MessageDTO,
-	SendMessageEvent,
-} from "../DTOs/MessageDTO"
+import { ChatMessageBroadcast, DeleteMessageBroadcast } from "../DTOs/MessageDTO"
 import {
 	ChannelDTO,
 	CreateChannelBroadcast,
-	CreateChannelEvent,
 	DeleteChannelBroadcast,
 	JoinChannelBroadcast,
-	JoinNewChannelBroadcast,
 	LeaveCHannelBroadcast,
-	LeaveChannelEvent,
 } from "../DTOs/ChannelDTO"
-import { access } from "fs"
 
 interface UserContextProps {
 	isAuthenticated: boolean
