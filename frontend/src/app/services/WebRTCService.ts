@@ -31,18 +31,20 @@ const useWebRTC = () => {
                 audio: true
             })
 
-            for (const track of stream.getTracks()) {
-                peerConnection.addTrack(track, stream)
-            }
+            const localtrack = stream.getTracks()[0]
+
+
+            peerConnection.addTrack(localtrack, stream)
 
             peerConnection.ontrack = ({ track, streams }) => {
                 setControls({
                     toggleMute: () => {
-                        track.enabled = !track.enabled
-                        return !track.enabled
+                        localtrack.enabled = !localtrack.enabled
+                        return !localtrack.enabled
                     },
                     toggleDeafen: () => {
-                        return false
+                        track.enabled = !track.enabled
+                        return !track.enabled
                     }
                 })
                 track.onunmute = () => {

@@ -99,7 +99,9 @@ export default function ChannelSelector(props: {
 		setIsMute(controls.toggleMute())
 	}
 
-	const deafen = () => {}
+	const deafen = () => {
+		setIsDeafen(controls.toggleDeafen())
+	}
 
 	return (
 		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch bg-surface-100">
@@ -153,7 +155,7 @@ export default function ChannelSelector(props: {
 								variant="light"
 								isIconOnly
 								className="flex justify-center items-center w-full"
-								onPress={() => setIsDeafen(!isDeafen)}
+								onPress={deafen}
 							>
 								{isDeafen ? (
 									<span className="material-symbols-outlined">volume_off</span>
