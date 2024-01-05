@@ -34,7 +34,7 @@ export default function ChannelSelector(props: {
 	selectChannel: (channel: ChannelDTO | undefined) => void
 	leaveGuild: () => void
 }) {
-	const { currentUser, sendWebSocketMessage } = useUserContext()
+	const { currentUser, sendWebSocketMessage, connectToRTCServer } = useUserContext()
 	const { isOpen, onOpen, onOpenChange } = useDisclosure()
 	const [modalOpen, setModalOpen] = useState(false)
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
@@ -61,6 +61,7 @@ export default function ChannelSelector(props: {
 	}
 
 	async function addChannelUser(channel: ChannelDTO) {
+		connectToRTCServer(currentUser.id, channel.channelId, channel.guildId)
 		if (currentChannel?.channelId !== channel.channelId) {
 			let member = currentUser.convert()
 			if (currentUser.currentChannel) {

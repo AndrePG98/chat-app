@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { MutableRefObject, createContext, useContext, useEffect, useState } from "react"
 import {
 	AccessResult,
 	LoginBroadcast,
@@ -26,6 +26,7 @@ import {
 	JoinChannelBroadcast,
 	LeaveCHannelBroadcast,
 } from "../DTOs/ChannelDTO"
+import useWebRTC from "../services/WebRTCService"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -35,6 +36,7 @@ interface UserContextProps {
 	register: (username: string, password: string, email: string) => void
 	receivedMessage: IEvent
 	sendWebSocketMessage: (data: any) => void
+	connectToRTCServer: (userId: string, channelId: string, guildId: string) => void
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
@@ -42,6 +44,7 @@ const UserContext = createContext<UserContextProps | undefined>(undefined)
 export const UserContextProvider = ({ children }: any) => {
 	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", ""))
 	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } = useWebSocket() // only available inside user context
+	const { connectToRTCServer } = useWebRTC()
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
 
 	const [changeFlag, setChangeFlag] = useState(false)
@@ -332,6 +335,7 @@ export const UserContextProvider = ({ children }: any) => {
 				register,
 				sendWebSocketMessage,
 				receivedMessage,
+				connectToRTCServer,
 			}}
 		>
 			{children}
