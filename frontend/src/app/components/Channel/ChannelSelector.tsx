@@ -24,7 +24,6 @@ import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
 import "./chanSelectorstyle.css"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
-import { off } from "process"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -34,14 +33,13 @@ export default function ChannelSelector(props: {
 	selectChannel: (channel: ChannelDTO | undefined) => void
 	leaveGuild: () => void
 }) {
-	const { currentUser, sendWebSocketMessage, connectToRTCServer, disconnectRTC } =
+	const { currentUser, sendWebSocketMessage, connectToRTC, disconnectRTC, controls } =
 		useUserContext()
 	const { isOpen, onOpen, onOpenChange } = useDisclosure()
 	const [modalOpen, setModalOpen] = useState(false)
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
 	const [isMute, setIsMute] = useState(false)
 	const [isDeafen, setIsDeafen] = useState(false)
-	const audioRef = useRef<HTMLAudioElement | null>(null)
 
 	useEffect(() => {
 		setCurrentChannel(currentUser.currentChannel)
@@ -77,8 +75,8 @@ export default function ChannelSelector(props: {
 		}
 	}, [])
 
-	async function addChannelUser(channel: ChannelDTO) {
-		connectToRTCServer(currentUser.id, channel.channelId, channel.guildId)
+	const addChannelUser = async (channel: ChannelDTO) => {
+		connectToRTC(currentUser.id, channel.channelId, channel.guildId)
 		if (currentChannel?.channelId !== channel.channelId) {
 			let member = currentUser.convert()
 			if (currentUser.currentChannel) {
@@ -91,11 +89,17 @@ export default function ChannelSelector(props: {
 		}
 	}
 
-	function removeChannelUser(channel: ChannelDTO) {
+	const removeChannelUser = (channel: ChannelDTO) => {
 		disconnectRTC()
 		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
 		sendWebSocketMessage(event)
 	}
+
+	const mute = () => {
+		setIsMute(controls.toggleMute())
+	}
+
+	const deafen = () => {}
 
 	return (
 		<div className="channel-list basis-64 grow-0 shrink-0 flex flex-col items-stretch bg-surface-100">
@@ -135,7 +139,7 @@ export default function ChannelSelector(props: {
 								variant="light"
 								isIconOnly
 								className="flex justify-center items-center w-full"
-								onPress={() => setIsMute(!isMute)}
+								onPress={mute}
 							>
 								{isMute ? (
 									<span className="material-symbols-outlined">mic_off</span>

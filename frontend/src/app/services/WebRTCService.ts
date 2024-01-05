@@ -1,12 +1,22 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
+
+export interface Controls {
+    toggleMute: () => boolean
+    toggleDeafen: () => boolean
+}
 
 
 const useWebRTC = () => {
 
     const pcRef = useRef<RTCPeerConnection | null>(null)
     const rtcSockerRef = useRef<WebSocket | null>(null)
+    let audio = document.createElement("audio")
+    const [controls, setControls] = useState<Controls>({
+        toggleMute: () => false,
+        toggleDeafen: () => false
+    });
 
-    const connectToRTCServer = (userId: string, channelId: string, guildId: string) => {
+    const connectToRTC = (userId: string, channelId: string, guildId: string) => {
 
         const socket = new WebSocket(`ws://127.0.0.1:7070/rtc`)
         const config = {
@@ -16,7 +26,6 @@ const useWebRTC = () => {
 
         socket.onopen = async () => {
 
-            let audio = document.createElement("audio")
 
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: true
@@ -27,9 +36,18 @@ const useWebRTC = () => {
             }
 
             peerConnection.ontrack = ({ track, streams }) => {
+                setControls({
+                    toggleMute: () => {
+                        track.enabled = !track.enabled
+                        return !track.enabled
+                    },
+                    toggleDeafen: () => {
+                        return false
+                    }
+                })
                 track.onunmute = () => {
-                    audio.srcObject = streams[0]
                     document.body.appendChild(audio)
+                    audio.srcObject = streams[0]
                     audio.play()
 
                 }
@@ -109,9 +127,10 @@ const useWebRTC = () => {
         rtcSockerRef.current?.send(JSON.stringify(message))
         rtcSockerRef.current = null
         pcRef.current = null
+        audio.remove()
     }
 
-    return { connectToRTCServer, disconnectRTC }
+    return { connectToRTC, disconnectRTC, controls }
 }
 
 export default useWebRTC
