@@ -63,19 +63,16 @@ export default function ChannelSelector(props: {
 	}
 
 	useEffect(() => {
-		if (currentUser.currentChannel) {
-			connectToRTCServer(
-				currentUser.id,
-				currentUser.currentChannel.channelId,
-				currentUser.currentChannel.guildId
-			)
-		}
 		window.addEventListener("beforeunload", (event) => {
-			disconnectRTC()
+			if (currentUser.currentChannel) {
+				removeChannelUser(currentUser.currentChannel)
+			}
 		})
 		return () => {
 			window.removeEventListener("beforeunload", (event) => {
-				disconnectRTC()
+				if (currentUser.currentChannel) {
+					removeChannelUser(currentUser.currentChannel)
+				}
 			})
 		}
 	}, [])

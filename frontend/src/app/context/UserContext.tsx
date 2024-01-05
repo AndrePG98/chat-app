@@ -60,8 +60,18 @@ export const UserContextProvider = ({ children }: any) => {
 			})
 		}
 
+		window.addEventListener("beforeunload", (event) => {
+			disconnectFromWs(currentUser.id)
+			setIsAuthenticated(false)
+			setCurrentUser(new UserDTO("", "", "", ""))
+		})
+
 		return () => {
-			logout()
+			window.removeEventListener("beforeunload", (event) => {
+				disconnectFromWs(currentUser.id)
+				setIsAuthenticated(false)
+				setCurrentUser(new UserDTO("", "", "", ""))
+			})
 		}
 	}, [])
 
