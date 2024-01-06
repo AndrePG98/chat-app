@@ -1,6 +1,5 @@
-import React, { MutableRefObject, useRef } from "react"
+import React from "react"
 import {
-	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
@@ -11,7 +10,6 @@ import {
 } from "@nextui-org/react"
 import "./voiceChannelBtn.css"
 import { ChannelDTO } from "@/app/DTOs/ChannelDTO"
-import { useUserContext } from "@/app/context/UserContext"
 
 export default function VoiceChannelBtn(props: {
 	channel: ChannelDTO

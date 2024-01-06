@@ -77,16 +77,17 @@ export default function ChannelSelector(props: {
 	}, [])
 
 	const addChannelUser = async (channel: ChannelDTO) => {
-		connectToRTC(currentUser.id, channel.channelId, channel.guildId)
 		if (currentChannel?.channelId !== channel.channelId) {
 			let member = currentUser.convert()
 			if (currentUser.currentChannel) {
+				disconnectRTC()
 				let event = new JoinNewChannelEvent(member, currentUser.currentChannel, channel)
 				sendWebSocketMessage(event)
 			} else {
 				let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
 				sendWebSocketMessage(event)
 			}
+			connectToRTC(currentUser.id, channel.channelId, channel.guildId)
 		}
 	}
 
