@@ -18,3 +18,8 @@
 		opacity: 100%;
 	}
 }
+
+.material-icons-outlined {
+	font-size: 24px; /* Change the size */
+	color: red; /* Change the color */
+}

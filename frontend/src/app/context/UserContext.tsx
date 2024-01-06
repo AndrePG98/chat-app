@@ -1,7 +1,9 @@
 import { MutableRefObject, createContext, useContext, useEffect, useState } from "react"
 import {
 	AccessResult,
+	DeafenBroadcast,
 	LoginBroadcast,
+	MuteBroadcast,
 	SenderDTO,
 	UploadLogoBroadcast,
 	UploadLogoResult,
@@ -27,6 +29,7 @@ import {
 	LeaveCHannelBroadcast,
 } from "../DTOs/ChannelDTO"
 import useWebRTC from "../services/WebRTCService"
+import { channel } from "diagnostics_channel"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -44,7 +47,7 @@ interface UserContextProps {
 const UserContext = createContext<UserContextProps | undefined>(undefined)
 
 export const UserContextProvider = ({ children }: any) => {
-	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", ""))
+	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", "", false, false))
 	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } = useWebSocket() // only available inside user context
 	const { connectToRTC, disconnectRTC, controls } = useWebRTC()
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -64,14 +67,14 @@ export const UserContextProvider = ({ children }: any) => {
 		window.addEventListener("beforeunload", (event) => {
 			disconnectFromWs(currentUser.id)
 			setIsAuthenticated(false)
-			setCurrentUser(new UserDTO("", "", "", ""))
+			setCurrentUser(new UserDTO("", "", "", "", false, false))
 		})
 
 		return () => {
 			window.removeEventListener("beforeunload", (event) => {
 				disconnectFromWs(currentUser.id)
 				setIsAuthenticated(false)
-				setCurrentUser(new UserDTO("", "", "", ""))
+				setCurrentUser(new UserDTO("", "", "", "", false, false))
 			})
 		}
 	}, [])
@@ -126,6 +129,12 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.B_UploadLogo:
 				processUploadLogoBroadcast(receivedMessage)
 				break
+			case ResultType.B_Mute:
+				processMuteBroadcast(receivedMessage)
+				break
+			case ResultType.B_Deafen:
+				processDeafenBroadcast(receivedMessage)
+				break
 		}
 		setChangeFlag(!changeFlag)
 	}, [receivedMessage])
@@ -152,7 +161,9 @@ export const UserContextProvider = ({ children }: any) => {
 				msg.body.userId,
 				msg.body.username,
 				msg.body.email,
-				msg.body.logo
+				msg.body.logo,
+				msg.body.ismuted,
+				msg.body.isdeafen
 			)
 			localStorage.setItem("token", msg.body.token)
 			if (msg.body.state !== null) {
@@ -170,7 +181,7 @@ export const UserContextProvider = ({ children }: any) => {
 	const logout = () => {
 		disconnectFromWs(currentUser.id)
 		setIsAuthenticated(false)
-		setCurrentUser(new UserDTO("", "", "", ""))
+		setCurrentUser(new UserDTO("", "", "", "", false, false))
 		localStorage.removeItem("token")
 	}
 
@@ -335,6 +346,38 @@ export const UserContextProvider = ({ children }: any) => {
 				})
 			}
 		})
+	}
+
+	const processMuteBroadcast = (msg: MuteBroadcast) => {
+		const guild = currentUser.getGuild(msg.body.guildId)
+		if (guild) {
+			guild.channels.forEach((chan) => {
+				if (chan.channelId === msg.body.channelId) {
+					chan.members.forEach((member) => {
+						if (member.userId === msg.body.userId) {
+							member.ismuted = msg.body.ismuted
+							member = member
+						}
+					})
+				}
+			})
+		}
+	}
+
+	const processDeafenBroadcast = (msg: DeafenBroadcast) => {
+		const guild = currentUser.getGuild(msg.body.guildId)
+		if (guild) {
+			guild.channels.forEach((chan) => {
+				if (chan.channelId === msg.body.channelId) {
+					chan.members.forEach((member) => {
+						if (member.userId === msg.body.userId) {
+							member.isdeafen = msg.body.isdeafen
+							member = member
+						}
+					})
+				}
+			})
+		}
 	}
 
 	return (

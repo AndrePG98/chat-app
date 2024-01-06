@@ -16,6 +16,8 @@ const (
 	E_ChatMessage
 	E_DeleteMessage
 	E_UploadLogo
+	E_Mute
+	E_Deafen
 )
 
 const (
@@ -35,4 +37,6 @@ const (
 	B_ChatMessage
 	B_ChatMessageDelete
 	B_UploadLogo
+	B_Mute
+	B_Deafen
 )

@@ -52,7 +52,7 @@ func (sv *WebRTCServer) Run() {
 	http.HandleFunc("/rtc", func(w http.ResponseWriter, r *http.Request) {
 		sv.serveRTC(w, r)
 	})
-
+	log.Println("WebRTC Server listenning on", 7070)
 	http.ListenAndServe(":7070", nil)
 }
 

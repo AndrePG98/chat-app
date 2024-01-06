@@ -24,6 +24,7 @@ import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
 import "./chanSelectorstyle.css"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
+import { DeafenEvent, MuteEvent } from "@/app/DTOs/UserDTO"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -96,10 +97,20 @@ export default function ChannelSelector(props: {
 	}
 
 	const mute = () => {
+		const channel = currentUser.currentChannel
+		if (channel) {
+			const event = new MuteEvent(currentUser.id, channel.channelId, channel.guildId)
+			sendWebSocketMessage(event)
+		}
 		setIsMute(controls.toggleMute())
 	}
 
 	const deafen = () => {
+		const channel = currentUser.currentChannel
+		if (channel) {
+			const event = new DeafenEvent(currentUser.id, channel.channelId, channel.guildId)
+			sendWebSocketMessage(event)
+		}
 		setIsDeafen(controls.toggleDeafen())
 	}
 
@@ -158,9 +169,9 @@ export default function ChannelSelector(props: {
 								onPress={deafen}
 							>
 								{isDeafen ? (
-									<span className="material-symbols-outlined">volume_off</span>
+									<span className="material-symbols-outlined">headset_off</span>
 								) : (
-									<span className="material-symbols-outlined">volume_up</span>
+									<span className="material-symbols-outlined">headset</span>
 								)}
 							</Button>
 							<Button

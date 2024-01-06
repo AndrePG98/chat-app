@@ -10,6 +10,8 @@ type User struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Logo     string `json:"logo"`
+	IsMuted  bool   `json:"isMuted"`
+	IsDeafen bool   `json:"isDeafen"`
 }
 
 // ################################## EVENTS ###########################################
@@ -36,6 +38,18 @@ type UploadLogoEvent struct {
 	UserId string `json:"userId"`
 }
 
+type MuteEvent struct {
+	UserId    string `json:"userId"`
+	ChannelId string `json:"channelId"`
+	GuildId   string `json:"guildId"`
+}
+
+type DeafenEvent struct {
+	UserId    string `json:"userId"`
+	ChannelId string `json:"channelId"`
+	GuildId   string `json:"guildId"`
+}
+
 // ################################## EVENTS ###########################################
 
 // ################################## RESULTS ##############################################
@@ -48,6 +62,8 @@ type AcessResult struct {
 	Username string  `json:"username"`
 	Email    string  `json:"email"`
 	Logo     string  `json:"logo"`
+	IsMuted  bool    `json:"ismuted"`
+	IsDeafen bool    `json:"isdeafen"`
 	State    []Guild `json:"state"`
 	Error    string  `json:"error"`
 }
@@ -73,6 +89,20 @@ type UploadLogoBroadcast struct {
 	UserId   string   `json:"userId"`
 	GuildIds []string `json:"guildIds"`
 	Image    string   `json:"image"`
+}
+
+type MutedBroadcast struct {
+	UserId    string `json:"userId"`
+	ChannelId string `json:"channelId"`
+	GuildId   string `json:"guildId"`
+	IsMuted   bool   `json:"ismuted"`
+}
+
+type DeafenBroadcast struct {
+	UserId    string `json:"userId"`
+	ChannelId string `json:"channelId"`
+	GuildId   string `json:"guildId"`
+	IsDeafen  bool   `json:"isdeafen"`
 }
 
 // #############################################################################################

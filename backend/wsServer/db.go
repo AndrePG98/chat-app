@@ -64,8 +64,8 @@ func (db *Database) CreateUser(username string, password string, email string) (
 		return "", "", fmt.Errorf("email/username already in use: %v", email)
 	}
 
-	insertQuery := `INSERT INTO users (id, username, email, logo, password) VALUES ($1, $2, $3, $4, $5)`
-	_, err = tx.Exec(insertQuery, id, username, email, []byte{}, hashedPW)
+	insertQuery := `INSERT INTO users (id, username, email, logo, password, ismuted, isdeafen) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	_, err = tx.Exec(insertQuery, id, username, email, []byte{}, hashedPW, false, false)
 	if err != nil {
 		return "", "", fmt.Errorf("error executing query: %v", err)
 	}
@@ -82,63 +82,65 @@ func (db *Database) CreateUser(username string, password string, email string) (
 	return id, token, nil
 }
 
-func (db *Database) FetchUserByToken(token string) (string, string, string, []byte, string, []models.Guild, error) {
+func (db *Database) FetchUserByToken(token string) (string, string, string, []byte, bool, bool, string, []models.Guild, error) {
 	claims, err := verifyToken(token)
 	if err != nil {
-		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error verifying token: %v", err)
+		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error verifying token: %v", err)
 	}
 	id, _ := claims["userId"].(string)
 	username, _ := claims["username"].(string)
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
-	query := `SELECT email,logo  FROM users WHERE id = $1 AND username = $2`
+	query := `SELECT email,logo, ismuted, isdeafen  FROM users WHERE id = $1 AND username = $2`
 	var email string
 	var logo []byte
-	err = tx.QueryRow(query, id, username).Scan(&email, &logo)
+	var ismuted, isdeafen bool
+	err = tx.QueryRow(query, id, username).Scan(&email, &logo, &ismuted, &isdeafen)
 	if err != nil {
-		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error bad credentials: %v", err)
+		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error bad credentials: %v", err)
 	}
 
 	newToken, err := generateToken(id, username)
 	if err != nil {
-		return "", "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error generating new token: %v", err)
+		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error generating new token: %v", err)
 	}
 	state, err := db.GetState(id)
 	if err != nil {
-		return "", "", "", []byte{}, "", []models.Guild{}, err
+		return "", "", "", nil, false, false, "", nil, err
 	}
-	return id, username, email, logo, newToken, state, nil
+	return id, username, email, logo, ismuted, isdeafen, newToken, state, nil
 }
 
-func (db *Database) FetchUserByPassword(username string, password string) (string, string, []byte, string, []models.Guild, error) {
+func (db *Database) FetchUserByPassword(username string, password string) (string, string, []byte, bool, bool, string, []models.Guild, error) {
 	hashedPw := hashPassword(username, password)
 
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", nil, false, false, "", nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 
-	query := `SELECT id, email, logo FROM users WHERE username = $1 AND password = $2`
+	query := `SELECT id, email, logo, ismuted, isdeafen FROM users WHERE username = $1 AND password = $2`
 	var userId, email string
 	var logo []byte
-	err = tx.QueryRow(query, username, hashedPw).Scan(&userId, &email, &logo)
+	var ismuted, isdeafen bool
+	err = tx.QueryRow(query, username, hashedPw).Scan(&userId, &email, &logo, &ismuted, &isdeafen)
 	if err != nil {
-		return "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error bad credentials: %v", err)
+		return "", "", nil, false, false, "", nil, fmt.Errorf("error bad credentials: %v", err)
 	}
 
 	token, err := generateToken(userId, username)
 	if err != nil {
-		return "", "", []byte{}, "", []models.Guild{}, fmt.Errorf("error generating token: %v", err)
+		return "", "", nil, false, false, "", nil, fmt.Errorf("error generating token: %v", err)
 	}
 	state, err := db.GetState(userId)
 	if err != nil {
-		return "", "", []byte{}, "", []models.Guild{}, err
+		return "", "", nil, false, false, "", nil, err
 	}
-	return userId, email, logo, token, state, nil
+	return userId, email, logo, ismuted, isdeafen, token, state, nil
 }
 
 func (db *Database) GetState(userId string) ([]models.Guild, error) {
@@ -164,7 +166,7 @@ func (db *Database) GetState(userId string) ([]models.Guild, error) {
 	}
 	guildIds.Close()
 	for _, id := range ids {
-		guild, err := db.fetchGuildState(tx, id, userId)
+		guild, err := db.fetchGuildState(tx, id)
 		if err != nil {
 			return state, err
 		}
@@ -173,7 +175,7 @@ func (db *Database) GetState(userId string) ([]models.Guild, error) {
 	return state, nil
 }
 
-func (db *Database) fetchGuildState(tx *sql.Tx, guildId string, userId string) (models.Guild, error) {
+func (db *Database) fetchGuildState(tx *sql.Tx, guildId string) (models.Guild, error) {
 	var guild models.Guild
 	query := `SELECT id, owner_id, name FROM guilds WHERE id = $1`
 	row := tx.QueryRow(query, guildId)
@@ -198,8 +200,8 @@ func (db *Database) fetchGuildState(tx *sql.Tx, guildId string, userId string) (
 	for _, userId := range userIds {
 		var user models.User
 		var logo []byte
-		userInfo := tx.QueryRow(`SELECT id, username, email, logo FROM users WHERE id = $1`, userId)
-		err = userInfo.Scan(&user.UserId, &user.Username, &user.Email, &logo)
+		userInfo := tx.QueryRow(`SELECT id, username, email, logo, ismuted, isdeafen FROM users WHERE id = $1`, userId)
+		err = userInfo.Scan(&user.UserId, &user.Username, &user.Email, &logo, &user.IsMuted, &user.IsDeafen)
 		base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 		user.Logo = base64Image
 		if err != nil {
@@ -290,23 +292,24 @@ func (db *Database) fetchChannelState(tx *sql.Tx, guild *models.Guild, channelId
 	return channel, nil
 }
 
-func (db *Database) FetchUserInfo(userId string) (string, string, []byte, error) { // TODO : return avatar
+func (db *Database) FetchUserInfo(userId string) (string, string, []byte, bool, bool, error) { // TODO : return avatar
 
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", []byte{}, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", nil, false, false, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 
-	query := `SELECT username,email,logo FROM users WHERE id = $1`
+	query := `SELECT username,email,logo,ismuted,isdeafen FROM users WHERE id = $1`
 	var username, email string
 	var logo []byte
-	err = tx.QueryRow(query, userId).Scan(&username, &email, &logo)
+	var ismuted, isdeafen bool
+	err = tx.QueryRow(query, userId).Scan(&username, &email, &logo, &ismuted, &isdeafen)
 	if err != nil {
-		return "", "", []byte{}, fmt.Errorf("error finding user: %v", err)
+		return "", "", nil, false, false, fmt.Errorf("error finding user: %v", err)
 	}
 
-	return username, email, logo, nil
+	return username, email, logo, ismuted, isdeafen, nil
 }
 
 func (db *Database) CreateGuild(id string, name string, ownerId string) error {
@@ -335,19 +338,19 @@ func (db *Database) CreateGuild(id string, name string, ownerId string) error {
 func (db *Database) DeleteGuild(id string, ownerId string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, id)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -355,87 +358,73 @@ func (db *Database) DeleteGuild(id string, ownerId string) ([]string, error) {
 	removeMessages := `DELETE FROM messages WHERE guild_id = $1`
 	_, err = tx.Exec(removeMessages, id)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting guild messages: %v", err)
+		return nil, fmt.Errorf("error deleting guild messages: %v", err)
 	}
 	removeChanMembers := `DELETE FROM channel_members WHERE guild_id = $1`
 	_, err = tx.Exec(removeChanMembers, id)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting channel members: %v", err)
+		return nil, fmt.Errorf("error deleting channel members: %v", err)
 	}
 	removeChannels := `DELETE FROM channels WHERE guild_id = $1`
 	_, err = tx.Exec(removeChannels, id)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting guild channels: %v", err)
+		return nil, fmt.Errorf("error deleting guild channels: %v", err)
 	}
 	removeUsers := `DELETE FROM guild_users WHERE guild_id = $1`
 	_, err = tx.Exec(removeUsers, id)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting guild users: %v", err)
+		return nil, fmt.Errorf("error deleting guild users: %v", err)
 	}
 	deleteGuild := `DELETE FROM guilds WHERE id = $1 and owner_id = $2`
 	_, err = tx.Exec(deleteGuild, id, ownerId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting guild: %v", err)
+		return nil, fmt.Errorf("error deleting guild: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
 
-func (db *Database) JoinGuild(guildId string, userId string) ([]string, models.Guild, error) {
+func (db *Database) JoinGuild(guildId string, userId string) ([]string, *models.Guild, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, models.Guild{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, nil, fmt.Errorf("error starting transaction: %v", err)
 	}
-	guild, err := db.fetchGuildState(tx, guildId, userId)
+	guild, err := db.fetchGuildState(tx, guildId)
 	if err != nil {
-		return []string{}, models.Guild{}, err
+		return nil, nil, err
 	}
-	defer tx.Rollback()
-	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
-	if err != nil {
-		return []string{}, models.Guild{}, fmt.Errorf("error fetching guild users: %v", err)
-	}
-	var userIds []string
-	for rows.Next() {
-		var userId string
-		err = rows.Scan(&userId)
-		if err != nil {
-			return []string{}, models.Guild{}, fmt.Errorf("error scanning user id: %v", err)
-		}
-		userIds = append(userIds, userId)
-	}
-	rows.Close()
+
 	joinGuild := `INSERT INTO guild_users (guild_id, user_id) VALUES ($1, $2)`
 	_, err = tx.Exec(joinGuild, guildId, userId)
 	if err != nil {
-		return []string{}, models.Guild{}, fmt.Errorf("error joining guild: %v", err)
+		return nil, nil, fmt.Errorf("error joining guild: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, models.Guild{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, nil, fmt.Errorf("error committing transaction: %v", err)
 	}
-	return userIds, guild, nil
+	return guild.GetMemberIds(), &guild, nil
 }
 
 func (db *Database) LeaveGuild(guildId string, userId string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -443,11 +432,11 @@ func (db *Database) LeaveGuild(guildId string, userId string) ([]string, error) 
 	leaveGuild := `DELETE FROM guild_users WHERE guild_id = $1 and user_id = $2`
 	_, err = tx.Exec(leaveGuild, guildId, userId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error leaving guild: %v", err)
+		return nil, fmt.Errorf("error leaving guild: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -455,19 +444,19 @@ func (db *Database) LeaveGuild(guildId string, userId string) ([]string, error) 
 func (db *Database) CreateChannel(guildId string, channelId string, chanType string, name string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -475,11 +464,11 @@ func (db *Database) CreateChannel(guildId string, channelId string, chanType str
 	createChan := `INSERT INTO channels (id, guild_id, type, name) VALUES ($1, $2, $3, $4)`
 	_, err = tx.Exec(createChan, channelId, guildId, chanType, name)
 	if err != nil {
-		return []string{}, fmt.Errorf("error creating channel: %v", err)
+		return nil, fmt.Errorf("error creating channel: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -487,19 +476,19 @@ func (db *Database) CreateChannel(guildId string, channelId string, chanType str
 func (db *Database) DeleteChannel(guildId string, channelId string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -508,18 +497,18 @@ func (db *Database) DeleteChannel(guildId string, channelId string) ([]string, e
 	deleteMessages := `DELETE FROM messages WHERE guild_id = $1 AND channel_id = $2`
 	_, err = tx.Exec(deleteMessages, guildId, channelId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting messages: %v", err)
+		return nil, fmt.Errorf("error deleting messages: %v", err)
 	}
 
 	deleteChan := `DELETE FROM channels WHERE id = $1 and guild_id = $2`
 	_, err = tx.Exec(deleteChan, channelId, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting channel: %v", err)
+		return nil, fmt.Errorf("error deleting channel: %v", err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -527,19 +516,19 @@ func (db *Database) DeleteChannel(guildId string, channelId string) ([]string, e
 func (db *Database) JoinChannel(guildId string, channelId string, userId string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -547,11 +536,11 @@ func (db *Database) JoinChannel(guildId string, channelId string, userId string)
 	joinChannel := `INSERT INTO channel_members (channel_id, guild_id, user_id) VALUES ($1, $2, $3)`
 	_, err = tx.Exec(joinChannel, channelId, guildId, userId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error joining channel: %v", err)
+		return nil, fmt.Errorf("error joining channel: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -559,19 +548,19 @@ func (db *Database) JoinChannel(guildId string, channelId string, userId string)
 func (db *Database) LeaveChannel(guildId string, channelId string, userId string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -579,11 +568,11 @@ func (db *Database) LeaveChannel(guildId string, channelId string, userId string
 	leaveChannel := `DELETE FROM channel_members WHERE channel_id = $1 AND guild_id = $2 AND user_id = $3`
 	_, err = tx.Exec(leaveChannel, channelId, guildId, userId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error leaving channel: %v", err)
+		return nil, fmt.Errorf("error leaving channel: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -591,19 +580,19 @@ func (db *Database) LeaveChannel(guildId string, channelId string, userId string
 func (db *Database) SaveMessage(messageId string, guildId string, channelId string, senderId string, content string, sendAt string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -612,11 +601,11 @@ func (db *Database) SaveMessage(messageId string, guildId string, channelId stri
 	VALUES ($1, $2, $3, $4, $5, TO_DATE($6, 'DD/MM/YYYY'))`
 	_, err = tx.Exec(saveMessage, messageId, guildId, channelId, senderId, content, sendAt)
 	if err != nil {
-		return []string{}, fmt.Errorf("error inserting message: %v", err)
+		return nil, fmt.Errorf("error inserting message: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -624,19 +613,19 @@ func (db *Database) SaveMessage(messageId string, guildId string, channelId stri
 func (db *Database) DeleteMessage(messageId string, guildId string, channelId string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error scanning user id: %v", err)
+			return nil, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -644,11 +633,11 @@ func (db *Database) DeleteMessage(messageId string, guildId string, channelId st
 	deleteMessage := `DELETE FROM messages WHERE id = $1 AND guild_id = $2 AND channel_id = $3`
 	_, err = tx.Exec(deleteMessage, messageId, guildId, channelId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error deleting message: %v", err)
+		return nil, fmt.Errorf("error deleting message: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error committing transaction: %v", err)
+		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
 	return userIds, nil
 }
@@ -680,20 +669,20 @@ func (db *Database) GetCurrentUserChannel(userId string) (string, string, error)
 func (db *Database) UploadLogo(image []byte, userId string, guildIds []string) ([]string, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return []string{}, fmt.Errorf("error starting transaction: %v", err)
+		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	var userIds []string
 	for _, guildId := range guildIds {
 		rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 		if err != nil {
-			return []string{}, fmt.Errorf("error fetching guild users: %v", err)
+			return nil, fmt.Errorf("error fetching guild users: %v", err)
 		}
 		for rows.Next() {
 			var userId string
 			err = rows.Scan(&userId)
 			if err != nil {
-				return []string{}, fmt.Errorf("error scanning user id: %v", err)
+				return nil, fmt.Errorf("error scanning user id: %v", err)
 			}
 			userIds = append(userIds, userId)
 		}
@@ -703,11 +692,97 @@ func (db *Database) UploadLogo(image []byte, userId string, guildIds []string) (
 	query := `UPDATE users SET logo = $1 WHERE id = $2`
 	_, err = tx.Exec(query, image, userId)
 	if err != nil {
-		return []string{}, fmt.Errorf("error updating user logo: %v", err)
+		return nil, fmt.Errorf("error updating user logo: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return []string{}, fmt.Errorf("error comitting transaction: %v", err)
+		return nil, fmt.Errorf("error comitting transaction: %v", err)
 	}
 	return userIds, nil
+}
+
+func (db *Database) ToggleMute(userId string, guildId string) (bool, []string, error) {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return false, nil, fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	var userIds []string
+	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
+	if err != nil {
+		return false, nil, fmt.Errorf("error fetching guild users: %v", err)
+	}
+	for rows.Next() {
+		var userId string
+		err = rows.Scan(&userId)
+		if err != nil {
+			return false, nil, fmt.Errorf("error scanning user id: %v", err)
+		}
+		userIds = append(userIds, userId)
+	}
+	rows.Close()
+
+	query := `WITH updated AS (
+		UPDATE users
+		SET ismuted = NOT ismuted
+		WHERE id = $1
+		RETURNING ismuted
+	 )
+	 SELECT ismuted FROM updated;`
+
+	var ismuted bool
+	err = tx.QueryRow(query, userId).Scan(&ismuted)
+	if err != nil {
+		return false, nil, fmt.Errorf("error updating user is muted: %v", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return false, nil, fmt.Errorf("error comitting transaction: %v", err)
+	}
+	return ismuted, userIds, nil
+}
+
+func (db *Database) ToggleDeafen(userId string, guildId string) (bool, []string, error) {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return false, nil, fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	var userIds []string
+	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
+	if err != nil {
+		return false, nil, fmt.Errorf("error fetching guild users: %v", err)
+	}
+	for rows.Next() {
+		var userId string
+		err = rows.Scan(&userId)
+		if err != nil {
+			return false, nil, fmt.Errorf("error scanning user id: %v", err)
+		}
+		userIds = append(userIds, userId)
+	}
+	rows.Close()
+
+	query := `WITH updated AS (
+		UPDATE users
+		SET isdeafen = NOT isdeafen
+		WHERE id = $1
+		RETURNING isdeafen
+	 )
+	 SELECT isdeafen FROM updated;`
+
+	var isdeafen bool
+	err = tx.QueryRow(query, userId).Scan(&isdeafen)
+	if err != nil {
+		return false, nil, fmt.Errorf("error updating user is deafen: %v", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return false, nil, fmt.Errorf("error comitting transaction: %v", err)
+	}
+	return isdeafen, userIds, nil
 }

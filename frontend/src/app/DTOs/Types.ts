@@ -20,6 +20,8 @@ export enum EventType {
     ChatMessage,
     DeleteMessage,
     UploadLogo,
+    Mute,
+    Deafen
 }
 
 export enum ResultType {
@@ -38,5 +40,7 @@ export enum ResultType {
     B_LeaveChannel,
     B_ChatMessage,
     B_ChatMessageDelete,
-    B_UploadLogo
+    B_UploadLogo,
+    B_Mute,
+    B_Deafen
 }

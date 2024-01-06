@@ -9,6 +9,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type AuthRequest struct {
+	Result   bool
+	Client   *Client
+	Email    string
+	Logo     string
+	IsMuted  bool
+	IsDeafen bool
+	Token    string
+	Error    string
+	State    []models.Guild
+}
+
 func handleRegistration(client *Client, regEvent models.RegisterEvent) {
 	username := regEvent.Username
 	password := regEvent.Password
@@ -24,11 +36,13 @@ func handleRegistration(client *Client, regEvent models.RegisterEvent) {
 	} else {
 		client.authenticate(id, username)
 		client.Server.Authenticate <- &AuthRequest{
-			Result: true,
-			Client: client,
-			Email:  email,
-			Logo:   "",
-			Token:  token,
+			Result:   true,
+			Client:   client,
+			Email:    email,
+			Logo:     "",
+			IsMuted:  false,
+			IsDeafen: false,
+			Token:    token,
 		}
 	}
 }
@@ -41,13 +55,14 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	var id string
 	var email string
 	var logo []byte
+	var ismuted, isdeafen bool
 	var base64Image string
 	var state []models.Guild
 	if len(token) == 0 {
-		id, email, logo, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
+		id, email, logo, ismuted, isdeafen, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
 		base64Image = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	} else {
-		id, username, email, logo, token, state, err = client.Server.Database.FetchUserByToken(token)
+		id, username, email, logo, ismuted, isdeafen, token, state, err = client.Server.Database.FetchUserByToken(token)
 		base64Image = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	}
 	if err != nil {
@@ -60,12 +75,14 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 		client.authenticate(id, username)
 		client.joinGuilds(state)
 		client.Server.Authenticate <- &AuthRequest{
-			Result: true,
-			Client: client,
-			Email:  email,
-			Logo:   base64Image,
-			State:  state,
-			Token:  token,
+			Result:   true,
+			Client:   client,
+			Email:    email,
+			Logo:     base64Image,
+			IsMuted:  ismuted,
+			IsDeafen: isdeafen,
+			State:    state,
+			Token:    token,
 		}
 		//broadcastLogin(client)
 	}
@@ -73,7 +90,7 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 
 func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 	guildId := uuid.NewString()
-	_, email, logo, err := client.Server.Database.FetchUserInfo(msg.OwnerId)
+	_, email, logo, ismuted, isdeafen, err := client.Server.Database.FetchUserInfo(msg.OwnerId)
 	base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	if err != nil {
 		log.Println(err.Error())
@@ -98,6 +115,8 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 						Username: client.Username,
 						Email:    email,
 						Logo:     base64Image,
+						IsMuted:  ismuted,
+						IsDeafen: isdeafen,
 					},
 				},
 				Channels: []models.Channel{},
@@ -116,7 +135,7 @@ func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
 		Body: models.JoinGuildResult{
-			Guild: guild,
+			Guild: *guild,
 		},
 	}
 	broadcastGuildJoin(client, userIds, msg.GuildId, msg.Member)

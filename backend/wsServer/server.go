@@ -39,7 +39,7 @@ func (server *WsServer) run() {
 	go server.listenForRemoves()
 	go server.listenForAuthReq()
 	go server.listenForDisconnections()
-	log.Println("Websocket Server listenning on", 8443)
+	log.Println("Websocket Server listenning on", 8080)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -68,6 +68,8 @@ func (server *WsServer) listenForAuthReq() {
 					Username: client.Username,
 					Email:    authReq.Email,
 					Logo:     authReq.Logo,
+					IsMuted:  authReq.IsMuted,
+					IsDeafen: authReq.IsDeafen,
 					State:    authReq.State,
 				},
 			}

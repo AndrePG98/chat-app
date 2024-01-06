@@ -8,16 +8,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthRequest struct {
-	Result bool
-	Client *Client
-	Email  string
-	Logo   string
-	Token  string
-	Error  string
-	State  []models.Guild
-}
-
 func broadcastLogout(client *Client) {
 	defer client.Conn.Close()
 	channelId, guildId, err := client.Server.Database.GetCurrentUserChannel(client.ID)
@@ -225,4 +215,45 @@ func broadcastUpdateLogo(client *Client, userIds []string, guildIds []string, im
 			},
 		}
 	}
+}
+
+func broadcastMute(client *Client, msg models.MuteEvent) {
+	ismuted, userIds, err := client.Server.Database.ToggleMute(msg.UserId, msg.GuildId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	for _, userId := range userIds {
+		client.Server.AuthClients[userId].Send <- &models.IMessage{
+			Type: models.B_Mute,
+			Body: models.MutedBroadcast{
+				UserId:    msg.UserId,
+				ChannelId: msg.ChannelId,
+				GuildId:   msg.GuildId,
+				IsMuted:   ismuted,
+			},
+		}
+	}
+}
+
+func broadcastDeafen(client *Client, msg models.DeafenEvent) {
+	isdeafen, userIds, err := client.Server.Database.ToggleDeafen(msg.UserId, msg.GuildId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	for _, userId := range userIds {
+		client.Server.AuthClients[userId].Send <- &models.IMessage{
+			Type: models.B_Deafen,
+			Body: models.DeafenBroadcast{
+				UserId:    msg.UserId,
+				ChannelId: msg.ChannelId,
+				GuildId:   msg.GuildId,
+				IsDeafen:  isdeafen,
+			},
+		}
+	}
+
 }

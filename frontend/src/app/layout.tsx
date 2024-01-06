@@ -18,6 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					rel="stylesheet"
 					href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,200,0,200"
 				/>
+				<link
+					href="https://fonts.googleapis.com/icon?family=Material+Icons"
+					rel="stylesheet"
+				/>
 			</head>
 			<body>
 				<Providers>{children}</Providers>

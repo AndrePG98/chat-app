@@ -28,6 +28,14 @@ func (g *Guild) GetMember(memberId string) (User, error) {
 	return User{}, fmt.Errorf("error user not found")
 }
 
+func (g *Guild) GetMemberIds() []string {
+	var ids []string
+	for _, member := range g.Members {
+		ids = append(ids, member.UserId)
+	}
+	return ids
+}
+
 // ################################## EVENTS ###########################################
 
 type CreateGuildEvent struct {
