@@ -112,7 +112,6 @@ export class LeaveChannelEvent implements IEvent {
         this.body = { userId, guildId, channelId }
     }
 }
-
 export interface CreateChannelBroadcast {
     type: ResultType
     body: {
@@ -146,6 +145,16 @@ export interface JoinNewChannelBroadcast {
         user: SenderDTO
         prevChannel: ChannelDTO
         newChannel: ChannelDTO
+    }
+}
+
+export interface SdpAnswerResult {
+    type: ResultType
+    body: {
+        user: SenderDTO
+        guildId: string
+        channelId: string
+        answer: string
     }
 }
 

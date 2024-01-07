@@ -1,7 +1,9 @@
-import { createContext, use, useContext, useEffect, useState } from "react"
+import { MutableRefObject, createContext, useContext, useEffect, useState } from "react"
 import {
 	AccessResult,
+	DeafenBroadcast,
 	LoginBroadcast,
+	MuteBroadcast,
 	SenderDTO,
 	UploadLogoBroadcast,
 	UploadLogoResult,
@@ -18,23 +20,16 @@ import {
 	LeaveGuildBroadcast,
 	LeaveGuildResult,
 } from "../DTOs/GuildDTO"
-import {
-	ChatMessageBroadcast,
-	DeleteMessageBroadcast,
-	MessageDTO,
-	SendMessageEvent,
-} from "../DTOs/MessageDTO"
+import { ChatMessageBroadcast, DeleteMessageBroadcast } from "../DTOs/MessageDTO"
 import {
 	ChannelDTO,
 	CreateChannelBroadcast,
-	CreateChannelEvent,
 	DeleteChannelBroadcast,
 	JoinChannelBroadcast,
-	JoinNewChannelBroadcast,
 	LeaveCHannelBroadcast,
-	LeaveChannelEvent,
 } from "../DTOs/ChannelDTO"
-import { access } from "fs"
+import useWebRTC from "../services/WebRTCService"
+import { channel } from "diagnostics_channel"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -44,13 +39,17 @@ interface UserContextProps {
 	register: (username: string, password: string, email: string) => void
 	receivedMessage: IEvent
 	sendWebSocketMessage: (data: any) => void
+	connectToRTC: (userId: string, channelId: string, guildId: string) => void
+	disconnectRTC: () => void
+	controls: { toggleMute: () => boolean; toggleDeafen: () => boolean }
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
 
 export const UserContextProvider = ({ children }: any) => {
-	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", ""))
+	const [currentUser, setCurrentUser] = useState(new UserDTO("", "", "", "", false, false))
 	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } = useWebSocket() // only available inside user context
+	const { connectToRTC, disconnectRTC, controls } = useWebRTC()
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
 
 	const [changeFlag, setChangeFlag] = useState(false)
@@ -65,8 +64,18 @@ export const UserContextProvider = ({ children }: any) => {
 			})
 		}
 
+		window.addEventListener("beforeunload", (event) => {
+			disconnectFromWs(currentUser.id)
+			setIsAuthenticated(false)
+			setCurrentUser(new UserDTO("", "", "", "", false, false))
+		})
+
 		return () => {
-			logout()
+			window.removeEventListener("beforeunload", (event) => {
+				disconnectFromWs(currentUser.id)
+				setIsAuthenticated(false)
+				setCurrentUser(new UserDTO("", "", "", "", false, false))
+			})
 		}
 	}, [])
 
@@ -120,6 +129,12 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.B_UploadLogo:
 				processUploadLogoBroadcast(receivedMessage)
 				break
+			case ResultType.B_Mute:
+				processMuteBroadcast(receivedMessage)
+				break
+			case ResultType.B_Deafen:
+				processDeafenBroadcast(receivedMessage)
+				break
 		}
 		setChangeFlag(!changeFlag)
 	}, [receivedMessage])
@@ -146,7 +161,9 @@ export const UserContextProvider = ({ children }: any) => {
 				msg.body.userId,
 				msg.body.username,
 				msg.body.email,
-				msg.body.logo
+				msg.body.logo,
+				msg.body.ismuted,
+				msg.body.isdeafen
 			)
 			localStorage.setItem("token", msg.body.token)
 			if (msg.body.state !== null) {
@@ -164,7 +181,7 @@ export const UserContextProvider = ({ children }: any) => {
 	const logout = () => {
 		disconnectFromWs(currentUser.id)
 		setIsAuthenticated(false)
-		setCurrentUser(new UserDTO("", "", "", ""))
+		setCurrentUser(new UserDTO("", "", "", "", false, false))
 		localStorage.removeItem("token")
 	}
 
@@ -290,7 +307,7 @@ export const UserContextProvider = ({ children }: any) => {
 					if (channel.channelId === msg.body.channelId) {
 						for (let i = 0; i < channel.history.length; i++) {
 							if (channel.history[i].messageId === msg.body.messageId) {
-								channel.history.splice(i)
+								channel.history.splice(i, 1)
 							}
 						}
 					}
@@ -331,6 +348,38 @@ export const UserContextProvider = ({ children }: any) => {
 		})
 	}
 
+	const processMuteBroadcast = (msg: MuteBroadcast) => {
+		const guild = currentUser.getGuild(msg.body.guildId)
+		if (guild) {
+			guild.channels.forEach((chan) => {
+				if (chan.channelId === msg.body.channelId) {
+					chan.members.forEach((member) => {
+						if (member.userId === msg.body.userId) {
+							member.ismuted = msg.body.ismuted
+							member = member
+						}
+					})
+				}
+			})
+		}
+	}
+
+	const processDeafenBroadcast = (msg: DeafenBroadcast) => {
+		const guild = currentUser.getGuild(msg.body.guildId)
+		if (guild) {
+			guild.channels.forEach((chan) => {
+				if (chan.channelId === msg.body.channelId) {
+					chan.members.forEach((member) => {
+						if (member.userId === msg.body.userId) {
+							member.isdeafen = msg.body.isdeafen
+							member = member
+						}
+					})
+				}
+			})
+		}
+	}
+
 	return (
 		<UserContext.Provider
 			value={{
@@ -341,6 +390,9 @@ export const UserContextProvider = ({ children }: any) => {
 				register,
 				sendWebSocketMessage,
 				receivedMessage,
+				connectToRTC,
+				disconnectRTC,
+				controls,
 			}}
 		>
 			{children}

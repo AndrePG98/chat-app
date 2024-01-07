@@ -2,14 +2,12 @@ import { DeleteMessageEvent, MessageDTO } from "@/app/DTOs/MessageDTO"
 import { useUserContext } from "@/app/context/UserContext"
 import "./messageStyle.css"
 import {
-	Avatar,
 	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
 	DropdownTrigger,
 	User,
-	Divider,
 } from "@nextui-org/react"
 import React from "react"
 

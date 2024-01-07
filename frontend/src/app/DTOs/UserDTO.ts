@@ -8,13 +8,18 @@ export class UserDTO {
 	email: string
 	guilds: GuildDTO[] = []
 	logo: string
+	ismuted: boolean
+	isdeafen: boolean
 	currentChannel: ChannelDTO | undefined
+	peerConnection: RTCPeerConnection | undefined
 
-	constructor(id: string, username: string, email: string, logo: string) {
+	constructor(id: string, username: string, email: string, logo: string, ismuted: boolean, isdeafen: boolean) {
 		this.id = id
 		this.email = email
 		this.username = username
 		this.logo = logo
+		this.ismuted = ismuted
+		this.isdeafen = isdeafen
 	}
 
 	getName() {
@@ -62,7 +67,7 @@ export class UserDTO {
 	}
 
 	convert() {
-		return new SenderDTO(this.id, this.username, this.email, this.logo)
+		return new SenderDTO(this.id, this.username, this.email, this.logo, this.ismuted, this.isdeafen)
 	}
 }
 
@@ -71,12 +76,16 @@ export class SenderDTO {
 	username: string
 	email: string
 	logo: string
+	ismuted: boolean
+	isdeafen: boolean
 
-	constructor(userId: string, username: string, email: string, logo: string) {
+	constructor(userId: string, username: string, email: string, logo: string, ismuted: boolean, isdeafen: boolean) {
 		this.userId = userId
 		this.username = username
 		this.email = email
 		this.logo = logo
+		this.ismuted = ismuted
+		this.isdeafen = isdeafen
 	}
 }
 
@@ -103,7 +112,7 @@ export class LoginEvent implements IEvent {
 }
 
 export class LogoutEvent implements IEvent {
-	type: EventType;
+	type: EventType
 	body: any
 
 	constructor(userId: string) {
@@ -113,12 +122,31 @@ export class LogoutEvent implements IEvent {
 }
 
 export class UploadLogoEvent implements IEvent {
-	type: EventType;
+	type: EventType
 	body: any
 
 	constructor(image: string, userId: string) {
 		this.type = EventType.UploadLogo
 		this.body = { image, userId }
+	}
+}
+
+export class MuteEvent implements IEvent {
+	type: EventType
+	body: any
+
+	constructor(userId: string, channelId: string, guildId: string) {
+		this.type = EventType.Mute
+		this.body = { userId, channelId, guildId }
+	}
+}
+
+export class DeafenEvent implements IEvent {
+	type: EventType
+	body: any
+	constructor(userId: string, channelId: string, guildId: string) {
+		this.type = EventType.Deafen
+		this.body = { userId, channelId, guildId }
 	}
 }
 
@@ -131,6 +159,8 @@ export interface AccessResult {
 		username: string
 		email: string
 		logo: string
+		ismuted: boolean
+		isdeafen: boolean
 		state: GuildDTO[]
 		error: string
 	}
@@ -166,5 +196,25 @@ export interface UploadLogoBroadcast {
 		userId: string
 		guildIds: string[]
 		image: string
+	}
+}
+
+export interface MuteBroadcast {
+	type: ResultType
+	body: {
+		userId: string
+		channelId: string
+		guildId: string
+		ismuted: boolean
+	}
+}
+
+export interface DeafenBroadcast {
+	type: ResultType
+	body: {
+		userId: string
+		channelId: string
+		guildId: string
+		isdeafen: boolean
 	}
 }

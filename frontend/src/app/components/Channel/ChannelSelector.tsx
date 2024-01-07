@@ -11,7 +11,7 @@ import {
 	useDisclosure,
 	ScrollShadow,
 } from "@nextui-org/react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
 	ChannelDTO,
 	JoinChannelEvent,
@@ -24,6 +24,7 @@ import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
 import "./chanSelectorstyle.css"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
+import { DeafenEvent, MuteEvent } from "@/app/DTOs/UserDTO"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -33,7 +34,8 @@ export default function ChannelSelector(props: {
 	selectChannel: (channel: ChannelDTO | undefined) => void
 	leaveGuild: () => void
 }) {
-	const { currentUser, sendWebSocketMessage } = useUserContext()
+	const { currentUser, sendWebSocketMessage, connectToRTC, disconnectRTC, controls } =
+		useUserContext()
 	const { isOpen, onOpen, onOpenChange } = useDisclosure()
 	const [modalOpen, setModalOpen] = useState(false)
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
@@ -59,22 +61,58 @@ export default function ChannelSelector(props: {
 		setModalOpen(false)
 	}
 
-	function addChannelUser(channel: ChannelDTO) {
+	useEffect(() => {
+		window.addEventListener("beforeunload", (event) => {
+			if (currentUser.currentChannel) {
+				removeChannelUser(currentUser.currentChannel)
+			}
+		})
+		return () => {
+			window.removeEventListener("beforeunload", (event) => {
+				if (currentUser.currentChannel) {
+					removeChannelUser(currentUser.currentChannel)
+				}
+			})
+		}
+	}, [])
+
+	const addChannelUser = async (channel: ChannelDTO) => {
 		if (currentChannel?.channelId !== channel.channelId) {
 			let member = currentUser.convert()
 			if (currentUser.currentChannel) {
+				disconnectRTC()
 				let event = new JoinNewChannelEvent(member, currentUser.currentChannel, channel)
 				sendWebSocketMessage(event)
 			} else {
 				let event = new JoinChannelEvent(member, channel.guildId, channel.channelId)
 				sendWebSocketMessage(event)
 			}
+			connectToRTC(currentUser.id, channel.channelId, channel.guildId)
 		}
 	}
 
-	function removeChannelUser(channel: ChannelDTO) {
+	const removeChannelUser = (channel: ChannelDTO) => {
+		disconnectRTC()
 		let event = new LeaveChannelEvent(currentUser.id, channel.guildId, channel.channelId)
 		sendWebSocketMessage(event)
+	}
+
+	const mute = () => {
+		const channel = currentUser.currentChannel
+		if (channel) {
+			const event = new MuteEvent(currentUser.id, channel.channelId, channel.guildId)
+			sendWebSocketMessage(event)
+		}
+		setIsMute(controls.toggleMute())
+	}
+
+	const deafen = () => {
+		const channel = currentUser.currentChannel
+		if (channel) {
+			const event = new DeafenEvent(currentUser.id, channel.channelId, channel.guildId)
+			sendWebSocketMessage(event)
+		}
+		setIsDeafen(controls.toggleDeafen())
 	}
 
 	return (
@@ -115,7 +153,7 @@ export default function ChannelSelector(props: {
 								variant="light"
 								isIconOnly
 								className="flex justify-center items-center w-full"
-								onPress={() => setIsMute(!isMute)}
+								onPress={mute}
 							>
 								{isMute ? (
 									<span className="material-symbols-outlined">mic_off</span>
@@ -129,12 +167,12 @@ export default function ChannelSelector(props: {
 								variant="light"
 								isIconOnly
 								className="flex justify-center items-center w-full"
-								onPress={() => setIsDeafen(!isDeafen)}
+								onPress={deafen}
 							>
 								{isDeafen ? (
-									<span className="material-symbols-outlined">volume_off</span>
+									<span className="material-symbols-outlined">headset_off</span>
 								) : (
-									<span className="material-symbols-outlined">volume_up</span>
+									<span className="material-symbols-outlined">headset</span>
 								)}
 							</Button>
 							<Button

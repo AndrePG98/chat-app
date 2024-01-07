@@ -8,6 +8,7 @@ import {
 	ModalHeader,
 } from "@nextui-org/react"
 import React, { useState } from "react"
+import withDelayedClick from "../shared/DisableOnClickBtn"
 
 export default function CreateGuildModal(props: {
 	isOpen: boolean
@@ -15,6 +16,19 @@ export default function CreateGuildModal(props: {
 	createNewGuild: (name: string) => void
 }) {
 	const [guildName, setGuildName] = useState("")
+
+	const btn = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+		<Button
+			className="w-full"
+			color="success"
+			endContent={<span className="material-symbols-outlined">add</span>}
+			onClick={props.onClick}
+		>
+			Create Server
+		</Button>
+	)
+
+	const CreateGuildBtn = withDelayedClick(btn)
 
 	return (
 		<Modal
@@ -56,19 +70,14 @@ export default function CreateGuildModal(props: {
 							<Button color="danger" variant="light" onPress={onClose}>
 								Close
 							</Button>
-							<Button
-								className="w-full"
-								color="success"
+							<CreateGuildBtn
 								onClick={() => {
 									onClose()
 									props.createNewGuild(guildName)
 									setGuildName("")
 									setGuildName("")
 								}}
-								endContent={<span className="material-symbols-outlined">add</span>}
-							>
-								Create Server
-							</Button>
+							/>
 						</ModalFooter>
 					</>
 				)}

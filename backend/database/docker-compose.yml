@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+    postgres:
+        build:
+            context: .
+            dockerfile: dockerfile
+        environment:
+            POSTGRES_DB: Chatapp
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: chatapp
+        ports:
+            - "5432:5432"

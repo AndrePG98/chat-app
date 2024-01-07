@@ -24,7 +24,9 @@ export default function VoiceChannelBtn(props: {
 				} flex flex-row group h-12`}
 			>
 				<button
-					onClick={() => props.addChannelUser(props.channel)}
+					onClick={() => {
+						props.addChannelUser(props.channel)
+					}}
 					className="w-full text-lg flex justify-between group-hover:bg-surface-400 pl-2"
 				>
 					<div className="flex flex-row justify-center items-center gap-2">
@@ -64,16 +66,36 @@ export default function VoiceChannelBtn(props: {
 				>
 					{props.channel.members.map((member, index) => (
 						<ListboxItem key={index} className="listboxitem">
-							<User
-								key={index}
-								className="flex justify-start items-center py-.5 px-.5"
-								name={member.username}
-								avatarProps={{
-									src: member.logo,
-									size: "sm",
-									className: "text-tiny w-5 h-5",
-								}}
-							/>
+							<div className="flex flex-row items-center justify-between">
+								<User
+									key={index}
+									className="flex justify-start items-center py-.5 px-.5"
+									name={member.username}
+									avatarProps={{
+										src: member.logo,
+										size: "sm",
+										className: "text-tiny w-5 h-5",
+									}}
+								/>
+								<div className="flex flex-row items-center gap-2">
+									{member.ismuted && (
+										<span
+											style={{ color: "red", fontSize: "16px" }}
+											className="material-symbols-outlined "
+										>
+											mic_off
+										</span>
+									)}
+									{member.isdeafen && (
+										<span
+											style={{ color: "red", fontSize: "16px" }}
+											className="material-symbols-outlined"
+										>
+											headset_off
+										</span>
+									)}
+								</div>
+							</div>
 						</ListboxItem>
 					))}
 				</Listbox>
