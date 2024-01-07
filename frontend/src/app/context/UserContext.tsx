@@ -307,7 +307,7 @@ export const UserContextProvider = ({ children }: any) => {
 					if (channel.channelId === msg.body.channelId) {
 						for (let i = 0; i < channel.history.length; i++) {
 							if (channel.history[i].messageId === msg.body.messageId) {
-								channel.history.splice(i)
+								channel.history.splice(i, 1)
 							}
 						}
 					}

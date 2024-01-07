@@ -142,10 +142,12 @@ func (client *Client) handleMessage(msg models.IMessage) {
 		var body models.UploadLogoEvent
 		mapstructure.Decode(msg.Body, &body)
 		handleUploadLogo(client, body)
+
 	case models.E_Mute:
 		var body models.MuteEvent
 		mapstructure.Decode(msg.Body, &body)
 		broadcastMute(client, body)
+
 	case models.E_Deafen:
 		var body models.DeafenEvent
 		mapstructure.Decode(msg.Body, &body)

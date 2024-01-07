@@ -10,6 +10,7 @@ import {
 	RadioGroup,
 } from "@nextui-org/react"
 import React, { useState } from "react"
+import withDelayedClick from "../shared/DisableOnClickBtn"
 
 export default function CreateChannelModal(props: {
 	isOpen: boolean
@@ -18,6 +19,19 @@ export default function CreateChannelModal(props: {
 }) {
 	const [channelType, setChannelType] = React.useState("")
 	const [channelName, setChannelName] = useState("")
+
+	const btn = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+		<Button
+			className="w-full"
+			color="success"
+			onClick={props.onClick}
+			endContent={<span className="material-symbols-outlined">add</span>}
+		>
+			Create channel
+		</Button>
+	)
+
+	const CreateChannelBtn = withDelayedClick(btn)
 
 	return (
 		<Modal
@@ -67,19 +81,14 @@ export default function CreateChannelModal(props: {
 							<Button color="danger" variant="light" onPress={onClose}>
 								Close
 							</Button>
-							<Button
-								className="w-full"
-								color="success"
+							<CreateChannelBtn
 								onClick={() => {
 									onClose()
 									props.createNewChannel(channelName, channelType)
 									setChannelName("")
 									setChannelType("")
 								}}
-								endContent={<span className="material-symbols-outlined">add</span>}
-							>
-								Create channel
-							</Button>
+							/>
 						</ModalFooter>
 					</>
 				)}
