@@ -97,8 +97,8 @@ export default function InviteModal(props: {
 										"!cursor-text",
 									],
 								}}
-								label="Username"
-								placeholder="Search"
+								label="Search"
+								placeholder="Username"
 								value={input}
 								onValueChange={inputChange}
 							/>
@@ -114,38 +114,44 @@ export default function InviteModal(props: {
 									variant="bordered"
 									color="primary"
 								>
-									{users.map((user) => (
-										<ListboxItem key={user.userId} disableAnimation>
-											<div className="flex flex-row gap-2 items-center justify-start">
-												<Avatar
-													src={user.logo}
-													imgProps={{
-														style: {
-															objectFit: "cover",
-															objectPosition: "center",
-															height: "100%",
-															width: "100%",
-														},
-													}}
-												/>
-												<span className="flex-1">{user.username}</span>
-												<div className="flex flex-row justify-center items-center pr-5">
-													<Button
-														isIconOnly
-														variant="light"
-														size="sm"
-														onPress={() => {
-															invite(user.userId)
+									{users
+										.filter((user) => {
+											return !props.guild.members.some(
+												(member) => user.userId === member.userId
+											)
+										})
+										.map((user) => (
+											<ListboxItem key={user.userId} disableAnimation>
+												<div className="flex flex-row gap-2 items-center justify-start">
+													<Avatar
+														src={user.logo}
+														imgProps={{
+															style: {
+																objectFit: "cover",
+																objectPosition: "center",
+																height: "100%",
+																width: "100%",
+															},
 														}}
-													>
-														<span className="material-symbols-outlined">
-															forward_to_inbox
-														</span>
-													</Button>
+													/>
+													<span className="flex-1">{user.username}</span>
+													<div className="flex flex-row justify-center items-center pr-5">
+														<Button
+															isIconOnly
+															variant="light"
+															size="sm"
+															onPress={() => {
+																invite(user.userId)
+															}}
+														>
+															<span className="material-symbols-outlined">
+																forward_to_inbox
+															</span>
+														</Button>
+													</div>
 												</div>
-											</div>
-										</ListboxItem>
-									))}
+											</ListboxItem>
+										))}
 								</Listbox>
 							</ScrollShadow>
 						</ModalBody>
