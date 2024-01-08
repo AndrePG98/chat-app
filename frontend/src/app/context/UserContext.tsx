@@ -214,6 +214,9 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const processGuildDeleteBroadcast = (msg: GuildDeleteBroadcast) => {
 		currentUser.leaveGuild(msg.body.guildId)
+		if (currentUser.selectedGuild?.guildId === msg.body.guildId) {
+			currentUser.selectedGuild = undefined
+		}
 	}
 
 	const processGuildJoinBroadcast = (msg: JoinGuildBroadcast) => {

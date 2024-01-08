@@ -2,7 +2,7 @@
 
 import { DeleteGuildEvent, GuildDTO, LeaveGuildEvent } from "@/app/DTOs/GuildDTO"
 import { UserDTO } from "@/app/DTOs/UserDTO"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Guild from "./Guild"
 import GuildSelector from "./GuildSelector"
 import { useUserContext } from "@/app/context/UserContext"
@@ -11,7 +11,14 @@ export default function GuildsPanel(props: { currentUser: UserDTO }) {
 	const { sendWebSocketMessage, currentUser } = useUserContext()
 	const [selectedGuild, setSelectedGuild] = useState<GuildDTO>()
 
+	useEffect(() => {
+		if (!currentUser.selectedGuild) {
+			setSelectedGuild(undefined)
+		}
+	}, [currentUser.selectedGuild])
+
 	const selectGuild = (guild: GuildDTO) => {
+		currentUser.selectedGuild = guild
 		setSelectedGuild(guild)
 	}
 

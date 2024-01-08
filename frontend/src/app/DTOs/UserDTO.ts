@@ -11,6 +11,7 @@ export class UserDTO {
 	ismuted: boolean
 	isdeafen: boolean
 	currentChannel: ChannelDTO | undefined
+	selectedGuild: GuildDTO | undefined
 	peerConnection: RTCPeerConnection | undefined
 	invites: Invite[]
 
