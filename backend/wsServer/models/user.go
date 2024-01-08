@@ -50,6 +50,12 @@ type DeafenEvent struct {
 	GuildId   string `json:"guildId"`
 }
 
+type FetchUsersEvent struct {
+	SearchTerm string `json:"searchTerm"`
+	Offset     int    `json:"offset"`
+	Limit      int    `json:"limit"`
+}
+
 // ################################## EVENTS ###########################################
 
 // ################################## RESULTS ##############################################
@@ -71,6 +77,11 @@ type AcessResult struct {
 type UploadLogoResult struct {
 	Image string `json:"image"`
 	Error string `json:"error"`
+}
+
+type FetchUsersResult struct {
+	Users   []User `json:"users"`
+	HasMore bool   `json:"hasMore"`
 }
 
 // ################################## BROADCASTS ##############################################

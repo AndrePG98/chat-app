@@ -21,7 +21,8 @@ export enum EventType {
     DeleteMessage,
     UploadLogo,
     Mute,
-    Deafen
+    Deafen,
+    FetchUsers
 }
 
 export enum ResultType {
@@ -29,6 +30,7 @@ export enum ResultType {
     R_JoinGuild,
     R_LeaveGuild,
     R_UploadLogo,
+    R_FetchUsers,
     B_Login,
     B_Logout,
     B_GuildDelete,

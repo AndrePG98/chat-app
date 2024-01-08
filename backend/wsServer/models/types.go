@@ -18,6 +18,7 @@ const (
 	E_UploadLogo
 	E_Mute
 	E_Deafen
+	E_FetchUsers
 )
 
 const (
@@ -25,6 +26,7 @@ const (
 	R_GuildJoin
 	R_GuildLeave
 	R_UploadLogo
+	R_FetchUsers
 	B_Login
 	B_Logout
 	B_GuildDelete

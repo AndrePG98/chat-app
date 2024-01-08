@@ -292,6 +292,38 @@ func (db *Database) fetchChannelState(tx *sql.Tx, guild *models.Guild, channelId
 	return channel, nil
 }
 
+func (db *Database) FetchUsers(searchTerm string, limit, offset int) ([]models.User, bool, error) {
+	hasMore := false
+	searchTerm = "%" + searchTerm + "%"
+	fetchQuery := `SELECT id, username, logo FROM users WHERE username LIKE $1 ORDER BY id LIMIT $2 OFFSET $3`
+	rows, err := db.db.Query(fetchQuery, searchTerm, limit, offset)
+	if err != nil {
+		return nil, hasMore, fmt.Errorf("error fetching users: %v", err)
+	}
+
+	var users []models.User
+	for rows.Next() {
+		var u models.User
+		var logo []byte
+		if err := rows.Scan(&u.UserId, &u.Username, &logo); err != nil {
+			return nil, hasMore, fmt.Errorf("error scanning user: %v", err)
+		}
+		u.Logo = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
+		users = append(users, u)
+	}
+
+	countQuery := `SELECT COUNT(*) FROM users WHERE username LIKE $1`
+	var count int
+	err = db.db.QueryRow(countQuery, searchTerm).Scan(&count)
+	if err != nil {
+		return nil, hasMore, fmt.Errorf("errro getting users count: %v", err)
+	}
+	if offset+limit < count {
+		hasMore = true
+	}
+	return users, hasMore, nil
+}
+
 func (db *Database) FetchUserInfo(userId string) (string, string, []byte, bool, bool, error) { // TODO : return avatar
 
 	tx, err := db.db.Begin()

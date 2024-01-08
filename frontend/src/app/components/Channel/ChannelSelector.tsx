@@ -11,7 +11,7 @@ import {
 	useDisclosure,
 	ScrollShadow,
 } from "@nextui-org/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import {
 	ChannelDTO,
 	JoinChannelEvent,
@@ -22,9 +22,9 @@ import TextChannelBtn from "./Text/TextChannelBtn"
 import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
 import CreateChannelModal from "./CreateChannelModal"
 import { useUserContext } from "@/app/context/UserContext"
-import "./chanSelectorstyle.css"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
 import { DeafenEvent, MuteEvent } from "@/app/DTOs/UserDTO"
+import InviteModal from "./InviteModal"
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -37,7 +37,8 @@ export default function ChannelSelector(props: {
 	const { currentUser, sendWebSocketMessage, connectToRTC, disconnectRTC, controls } =
 		useUserContext()
 	const { isOpen, onOpen, onOpenChange } = useDisclosure()
-	const [modalOpen, setModalOpen] = useState(false)
+	const [createChannelModal, setCreateChannelModal] = useState(false)
+	const [inviteModal, setInviteModal] = useState(false)
 	const [currentChannel, setCurrentChannel] = useState<ChannelDTO>()
 	const [isMute, setIsMute] = useState(false)
 	const [isDeafen, setIsDeafen] = useState(false)
@@ -51,14 +52,6 @@ export default function ChannelSelector(props: {
 			removeChannelUser(currentChannel)
 		}
 		props.deleteChannel(channelId)
-	}
-
-	const openModal = () => {
-		setModalOpen(true)
-	}
-
-	const closeModal = () => {
-		setModalOpen(false)
 	}
 
 	useEffect(() => {
@@ -140,10 +133,14 @@ export default function ChannelSelector(props: {
 			</ScrollShadow>
 			<div className="user-buttons flex flex-col justify-evenly gap-2">
 				<CreateChannelModal
-					isOpen={modalOpen}
-					onOpenChange={closeModal}
+					isOpen={createChannelModal}
+					onOpenChange={() => setCreateChannelModal(false)}
 					createNewChannel={props.createNewChannel}
 				/>
+				<InviteModal
+					isOpen={inviteModal}
+					onOpenChange={() => setInviteModal(false)}
+				></InviteModal>
 				<div className="flex flex-row">
 					{currentChannel && currentChannel.guildId === props.guild.guildId && (
 						<>
@@ -193,7 +190,7 @@ export default function ChannelSelector(props: {
 						radius="none"
 						variant="light"
 						isIconOnly
-						onPress={openModal}
+						onPress={() => setCreateChannelModal(true)}
 						className="flex justify-center items-center w-full"
 					>
 						<span className="material-symbols-outlined">add_comment</span>
@@ -210,6 +207,19 @@ export default function ChannelSelector(props: {
 							</Button>
 						</DropdownTrigger>
 						<DropdownMenu>
+							<DropdownItem
+								key="invite"
+								color="default"
+								variant="bordered"
+								onPress={() => {
+									setInviteModal(true)
+								}}
+								startContent={
+									<span className="material-symbols-outlined">person_add</span>
+								}
+							>
+								Invite
+							</DropdownItem>
 							<DropdownItem
 								key="delete"
 								className="text-danger"

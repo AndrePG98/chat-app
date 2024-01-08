@@ -1,5 +1,7 @@
-import { MutableRefObject, createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import {
+	LoginEvent,
+	RegisterEvent,
 	AccessResult,
 	DeafenBroadcast,
 	LoginBroadcast,
@@ -9,7 +11,6 @@ import {
 	UploadLogoResult,
 	UserDTO,
 } from "../DTOs/UserDTO"
-import { LoginEvent, RegisterEvent } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
 import {
@@ -29,7 +30,6 @@ import {
 	LeaveCHannelBroadcast,
 } from "../DTOs/ChannelDTO"
 import useWebRTC from "../services/WebRTCService"
-import { channel } from "diagnostics_channel"
 
 interface UserContextProps {
 	isAuthenticated: boolean

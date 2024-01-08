@@ -179,3 +179,19 @@ func handleUploadLogo(client *Client, msg models.UploadLogoEvent) {
 	broadcastUpdateLogo(client, userIds, client.Guilds, msg.Image)
 
 }
+
+func fetchUsers(client *Client, msg models.FetchUsersEvent) {
+	users, hasMore, err := client.Server.Database.FetchUsers(msg.SearchTerm, msg.Limit, msg.Offset)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	client.Send <- &models.IMessage{
+		Type: models.R_FetchUsers,
+		Body: models.FetchUsersResult{
+			Users:   users,
+			HasMore: hasMore,
+		},
+	}
+
+}

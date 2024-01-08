@@ -150,6 +150,15 @@ export class DeafenEvent implements IEvent {
 	}
 }
 
+export class FetchUsersEvent implements IEvent {
+	type: EventType
+	body: any
+	constructor(searchTerm: string, offset: number, limit: number) {
+		this.type = EventType.FetchUsers
+		this.body = { searchTerm, offset, limit }
+	}
+}
+
 export interface AccessResult {
 	type: ResultType
 	body: {
@@ -171,6 +180,14 @@ export interface UploadLogoResult {
 	body: {
 		image: string
 		error: string
+	}
+}
+
+export interface FetchUsersResult {
+	type: ResultType
+	body: {
+		users: SenderDTO[]
+		hasMore: boolean
 	}
 }
 
