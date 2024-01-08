@@ -10,6 +10,8 @@ import {
 	UploadLogoBroadcast,
 	UploadLogoResult,
 	UserDTO,
+	InvitationResult,
+	Invite,
 } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
@@ -135,6 +137,9 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.B_Deafen:
 				processDeafenBroadcast(receivedMessage)
 				break
+			case ResultType.R_Invitation:
+				processInvitation(receivedMessage)
+				break
 		}
 		setChangeFlag(!changeFlag)
 	}, [receivedMessage])
@@ -157,6 +162,7 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const authenticate = (msg: AccessResult) => {
 		if (msg.body.error.length === 0) {
+			console.log(msg.body.invites)
 			const user = new UserDTO(
 				msg.body.userId,
 				msg.body.username,
@@ -167,15 +173,14 @@ export const UserContextProvider = ({ children }: any) => {
 			)
 			localStorage.setItem("token", msg.body.token)
 			if (msg.body.state !== null) {
-				proccessInitialState(msg.body.state, user)
+				user.guilds = msg.body.state
+			}
+			if (msg.body.invites !== null) {
+				user.invites = msg.body.invites
 			}
 			setCurrentUser(user)
 			setIsAuthenticated(true)
 		}
-	}
-
-	const proccessInitialState = (state: GuildDTO[], user: UserDTO) => {
-		user.guilds = state
 	}
 
 	const logout = () => {
@@ -378,6 +383,10 @@ export const UserContextProvider = ({ children }: any) => {
 				}
 			})
 		}
+	}
+
+	const processInvitation = (msg: InvitationResult) => {
+		currentUser.invites.push(msg.body.invite)
 	}
 
 	return (

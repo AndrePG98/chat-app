@@ -14,6 +14,15 @@ type User struct {
 	IsDeafen bool   `json:"isDeafen"`
 }
 
+type Invite struct {
+	Id         string `json:"id"`
+	Sender     User   `json:"sender"`
+	ReceiverId string `json:"receiverId"`
+	GuildId    string `json:"guildId"`
+	GuildName  string `json:"guildName"`
+	SendAt     string `json:"sendAt"`
+}
+
 // ################################## EVENTS ###########################################
 
 type RegisterEvent struct {
@@ -56,22 +65,31 @@ type FetchUsersEvent struct {
 	Limit      int    `json:"limit"`
 }
 
+type InviteEvent struct {
+	Sender     User   `json:"sender"`
+	ReceiverId string `json:"receiverId"`
+	GuildId    string `json:"guildId"`
+	GuildName  string `json:"guildName"`
+	SendAt     string `json:"sendAt"`
+}
+
 // ################################## EVENTS ###########################################
 
 // ################################## RESULTS ##############################################
 
 // Response for both Register and Login events. Sends empty state if registering
 type AcessResult struct {
-	Result   bool    `json:"result"`
-	Token    string  `json:"token"`
-	UserId   string  `json:"userId"`
-	Username string  `json:"username"`
-	Email    string  `json:"email"`
-	Logo     string  `json:"logo"`
-	IsMuted  bool    `json:"ismuted"`
-	IsDeafen bool    `json:"isdeafen"`
-	State    []Guild `json:"state"`
-	Error    string  `json:"error"`
+	Result   bool     `json:"result"`
+	Token    string   `json:"token"`
+	UserId   string   `json:"userId"`
+	Username string   `json:"username"`
+	Email    string   `json:"email"`
+	Logo     string   `json:"logo"`
+	IsMuted  bool     `json:"ismuted"`
+	IsDeafen bool     `json:"isdeafen"`
+	State    []Guild  `json:"state"`
+	Invites  []Invite `json:"invites"`
+	Error    string   `json:"error"`
 }
 
 type UploadLogoResult struct {
@@ -82,6 +100,10 @@ type UploadLogoResult struct {
 type FetchUsersResult struct {
 	Users   []User `json:"users"`
 	HasMore bool   `json:"hasMore"`
+}
+
+type InvitationResult struct {
+	Invite Invite `json:"invite"`
 }
 
 // ################################## BROADCASTS ##############################################

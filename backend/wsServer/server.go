@@ -71,6 +71,7 @@ func (server *WsServer) listenForAuthReq() {
 					IsMuted:  authReq.IsMuted,
 					IsDeafen: authReq.IsDeafen,
 					State:    authReq.State,
+					Invites:  authReq.Invites,
 				},
 			}
 			log.Println("New Client connection from:", client.Conn.RemoteAddr())

@@ -19,13 +19,18 @@ import {
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useUsersList } from "../shared/useUsersList"
+import { GuildDTO } from "@/app/DTOs/GuildDTO"
+import { InviteEvent } from "@/app/DTOs/UserDTO"
+import { useUserContext } from "@/app/context/UserContext"
 
 export default function InviteModal(props: {
+	guild: GuildDTO
 	isOpen: boolean
 	onOpenChange: (isOpen: boolean) => void
 }) {
 	const [input, setInput] = useState("")
 	const { users, setSearchTerm, onLoadMore, hasMore } = useUsersList()
+	const { currentUser, sendWebSocketMessage } = useUserContext()
 
 	const [, scrollerRef] = useInfiniteScroll({
 		hasMore,
@@ -47,6 +52,17 @@ export default function InviteModal(props: {
 	const inputChange = useCallback((input: string) => {
 		setInput(input)
 	}, [])
+
+	const invite = (receiverId: string) => {
+		const sender = currentUser.convert()
+		const event = new InviteEvent(
+			sender,
+			receiverId,
+			props.guild.guildId,
+			props.guild.guildName
+		)
+		sendWebSocketMessage(event)
+	}
 
 	return (
 		<Modal
@@ -84,7 +100,7 @@ export default function InviteModal(props: {
 								label="Username"
 								placeholder="Search"
 								value={input}
-								onValueChange={setInput}
+								onValueChange={inputChange}
 							/>
 						</ModalHeader>
 						<ModalBody className="py-6">
@@ -114,7 +130,14 @@ export default function InviteModal(props: {
 												/>
 												<span className="flex-1">{user.username}</span>
 												<div className="flex flex-row justify-center items-center pr-5">
-													<Button isIconOnly variant="light" size="sm">
+													<Button
+														isIconOnly
+														variant="light"
+														size="sm"
+														onPress={() => {
+															invite(user.userId)
+														}}
+													>
 														<span className="material-symbols-outlined">
 															forward_to_inbox
 														</span>

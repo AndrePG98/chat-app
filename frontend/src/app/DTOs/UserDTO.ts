@@ -12,6 +12,7 @@ export class UserDTO {
 	isdeafen: boolean
 	currentChannel: ChannelDTO | undefined
 	peerConnection: RTCPeerConnection | undefined
+	invites: Invite[]
 
 	constructor(id: string, username: string, email: string, logo: string, ismuted: boolean, isdeafen: boolean) {
 		this.id = id
@@ -20,6 +21,7 @@ export class UserDTO {
 		this.logo = logo
 		this.ismuted = ismuted
 		this.isdeafen = isdeafen
+		this.invites = []
 	}
 
 	getName() {
@@ -68,6 +70,24 @@ export class UserDTO {
 
 	convert() {
 		return new SenderDTO(this.id, this.username, this.email, this.logo, this.ismuted, this.isdeafen)
+	}
+}
+
+export class Invite {
+	id: string
+	sender: SenderDTO
+	receiverId: string
+	guildId: string
+	guildName: string
+	sendAt: string
+
+	constructor(id: string, sender: SenderDTO, receiverId: string, guildId: string, guildName: string, sendAt: string) {
+		this.id = id
+		this.sender = sender
+		this.receiverId = receiverId
+		this.guildId = guildId
+		this.guildName = guildName
+		this.sendAt = sendAt
 	}
 }
 
@@ -159,6 +179,16 @@ export class FetchUsersEvent implements IEvent {
 	}
 }
 
+export class InviteEvent implements IEvent {
+	type: EventType
+	body: any
+	constructor(sender: SenderDTO, receiverId: string, guildId: string, guildName: string) {
+		this.type = EventType.Invite
+		const sendAt = new Date(Date.now()).toLocaleDateString("en-GB")
+		this.body = { sender, receiverId, guildId, guildName, sendAt, }
+	}
+}
+
 export interface AccessResult {
 	type: ResultType
 	body: {
@@ -171,6 +201,7 @@ export interface AccessResult {
 		ismuted: boolean
 		isdeafen: boolean
 		state: GuildDTO[]
+		invites: Invite[]
 		error: string
 	}
 }
@@ -188,6 +219,13 @@ export interface FetchUsersResult {
 	body: {
 		users: SenderDTO[]
 		hasMore: boolean
+	}
+}
+
+export interface InvitationResult {
+	type: ResultType
+	body: {
+		invite: Invite
 	}
 }
 

@@ -138,6 +138,7 @@ export default function ChannelSelector(props: {
 					createNewChannel={props.createNewChannel}
 				/>
 				<InviteModal
+					guild={props.guild}
 					isOpen={inviteModal}
 					onOpenChange={() => setInviteModal(false)}
 				></InviteModal>
