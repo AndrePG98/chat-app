@@ -266,7 +266,9 @@ export const UserContextProvider = ({ children }: any) => {
 				guild.channels.forEach((chan) => {
 					if (chan.channelId === msg.body.channelId) {
 						chan.members.push(msg.body.user)
-						currentUser.currentChannel = chan
+						if (msg.body.user.userId === currentUser.id) {
+							currentUser.currentChannel = chan
+						}
 					}
 				})
 			}
