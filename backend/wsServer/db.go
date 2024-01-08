@@ -592,22 +592,28 @@ func (db *Database) DeleteChannel(guildId string, channelId string) ([]string, e
 	return userIds, nil
 }
 
-func (db *Database) JoinChannel(guildId string, channelId string, userId string) ([]string, error) {
+func (db *Database) JoinChannel(guildId string, channelId string, userId string) ([]string, bool, bool, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf("error starting transaction: %v", err)
+		return nil, false, false, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
+
+	var ismuted, isdeafen bool
+	err = tx.QueryRow(`SELECT ismuted, isdeafen FROM users WHERE id = $1`, userId).Scan(&ismuted, &isdeafen)
+	if err != nil {
+		return nil, false, false, fmt.Errorf("error getting voice status: %v", err)
+	}
 	rows, err := tx.Query(`SELECT user_id from guild_users WHERE guild_id = $1`, guildId)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching guild users: %v", err)
+		return nil, false, false, fmt.Errorf("error fetching guild users: %v", err)
 	}
 	var userIds []string
 	for rows.Next() {
 		var userId string
 		err = rows.Scan(&userId)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning user id: %v", err)
+			return nil, false, false, fmt.Errorf("error scanning user id: %v", err)
 		}
 		userIds = append(userIds, userId)
 	}
@@ -615,13 +621,13 @@ func (db *Database) JoinChannel(guildId string, channelId string, userId string)
 	joinChannel := `INSERT INTO channel_members (channel_id, guild_id, user_id) VALUES ($1, $2, $3)`
 	_, err = tx.Exec(joinChannel, channelId, guildId, userId)
 	if err != nil {
-		return nil, fmt.Errorf("error joining channel: %v", err)
+		return nil, false, false, fmt.Errorf("error joining channel: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		return nil, fmt.Errorf("error committing transaction: %v", err)
+		return nil, false, false, fmt.Errorf("error committing transaction: %v", err)
 	}
-	return userIds, nil
+	return userIds, ismuted, isdeafen, nil
 }
 
 func (db *Database) LeaveChannel(guildId string, channelId string, userId string) ([]string, error) {
