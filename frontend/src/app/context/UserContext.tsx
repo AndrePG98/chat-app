@@ -190,7 +190,11 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const processGuildJoinResult = (msg: JoinGuildResult) => {
+		msg.body.guild.members.push(currentUser.convert())
 		currentUser.guilds.push(msg.body.guild)
+		currentUser.invites = currentUser.invites.filter((invite) => {
+			return invite.guildId !== msg.body.guild.guildId
+		})
 	}
 
 	const processGuildLeaveResult = (msg: LeaveGuildResult) => {

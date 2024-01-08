@@ -133,6 +133,7 @@ func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
 		log.Println(err.Error())
 		return
 	}
+	log.Println(len(guild.Members))
 	client.joinGuild(msg.GuildId)
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
