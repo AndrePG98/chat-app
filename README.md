@@ -8,7 +8,7 @@ This project is a chat application designed to explore and understand the archit
 ### Features
 
 * **Servers, Channels, and Chat Pages:** The application is structured around servers, which can host multiple channels. Each channel has its dedicated chat page where users can exchange messages.
-* **Voice Channels:** Users can communicate directly with each other using WebRTC technology.
+* **Voice Channels:** Users can communicate with each other via voice channels using WebRTC technology with a SFU configuration.
 * **Text Channels:** Users can send messages through text channels, and these messages are relayed to all users within that specific server, fostering group communication.
 
 
