@@ -2,7 +2,7 @@
 
 ### Overview
 
-This project is a chat application designed to explore and understand the architecture of a three-layered application. The application comprises a frontend built with React, a backend powered by Go, and utilizes a SQL database.
+This project is a chat application designed to explore and understand the architecture of a three-layered application. The application comprises a frontend built with React, a backend powered by Go, and utilizes a Postgres SQL database.
 
 
 ### Features
