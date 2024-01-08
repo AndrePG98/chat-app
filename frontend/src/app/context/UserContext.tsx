@@ -1,5 +1,7 @@
-import { MutableRefObject, createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import {
+	LoginEvent,
+	RegisterEvent,
 	AccessResult,
 	DeafenBroadcast,
 	LoginBroadcast,
@@ -8,8 +10,9 @@ import {
 	UploadLogoBroadcast,
 	UploadLogoResult,
 	UserDTO,
+	InvitationResult,
+	Invite,
 } from "../DTOs/UserDTO"
-import { LoginEvent, RegisterEvent } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
 import {
@@ -29,7 +32,6 @@ import {
 	LeaveCHannelBroadcast,
 } from "../DTOs/ChannelDTO"
 import useWebRTC from "../services/WebRTCService"
-import { channel } from "diagnostics_channel"
 
 interface UserContextProps {
 	isAuthenticated: boolean
@@ -135,6 +137,9 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.B_Deafen:
 				processDeafenBroadcast(receivedMessage)
 				break
+			case ResultType.R_Invitation:
+				processInvitation(receivedMessage)
+				break
 		}
 		setChangeFlag(!changeFlag)
 	}, [receivedMessage])
@@ -167,15 +172,14 @@ export const UserContextProvider = ({ children }: any) => {
 			)
 			localStorage.setItem("token", msg.body.token)
 			if (msg.body.state !== null) {
-				proccessInitialState(msg.body.state, user)
+				user.guilds = msg.body.state
+			}
+			if (msg.body.invites !== null) {
+				user.invites = msg.body.invites
 			}
 			setCurrentUser(user)
 			setIsAuthenticated(true)
 		}
-	}
-
-	const proccessInitialState = (state: GuildDTO[], user: UserDTO) => {
-		user.guilds = state
 	}
 
 	const logout = () => {
@@ -186,7 +190,11 @@ export const UserContextProvider = ({ children }: any) => {
 	}
 
 	const processGuildJoinResult = (msg: JoinGuildResult) => {
+		msg.body.guild.members.push(currentUser.convert())
 		currentUser.guilds.push(msg.body.guild)
+		currentUser.invites = currentUser.invites.filter((invite) => {
+			return invite.guildId !== msg.body.guild.guildId
+		})
 	}
 
 	const processGuildLeaveResult = (msg: LeaveGuildResult) => {
@@ -210,12 +218,15 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const processGuildDeleteBroadcast = (msg: GuildDeleteBroadcast) => {
 		currentUser.leaveGuild(msg.body.guildId)
+		if (currentUser.selectedGuild?.guildId === msg.body.guildId) {
+			currentUser.selectedGuild = undefined
+		}
 	}
 
 	const processGuildJoinBroadcast = (msg: JoinGuildBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
-				guild.addMember(msg.body.user)
+				guild.members.push(msg.body.user)
 			}
 		})
 	}
@@ -223,7 +234,9 @@ export const UserContextProvider = ({ children }: any) => {
 	const processGuildLeaveBroadcast = (msg: LeaveGuildBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
-				guild.removeMember(msg.body.userId)
+				guild.members = guild.members.filter((member) => {
+					return member.userId !== msg.body.userId
+				})
 			}
 		})
 	}
@@ -260,7 +273,9 @@ export const UserContextProvider = ({ children }: any) => {
 				guild.channels.forEach((chan) => {
 					if (chan.channelId === msg.body.channelId) {
 						chan.members.push(msg.body.user)
-						currentUser.currentChannel = chan
+						if (msg.body.user.userId === currentUser.id) {
+							currentUser.currentChannel = chan
+						}
 					}
 				})
 			}
@@ -378,6 +393,10 @@ export const UserContextProvider = ({ children }: any) => {
 				}
 			})
 		}
+	}
+
+	const processInvitation = (msg: InvitationResult) => {
+		currentUser.invites.push(msg.body.invite)
 	}
 
 	return (

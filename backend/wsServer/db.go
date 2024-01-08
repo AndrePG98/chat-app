@@ -82,16 +82,16 @@ func (db *Database) CreateUser(username string, password string, email string) (
 	return id, token, nil
 }
 
-func (db *Database) FetchUserByToken(token string) (string, string, string, []byte, bool, bool, string, []models.Guild, error) {
+func (db *Database) FetchUserByToken(token string) (string, string, string, []byte, bool, bool, string, []models.Guild, []models.Invite, error) {
 	claims, err := verifyToken(token)
 	if err != nil {
-		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error verifying token: %v", err)
+		return "", "", "", nil, false, false, "", nil, nil, fmt.Errorf("error verifying token: %v", err)
 	}
 	id, _ := claims["userId"].(string)
 	username, _ := claims["username"].(string)
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", "", nil, false, false, "", nil, nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 	query := `SELECT email,logo, ismuted, isdeafen  FROM users WHERE id = $1 AND username = $2`
@@ -100,26 +100,47 @@ func (db *Database) FetchUserByToken(token string) (string, string, string, []by
 	var ismuted, isdeafen bool
 	err = tx.QueryRow(query, id, username).Scan(&email, &logo, &ismuted, &isdeafen)
 	if err != nil {
-		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error bad credentials: %v", err)
+		return "", "", "", nil, false, false, "", nil, nil, fmt.Errorf("error bad credentials: %v", err)
 	}
 
 	newToken, err := generateToken(id, username)
 	if err != nil {
-		return "", "", "", nil, false, false, "", nil, fmt.Errorf("error generating new token: %v", err)
+		return "", "", "", nil, false, false, "", nil, nil, fmt.Errorf("error generating new token: %v", err)
 	}
+
+	invitesQuery := `SELECT invites.id, invites.guild_id, TO_CHAR(invites.send_at, 'DD/MM/YYYY') AS formatted_date, invites.guild_name ,users.id, users.username, users.logo FROM invites JOIN users ON invites.sender_id = users.id WHERE receiver_id = $1`
+	inviteResults, err := tx.Query(invitesQuery, id)
+	if err != nil {
+		return "", "", "", nil, false, false, "", nil, nil, fmt.Errorf("error fetching invites: %v", err)
+	}
+	var invites []models.Invite
+	for inviteResults.Next() {
+		var invite models.Invite
+		var sender models.User
+		var logo []byte
+		if err := inviteResults.Scan(&invite.Id, &invite.GuildId, &invite.SendAt, &invite.GuildName, &sender.UserId, &sender.Username, &logo); err != nil {
+			return "", "", "", nil, false, false, "", nil, nil, fmt.Errorf("error scanning invites: %v", err)
+		}
+		base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
+		sender.Logo = base64Image
+		invite.Sender = sender
+		invite.ReceiverId = id
+		invites = append(invites, invite)
+	}
+
 	state, err := db.GetState(id)
 	if err != nil {
-		return "", "", "", nil, false, false, "", nil, err
+		return "", "", "", nil, false, false, "", nil, nil, err
 	}
-	return id, username, email, logo, ismuted, isdeafen, newToken, state, nil
+	return id, username, email, logo, ismuted, isdeafen, newToken, state, invites, nil
 }
 
-func (db *Database) FetchUserByPassword(username string, password string) (string, string, []byte, bool, bool, string, []models.Guild, error) {
+func (db *Database) FetchUserByPassword(username string, password string) (string, string, []byte, bool, bool, string, []models.Guild, []models.Invite, error) {
 	hashedPw := hashPassword(username, password)
 
 	tx, err := db.db.Begin()
 	if err != nil {
-		return "", "", nil, false, false, "", nil, fmt.Errorf("error starting transaction: %v", err)
+		return "", "", nil, false, false, "", nil, nil, fmt.Errorf("error starting transaction: %v", err)
 	}
 	defer tx.Rollback()
 
@@ -129,18 +150,38 @@ func (db *Database) FetchUserByPassword(username string, password string) (strin
 	var ismuted, isdeafen bool
 	err = tx.QueryRow(query, username, hashedPw).Scan(&userId, &email, &logo, &ismuted, &isdeafen)
 	if err != nil {
-		return "", "", nil, false, false, "", nil, fmt.Errorf("error bad credentials: %v", err)
+		return "", "", nil, false, false, "", nil, nil, fmt.Errorf("error bad credentials: %v", err)
 	}
 
 	token, err := generateToken(userId, username)
 	if err != nil {
-		return "", "", nil, false, false, "", nil, fmt.Errorf("error generating token: %v", err)
+		return "", "", nil, false, false, "", nil, nil, fmt.Errorf("error generating token: %v", err)
+	}
+
+	invitesQuery := `SELECT invites.id, invites.guild_id, TO_CHAR(invites.send_at, 'DD/MM/YYYY') AS formatted_date, invites.guild_name, users.id, users.username, users.logo FROM invites JOIN users ON invites.sender_id = users.id WHERE receiver_id = $1`
+	inviteResults, err := tx.Query(invitesQuery, userId)
+	if err != nil {
+		return "", "", nil, false, false, "", nil, nil, fmt.Errorf("error fetching invites: %v", err)
+	}
+	var invites []models.Invite
+	for inviteResults.Next() {
+		var invite models.Invite
+		var sender models.User
+		var logo []byte
+		if err := inviteResults.Scan(&invite.Id, &invite.GuildId, &invite.SendAt, &invite.GuildName, &sender.UserId, &sender.Username, &logo); err != nil {
+			return "", "", nil, false, false, "", nil, nil, fmt.Errorf("error scanning invites: %v", err)
+		}
+		base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
+		sender.Logo = base64Image
+		invite.Sender = sender
+		invite.ReceiverId = userId
+		invites = append(invites, invite)
 	}
 	state, err := db.GetState(userId)
 	if err != nil {
-		return "", "", nil, false, false, "", nil, err
+		return "", "", nil, false, false, "", nil, nil, err
 	}
-	return userId, email, logo, ismuted, isdeafen, token, state, nil
+	return userId, email, logo, ismuted, isdeafen, token, state, invites, nil
 }
 
 func (db *Database) GetState(userId string) ([]models.Guild, error) {
@@ -292,6 +333,38 @@ func (db *Database) fetchChannelState(tx *sql.Tx, guild *models.Guild, channelId
 	return channel, nil
 }
 
+func (db *Database) FetchUsers(searchTerm string, limit, offset int) ([]models.User, bool, error) {
+	hasMore := false
+	searchTerm = "%" + searchTerm + "%"
+	fetchQuery := `SELECT id, username, logo FROM users WHERE username LIKE $1 ORDER BY id LIMIT $2 OFFSET $3`
+	rows, err := db.db.Query(fetchQuery, searchTerm, limit, offset)
+	if err != nil {
+		return nil, hasMore, fmt.Errorf("error fetching users: %v", err)
+	}
+
+	var users []models.User
+	for rows.Next() {
+		var u models.User
+		var logo []byte
+		if err := rows.Scan(&u.UserId, &u.Username, &logo); err != nil {
+			return nil, hasMore, fmt.Errorf("error scanning user: %v", err)
+		}
+		u.Logo = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
+		users = append(users, u)
+	}
+
+	countQuery := `SELECT COUNT(*) FROM users WHERE username LIKE $1`
+	var count int
+	err = db.db.QueryRow(countQuery, searchTerm).Scan(&count)
+	if err != nil {
+		return nil, hasMore, fmt.Errorf("errro getting users count: %v", err)
+	}
+	if offset+limit < count {
+		hasMore = true
+	}
+	return users, hasMore, nil
+}
+
 func (db *Database) FetchUserInfo(userId string) (string, string, []byte, bool, bool, error) { // TODO : return avatar
 
 	tx, err := db.db.Begin()
@@ -387,7 +460,7 @@ func (db *Database) DeleteGuild(id string, ownerId string) ([]string, error) {
 	return userIds, nil
 }
 
-func (db *Database) JoinGuild(guildId string, userId string) ([]string, *models.Guild, error) {
+func (db *Database) JoinGuild(guildId string, userId string, inviteId string) ([]string, *models.Guild, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
 		return nil, nil, fmt.Errorf("error starting transaction: %v", err)
@@ -401,6 +474,12 @@ func (db *Database) JoinGuild(guildId string, userId string) ([]string, *models.
 	_, err = tx.Exec(joinGuild, guildId, userId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error joining guild: %v", err)
+	}
+
+	delete := `DELETE FROM invites WHERE id = $1`
+	_, err = tx.Exec(delete, inviteId)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error deleting invites: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {
@@ -785,4 +864,23 @@ func (db *Database) ToggleDeafen(userId string, guildId string) (bool, []string,
 		return false, nil, fmt.Errorf("error comitting transaction: %v", err)
 	}
 	return isdeafen, userIds, nil
+}
+
+func (db *Database) SaveInvitation(id string, msg models.InviteEvent) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	saveInvite := `INSERT INTO invites (id, sender_id, receiver_id, guild_id, send_at, guild_name) 
+	VALUES ($1, $2, $3, $4, TO_DATE($5, 'DD/MM/YYYY'), $6)`
+	_, err = tx.Exec(saveInvite, id, msg.Sender.UserId, msg.ReceiverId, msg.GuildId, msg.SendAt, msg.GuildName)
+	if err != nil {
+		return fmt.Errorf("error inserting invite: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
 }

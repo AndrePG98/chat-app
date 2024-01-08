@@ -26,12 +26,16 @@ func broadcastGuildDelete(client *Client, msg models.DeleteGuildEvent) {
 	}
 	client.leaveGuild(msg.GuildId)
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].leaveGuild(msg.GuildId)
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_GuildDelete,
-			Body: models.GuildDeleteBroadcast{
-				GuildId: msg.GuildId,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.leaveGuild(msg.GuildId)
+			user.Send <- &models.IMessage{
+				Type: models.B_GuildDelete,
+				Body: models.GuildDeleteBroadcast{
+					GuildId: msg.GuildId,
+				},
+			}
+
 		}
 	}
 }
@@ -40,12 +44,15 @@ func broadcastGuildJoin(client *Client, userIds []string, guildId string, member
 
 	for _, userId := range userIds {
 		if userId != client.ID {
-			client.Server.AuthClients[userId].Send <- &models.IMessage{
-				Type: models.B_GuildJoin,
-				Body: models.GuildJoinBroadcast{
-					User:    member,
-					GuildId: guildId,
-				},
+			client, isOnline := client.Server.AuthClients[userId]
+			if isOnline {
+				client.Server.AuthClients[userId].Send <- &models.IMessage{
+					Type: models.B_GuildJoin,
+					Body: models.GuildJoinBroadcast{
+						User:    member,
+						GuildId: guildId,
+					},
+				}
 			}
 		}
 	}
@@ -54,12 +61,15 @@ func broadcastGuildJoin(client *Client, userIds []string, guildId string, member
 func broadcastGuildLeave(client *Client, userIds []string, guildId string) {
 	for _, userId := range userIds {
 		if userId != client.ID {
-			client.Server.AuthClients[userId].Send <- &models.IMessage{
-				Type: models.B_GuildLeave,
-				Body: models.GuildLeaveBroadcast{
-					UserId:  client.ID,
-					GuildId: guildId,
-				},
+			user, isOnline := client.Server.AuthClients[userId]
+			if isOnline {
+				user.Send <- &models.IMessage{
+					Type: models.B_GuildLeave,
+					Body: models.GuildLeaveBroadcast{
+						UserId:  client.ID,
+						GuildId: guildId,
+					},
+				}
 			}
 		}
 	}
@@ -73,14 +83,18 @@ func broadcastChannelCreate(client *Client, msg models.CreateChannelEvent) {
 		return
 	}
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_ChannelCreate,
-			Body: models.CreateChannelBroadcast{
-				GuildId:     msg.GuildId,
-				ChannelId:   chanId,
-				ChannelName: msg.ChannelName,
-				ChannelType: msg.ChannelType,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_ChannelCreate,
+				Body: models.CreateChannelBroadcast{
+					GuildId:     msg.GuildId,
+					ChannelId:   chanId,
+					ChannelName: msg.ChannelName,
+					ChannelType: msg.ChannelType,
+				},
+			}
+
 		}
 	}
 }
@@ -92,12 +106,15 @@ func broadcastChannelDelete(client *Client, msg models.DeleteChannelEvent) {
 		return
 	}
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_ChannelDelete,
-			Body: models.DeleteChannelBroadcast{
-				GuildId:   msg.GuildId,
-				ChannelId: msg.ChannelId,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_ChannelDelete,
+				Body: models.DeleteChannelBroadcast{
+					GuildId:   msg.GuildId,
+					ChannelId: msg.ChannelId,
+				},
+			}
 		}
 	}
 }
@@ -111,9 +128,13 @@ func broadcastChannelJoin(client *Client, msg models.JoinChannelEvent) {
 	}
 
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_JoinChannel,
-			Body: models.JoinChannelBroadcast(msg),
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_JoinChannel,
+				Body: models.JoinChannelBroadcast(msg),
+			}
+
 		}
 	}
 }
@@ -126,7 +147,7 @@ func broadcastNewChannelJoin(client *Client, msg models.JoinNewChannelEvent) {
 			GuildId:   msg.PrevChannel.GuildId,
 			ChannelId: msg.PrevChannel.ChannelId,
 		})
-		time.Sleep(time.Millisecond * 2)
+		time.Sleep(time.Millisecond * 1)
 		doneChan <- true
 	}()
 
@@ -149,13 +170,16 @@ func broadcastChannelLeave(client *Client, msg models.LeaveChannelEvent) {
 		return
 	}
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_LeaveChannel,
-			Body: models.LeaveChannelBroadcast{
-				GuildId:   msg.GuildId,
-				ChannelId: msg.ChannelId,
-				UserId:    msg.UserId,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_LeaveChannel,
+				Body: models.LeaveChannelBroadcast{
+					GuildId:   msg.GuildId,
+					ChannelId: msg.ChannelId,
+					UserId:    msg.UserId,
+				},
+			}
 		}
 	}
 }
@@ -168,18 +192,21 @@ func broadcastMessage(client *Client, msg models.SendMessageEvent) {
 		return
 	}
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_ChatMessage,
-			Body: models.MessageBroadcast{
-				Message: models.Message{
-					ID:        id,
-					Sender:    msg.Sender,
-					GuildId:   msg.GuildId,
-					ChannelId: msg.ChannelId,
-					SendAt:    msg.SendAt,
-					Content:   msg.Content,
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_ChatMessage,
+				Body: models.MessageBroadcast{
+					Message: models.Message{
+						ID:        id,
+						Sender:    msg.Sender,
+						GuildId:   msg.GuildId,
+						ChannelId: msg.ChannelId,
+						SendAt:    msg.SendAt,
+						Content:   msg.Content,
+					},
 				},
-			},
+			}
 		}
 	}
 }
@@ -191,13 +218,17 @@ func broadcastMessageDelete(client *Client, msg models.DeleteMessageEvent) {
 		return
 	}
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_ChatMessageDelete,
-			Body: models.MessageDeleteBroadcast{
-				GuildId:   msg.GuildId,
-				ChannelId: msg.ChannelId,
-				MessageId: msg.MessageId,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_ChatMessageDelete,
+				Body: models.MessageDeleteBroadcast{
+					GuildId:   msg.GuildId,
+					ChannelId: msg.ChannelId,
+					MessageId: msg.MessageId,
+				},
+			}
+
 		}
 	}
 }
@@ -206,13 +237,17 @@ func broadcastUpdateLogo(client *Client, userIds []string, guildIds []string, im
 	// loop through userIds and send the guildids and the userId each needs to update the image
 	// in the client the user loops through each guild, each channel ,each message and member and update the image if the id matches the userId
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_UploadLogo,
-			Body: models.UploadLogoBroadcast{
-				UserId:   client.ID,
-				GuildIds: guildIds,
-				Image:    img,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_UploadLogo,
+				Body: models.UploadLogoBroadcast{
+					UserId:   client.ID,
+					GuildIds: guildIds,
+					Image:    img,
+				},
+			}
+
 		}
 	}
 }
@@ -225,14 +260,17 @@ func broadcastMute(client *Client, msg models.MuteEvent) {
 	}
 
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_Mute,
-			Body: models.MutedBroadcast{
-				UserId:    msg.UserId,
-				ChannelId: msg.ChannelId,
-				GuildId:   msg.GuildId,
-				IsMuted:   ismuted,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_Mute,
+				Body: models.MutedBroadcast{
+					UserId:    msg.UserId,
+					ChannelId: msg.ChannelId,
+					GuildId:   msg.GuildId,
+					IsMuted:   ismuted,
+				},
+			}
 		}
 	}
 }
@@ -245,14 +283,17 @@ func broadcastDeafen(client *Client, msg models.DeafenEvent) {
 	}
 
 	for _, userId := range userIds {
-		client.Server.AuthClients[userId].Send <- &models.IMessage{
-			Type: models.B_Deafen,
-			Body: models.DeafenBroadcast{
-				UserId:    msg.UserId,
-				ChannelId: msg.ChannelId,
-				GuildId:   msg.GuildId,
-				IsDeafen:  isdeafen,
-			},
+		user, isOnline := client.Server.AuthClients[userId]
+		if isOnline {
+			user.Send <- &models.IMessage{
+				Type: models.B_Deafen,
+				Body: models.DeafenBroadcast{
+					UserId:    msg.UserId,
+					ChannelId: msg.ChannelId,
+					GuildId:   msg.GuildId,
+					IsDeafen:  isdeafen,
+				},
+			}
 		}
 	}
 

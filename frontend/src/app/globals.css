@@ -15,7 +15,6 @@
 	--color-highlight: #ff4400;
 	--color-disabled: #e0e0e0;
 	--color-error: #ff4400;
-	--color-success: #4caf50;
 	--color-btnFade: rgba(200, 200, 200, 0.5);
 	--color-btn: rgba(200, 200, 200, 1);
 	--shadow-custom: 0 25px 25px rgba(0, 0, 0, 0.3);
@@ -35,7 +34,6 @@
 	--color-highlight: rgb(245, 245, 245);
 	--color-disabled: #e0e0e0;
 	--color-error: #ff4400;
-	--color-success: #4caf50;
 	--color-btnFade: rgba(54, 69, 78, 0.5);
 	--color-btn: rgb(54, 69, 78);
 	--shadow-custom: 0 25px 25px rgba(0, 0, 0, 0.2);

@@ -27,8 +27,7 @@ const config: Config = {
         'text': 'var(--color-text)',
         'highlight': 'var(--color-highlight)',
         'disabled': 'var(--color-disabled)',
-        'error': 'var(--color-error)',
-        'success': 'var(--color-success)',
+        'error': 'var(--color-error)'
       },
       boxShadow: {
         'chatPanel': "inset 0px 0px 10px 5px rgba(0,0,0,0.2)",

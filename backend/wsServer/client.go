@@ -152,6 +152,14 @@ func (client *Client) handleMessage(msg models.IMessage) {
 		var body models.DeafenEvent
 		mapstructure.Decode(msg.Body, &body)
 		broadcastDeafen(client, body)
+	case models.E_FetchUsers:
+		var body models.FetchUsersEvent
+		mapstructure.Decode(msg.Body, &body)
+		fetchUsers(client, body)
+	case models.E_Invite:
+		var body models.InviteEvent
+		mapstructure.Decode(msg.Body, &body)
+		invite(client, body)
 	}
 }
 

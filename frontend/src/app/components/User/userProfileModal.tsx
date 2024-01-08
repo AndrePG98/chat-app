@@ -1,6 +1,8 @@
-import { UploadLogoEvent } from "@/app/DTOs/UserDTO"
+import { Invite, UploadLogoEvent } from "@/app/DTOs/UserDTO"
 import { useUserContext } from "@/app/context/UserContext"
 import {
+	Accordion,
+	AccordionItem,
 	Avatar,
 	Button,
 	Divider,
@@ -12,9 +14,10 @@ import {
 	User,
 } from "@nextui-org/react"
 import ThemeSwitch from "./ThemeSwitch"
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useTheme } from "next-themes"
 import { relative } from "path"
+import InviteComponent from "../shared/InviteComponent"
 
 export default function UserProfileModal(props: {
 	isOpen: boolean
@@ -22,7 +25,6 @@ export default function UserProfileModal(props: {
 }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const fileInputRef = useRef<HTMLInputElement>(null)
-	const [selectedFile, setSelectedFile] = useState<File>()
 	const [isSelected, setIsSelected] = useState(false)
 	const { theme, setTheme } = useTheme()
 
@@ -31,6 +33,8 @@ export default function UserProfileModal(props: {
 			fileInputRef.current.click()
 		}
 	}
+
+	useEffect(() => {}, [currentUser.invites.length])
 
 	const changeTheme = (e: boolean) => {
 		if (e) {
@@ -65,27 +69,8 @@ export default function UserProfileModal(props: {
 			console.error(`Error reading file: ${error}`)
 		}
 		reader.readAsDataURL(selectedFile)
-
-		//setSelectedFile(selectedFile)
 	}
 
-	const apply = () => {
-		/* if (selectedFile) {
-			const reader = new FileReader()
-			reader.onload = (event) => {
-				if (event.target?.result) {
-					const base64Image = event.target.result.toString()
-					const imgEvent = new UploadLogoEvent(base64Image, currentUser.id)
-					sendWebSocketMessage(imgEvent)
-				}
-			}
-
-			reader.onerror = (error) => {
-				console.error(`Error reading file: ${error}`)
-			}
-			reader.readAsDataURL(selectedFile)
-		} */
-	}
 	return (
 		<Modal
 			isOpen={props.isOpen}
@@ -143,22 +128,14 @@ export default function UserProfileModal(props: {
 								<span className="text-lg">Email</span>
 								<span className="text-primary text-lg">{currentUser.email}</span>
 							</div>
+							<Accordion className="w-full px-0">
+								<AccordionItem title="Invites" aria-label="Invites">
+									{currentUser.invites.map((invite) => (
+										<InviteComponent invite={invite} key={invite.id} />
+									))}
+								</AccordionItem>
+							</Accordion>
 						</ModalBody>
-						<ModalFooter>
-							{/* <Button
-								color="success"
-								size="sm"
-								onClick={() => {
-									onClose()
-									apply()
-								}}
-								endContent={
-									<span className="material-symbols-outlined">check</span>
-								}
-							>
-								Apply
-							</Button> */}
-						</ModalFooter>
 					</>
 				)}
 			</ModalContent>

@@ -19,6 +19,7 @@ type AuthRequest struct {
 	Token    string
 	Error    string
 	State    []models.Guild
+	Invites  []models.Invite
 }
 
 func handleRegistration(client *Client, regEvent models.RegisterEvent) {
@@ -58,11 +59,12 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 	var ismuted, isdeafen bool
 	var base64Image string
 	var state []models.Guild
+	var invites []models.Invite
 	if len(token) == 0 {
-		id, email, logo, ismuted, isdeafen, token, state, err = client.Server.Database.FetchUserByPassword(username, password)
+		id, email, logo, ismuted, isdeafen, token, state, invites, err = client.Server.Database.FetchUserByPassword(username, password)
 		base64Image = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	} else {
-		id, username, email, logo, ismuted, isdeafen, token, state, err = client.Server.Database.FetchUserByToken(token)
+		id, username, email, logo, ismuted, isdeafen, token, state, invites, err = client.Server.Database.FetchUserByToken(token)
 		base64Image = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
 	}
 	if err != nil {
@@ -82,9 +84,9 @@ func handleLogin(client *Client, logEvent models.LoginEvent) {
 			IsMuted:  ismuted,
 			IsDeafen: isdeafen,
 			State:    state,
+			Invites:  invites,
 			Token:    token,
 		}
-		//broadcastLogin(client)
 	}
 }
 
@@ -126,11 +128,12 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 }
 
 func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
-	userIds, guild, err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId)
+	userIds, guild, err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId, msg.InviteId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+	log.Println(len(guild.Members))
 	client.joinGuild(msg.GuildId)
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,
@@ -178,4 +181,45 @@ func handleUploadLogo(client *Client, msg models.UploadLogoEvent) {
 	}
 	broadcastUpdateLogo(client, userIds, client.Guilds, msg.Image)
 
+}
+
+func fetchUsers(client *Client, msg models.FetchUsersEvent) {
+	users, hasMore, err := client.Server.Database.FetchUsers(msg.SearchTerm, msg.Limit, msg.Offset)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	client.Send <- &models.IMessage{
+		Type: models.R_FetchUsers,
+		Body: models.FetchUsersResult{
+			Users:   users,
+			HasMore: hasMore,
+		},
+	}
+
+}
+
+func invite(client *Client, msg models.InviteEvent) {
+	id := uuid.NewString()
+	err := client.Server.Database.SaveInvitation(id, msg)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	user, isOnline := client.Server.AuthClients[msg.ReceiverId]
+	if isOnline {
+		user.Send <- &models.IMessage{
+			Type: models.R_Invitation,
+			Body: models.InvitationResult{
+				Invite: models.Invite{
+					Id:         id,
+					Sender:     msg.Sender,
+					ReceiverId: client.ID,
+					GuildId:    msg.GuildId,
+					GuildName:  msg.GuildName,
+					SendAt:     msg.SendAt,
+				},
+			},
+		}
+	}
 }
