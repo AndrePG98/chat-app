@@ -1,7 +1,7 @@
 import { CreateGuildEvent } from "@/app/DTOs/GuildDTO"
 import { UserDTO } from "@/app/DTOs/UserDTO"
 import { useUserContext } from "@/app/context/UserContext"
-import { Button, User } from "@nextui-org/react"
+import { Button, User, Badge } from "@nextui-org/react"
 import React, { useEffect, useState } from "react"
 import CreateGuildModal from "../Guild/CreateGuildModal"
 import "./userStyle.css"
@@ -13,10 +13,19 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 	const [createGuildModalOpen, setCreateGuildModalOpen] = useState(false)
 	const [userProfileOpen, setUserProfileOpen] = useState(false)
 	const [imageSrc, setImageSrc] = useState("")
+	const [isInvisible, setIsInvisible] = useState(false)
 
 	useEffect(() => {
 		setImageSrc(currentUser.logo)
 	}, [currentUser.logo])
+
+	useEffect(() => {
+		if (currentUser.invites.length > 0) {
+			setIsInvisible(false)
+		} else {
+			setIsInvisible(true)
+		}
+	}, [currentUser.invites.length])
 
 	const openUserProfileModal = () => {
 		setUserProfileOpen(true)
@@ -78,15 +87,22 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 				>
 					<span className="material-symbols-outlined">add</span>
 				</Button>
-				<Button
-					className="flex justify-center items-center w-full"
-					variant="light"
-					radius="none"
-					isIconOnly
-					onPress={openUserProfileModal}
+				<Badge
+					content={currentUser.invites.length}
+					color="warning"
+					isInvisible={isInvisible}
 				>
-					<span className="material-symbols-outlined">manage_accounts</span>
-				</Button>
+					<Button
+						className="flex justify-center items-center w-full"
+						variant="light"
+						radius="none"
+						isIconOnly
+						onPress={openUserProfileModal}
+						endContent={<div />}
+					>
+						<span className="material-symbols-outlined">manage_accounts</span>
+					</Button>
+				</Badge>
 				<CreateGuildModal
 					isOpen={createGuildModalOpen}
 					onOpenChange={closeCreateGuildModla}

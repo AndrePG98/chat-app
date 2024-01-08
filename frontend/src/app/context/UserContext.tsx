@@ -373,6 +373,9 @@ export const UserContextProvider = ({ children }: any) => {
 							member.ismuted = msg.body.ismuted
 							member = member
 						}
+						if (msg.body.userId === currentUser.id) {
+							currentUser.ismuted = msg.body.ismuted
+						}
 					})
 				}
 			})
@@ -388,6 +391,9 @@ export const UserContextProvider = ({ children }: any) => {
 						if (member.userId === msg.body.userId) {
 							member.isdeafen = msg.body.isdeafen
 							member = member
+						}
+						if (msg.body.userId === currentUser.id) {
+							currentUser.isdeafen = msg.body.isdeafen
 						}
 					})
 				}

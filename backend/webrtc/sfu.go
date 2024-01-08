@@ -18,14 +18,11 @@ type SFU struct {
 
 func NewSFU(sv *WebRTCServer, channelId, guildId string, offer webrtc.SessionDescription, participant *Participant) *SFU {
 
-	participants := make(map[string]*Participant)
-	participants[participant.UserId] = participant
-
 	sfu := &SFU{
 		ChannelId: channelId,
 		GuildId:   guildId,
 
-		Participants:       participants,
+		Participants:       make(map[string]*Participant),
 		RemoveParticipants: make(chan string),
 	}
 
@@ -33,16 +30,20 @@ func NewSFU(sv *WebRTCServer, channelId, guildId string, offer webrtc.SessionDes
 
 	go func() {
 		for participantId := range sfu.RemoveParticipants {
-			p := sfu.Participants[participantId]
-			p.Connection.Close()
-			senders := p.PeerConnection.GetSenders()
-			for _, sender := range senders {
-				p.PeerConnection.RemoveTrack(sender)
-			}
-			p.PeerConnection.Close()
-			delete(sfu.Participants, participantId)
-			if len(sfu.Participants) == 0 {
-				sv.RemoveSFU <- sfu.ChannelId
+			p, exists := sfu.Participants[participantId]
+			if exists {
+				senders := p.PeerConnection.GetSenders()
+				for _, sender := range senders {
+					p.PeerConnection.RemoveTrack(sender)
+				}
+				p.PeerConnection.Close()
+				p.Connection.Close()
+				delete(sfu.Participants, participantId)
+				log.Println(len(sfu.Participants))
+				if len(sfu.Participants) == 0 {
+
+					sv.RemoveSFU <- sfu.ChannelId
+				}
 			}
 		}
 	}()
@@ -65,11 +66,14 @@ func (sfu *SFU) negotiate(wsConn *websocket.Conn, offer webrtc.SessionDescriptio
 	}
 
 	conn.OnConnectionStateChange(func(pcs webrtc.PeerConnectionState) {
-		log.Println(conn.ConnectionState())
+		log.Println("Peer Connection:", conn.ConnectionState(), "", p.UserId)
+		if conn.ConnectionState() == webrtc.PeerConnectionStateConnected {
+			sfu.Participants[p.UserId] = p
+		}
 	})
 
 	conn.OnICEConnectionStateChange(func(is webrtc.ICEConnectionState) {
-		log.Println(is.String())
+		log.Println("Ice:", is.String(), " ", p.UserId)
 	})
 
 	localTrack, newTrackErr := webrtc.NewTrackLocalStaticRTP(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypeOpus}, "audio", "pion")
@@ -104,8 +108,8 @@ func (sfu *SFU) negotiate(wsConn *websocket.Conn, offer webrtc.SessionDescriptio
 			}
 
 			go func() {
-				for _, participant := range sfu.Participants {
-					if participant.UserId == p.UserId && participant.LocalTrack != nil {
+				for id, participant := range sfu.Participants {
+					if id != p.UserId && participant.LocalTrack != nil {
 						writeErr := participant.LocalTrack.WriteRTP(rtp)
 						if writeErr != nil {
 							log.Println("Error writing to track:", err)

@@ -14,7 +14,6 @@ export function useUsersList() {
 
 	useEffect(() => {
 		if (receivedMessage.type === ResultType.R_FetchUsers) {
-			console.log(receivedMessage)
 			const msg = receivedMessage as FetchUsersResult
 			if (receivedMessage.body.users !== null) {
 				setUsers((prevUsers) => [...prevUsers, ...msg.body.users])

@@ -10,8 +10,8 @@ type User struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Logo     string `json:"logo"`
-	IsMuted  bool   `json:"isMuted"`
-	IsDeafen bool   `json:"isDeafen"`
+	IsMuted  bool   `json:"ismuted"`
+	IsDeafen bool   `json:"isdeafen"`
 }
 
 type Invite struct {

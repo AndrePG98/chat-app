@@ -55,6 +55,11 @@ export default function ChannelSelector(props: {
 	}
 
 	useEffect(() => {
+		setIsMute(currentUser.ismuted)
+		setIsDeafen(currentUser.isdeafen)
+	}, [currentUser.ismuted, currentUser.isdeafen])
+
+	useEffect(() => {
 		window.addEventListener("beforeunload", (event) => {
 			if (currentUser.currentChannel) {
 				removeChannelUser(currentUser.currentChannel)
