@@ -26,3 +26,4 @@ This project is a chat application designed to explore and understand the archit
 * **Learning Project Architecture:** The project serves as a learning experience for understanding the architecture of a modern web application, including the interactions between frontend, backend, and databases.
 * **Backend-Frontend Interaction:** It aims to explore the communication and interaction patterns between the frontend and backend components.
 * **Database Integration:** The project delves into integrating a SQL database to store and retrieve data, enhancing data persistence and management.
+* * **Deployment:** Also meant to learn deployment technologies like docker.
