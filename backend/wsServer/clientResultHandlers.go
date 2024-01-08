@@ -128,7 +128,7 @@ func handleCreateGuild(client *Client, msg models.CreateGuildEvent) {
 }
 
 func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
-	userIds, guild, err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId)
+	userIds, guild, err := client.Server.Database.JoinGuild(msg.GuildId, msg.Member.UserId, msg.InviteId)
 	if err != nil {
 		log.Println(err.Error())
 		return

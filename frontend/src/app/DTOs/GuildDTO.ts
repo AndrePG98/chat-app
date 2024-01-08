@@ -82,9 +82,9 @@ export class JoinGuildEvent implements IEvent {
 	type: EventType
 	body: any
 
-	constructor(guildId: string, member: SenderDTO) {
+	constructor(guildId: string, member: SenderDTO, inviteId: string) {
 		this.type = EventType.JoinGuild
-		this.body = { guildId, member }
+		this.body = { inviteId, guildId, member }
 	}
 }
 

@@ -1,7 +1,10 @@
+import { JoinGuildEvent } from "@/app/DTOs/GuildDTO"
 import { Invite } from "@/app/DTOs/UserDTO"
+import { useUserContext } from "@/app/context/UserContext"
 import { Avatar, Button } from "@nextui-org/react"
 
 export default function InviteComponent(props: { invite: Invite }) {
+	const { sendWebSocketMessage, currentUser } = useUserContext()
 	return (
 		<div className="flex flex-col pl-1 justify-start">
 			<div className="flex flex-row gap-3 justify-start items-center">
@@ -30,6 +33,14 @@ export default function InviteComponent(props: { invite: Invite }) {
 						variant="light"
 						disableRipple
 						color="success"
+						onClick={() => {
+							const event = new JoinGuildEvent(
+								props.invite.guildId,
+								currentUser.convert(),
+								props.invite.id
+							)
+							sendWebSocketMessage(event)
+						}}
 					>
 						<span className="material-symbols-outlined">done</span>
 					</Button>

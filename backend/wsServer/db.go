@@ -460,7 +460,7 @@ func (db *Database) DeleteGuild(id string, ownerId string) ([]string, error) {
 	return userIds, nil
 }
 
-func (db *Database) JoinGuild(guildId string, userId string) ([]string, *models.Guild, error) {
+func (db *Database) JoinGuild(guildId string, userId string, inviteId string) ([]string, *models.Guild, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
 		return nil, nil, fmt.Errorf("error starting transaction: %v", err)
@@ -474,6 +474,12 @@ func (db *Database) JoinGuild(guildId string, userId string) ([]string, *models.
 	_, err = tx.Exec(joinGuild, guildId, userId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error joining guild: %v", err)
+	}
+
+	delete := `DELETE FROM invites WHERE id = $1`
+	_, err = tx.Exec(delete, inviteId)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error deleting invites: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {

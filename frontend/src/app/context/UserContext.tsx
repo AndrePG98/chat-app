@@ -162,7 +162,6 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const authenticate = (msg: AccessResult) => {
 		if (msg.body.error.length === 0) {
-			console.log(msg.body.invites)
 			const user = new UserDTO(
 				msg.body.userId,
 				msg.body.username,
@@ -220,7 +219,7 @@ export const UserContextProvider = ({ children }: any) => {
 	const processGuildJoinBroadcast = (msg: JoinGuildBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
-				guild.addMember(msg.body.user)
+				guild.members.push(msg.body.user)
 			}
 		})
 	}
@@ -228,7 +227,9 @@ export const UserContextProvider = ({ children }: any) => {
 	const processGuildLeaveBroadcast = (msg: LeaveGuildBroadcast) => {
 		currentUser.guilds.forEach((guild) => {
 			if (guild.guildId === msg.body.guildId) {
-				guild.removeMember(msg.body.userId)
+				guild.members = guild.members.filter((member) => {
+					return member.userId !== msg.body.userId
+				})
 			}
 		})
 	}

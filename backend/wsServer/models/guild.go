@@ -49,8 +49,9 @@ type DeleteGuildEvent struct {
 }
 
 type JoinGuildEvent struct {
-	GuildId string `json:"guildId"`
-	Member  User   `json:"member"`
+	InviteId string `json:"inviteId"`
+	GuildId  string `json:"guildId"`
+	Member   User   `json:"member"`
 }
 
 type LeaveGuildEvent struct {
