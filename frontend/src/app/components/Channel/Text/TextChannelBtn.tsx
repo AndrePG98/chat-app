@@ -17,7 +17,7 @@ export default function TextChannelBtn(props: {
 		<div className="flex flex-row group h-12">
 			<button
 				onClick={() => props.selectChannel(props.channel)}
-				className="w-full text-lg flex justify-between group-hover:bg-surface-400 pl-2"
+				className="w-full text-lg flex justify-between items-center group-hover:bg-surface-400 pl-2"
 			>
 				<div className="flex flex-row justify-center items-center gap-2">
 					<span className="material-symbols-outlined">edit</span>

@@ -18,7 +18,7 @@ export default function VoiceChannelBtn(props: {
 	deleteChannel: (channelId: string) => void
 }) {
 	return (
-		<div className="relative flex flex-col gap-2">
+		<div className="relative flex flex-col gap-2 justify-center text-center">
 			<div
 				className={`${
 					props.channel.members.length > 0 ? "voiceChanBtn" : ""
@@ -28,7 +28,7 @@ export default function VoiceChannelBtn(props: {
 					onClick={() => {
 						props.addChannelUser(props.channel)
 					}}
-					className="w-full text-lg flex justify-between group-hover:bg-surface-400 pl-2"
+					className="w-full text-lg flex justify-between items-center group-hover:bg-surface-400 pl-2"
 				>
 					<div className="flex flex-row justify-center items-center gap-2">
 						<span className="material-symbols-outlined">volume_up</span>
