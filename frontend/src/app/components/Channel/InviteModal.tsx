@@ -20,7 +20,7 @@ import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useUsersList } from "../shared/useUsersList"
 import { GuildDTO } from "@/app/DTOs/GuildDTO"
-import { InviteEvent } from "@/app/DTOs/UserDTO"
+import { CancelInviteEvent, InviteEvent } from "@/app/DTOs/UserDTO"
 import { useUserContext } from "@/app/context/UserContext"
 
 export default function InviteModal(props: {

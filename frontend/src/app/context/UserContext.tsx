@@ -12,6 +12,7 @@ import {
 	UserDTO,
 	InvitationResult,
 	Invite,
+	CancelInviteResult,
 } from "../DTOs/UserDTO"
 import { IEvent, ResultType } from "../DTOs/Types"
 import useWebSocket from "../services/WebSocketService"
@@ -140,6 +141,9 @@ export const UserContextProvider = ({ children }: any) => {
 			case ResultType.R_Invitation:
 				processInvitation(receivedMessage)
 				break
+			case ResultType.R_CancelInvite:
+				processCancelInvite(receivedMessage)
+				break
 		}
 		setChangeFlag(!changeFlag)
 	}, [receivedMessage])
@@ -212,7 +216,9 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const processLogoutBroadcast = (id: string) => {
 		currentUser.getGuilds().forEach((guild) => {
-			guild.members = guild.members.filter((member) => member.userId != id)
+			guild.members = guild.members.filter((member) => {
+				return member.userId != id
+			})
 		})
 	}
 
@@ -403,6 +409,12 @@ export const UserContextProvider = ({ children }: any) => {
 
 	const processInvitation = (msg: InvitationResult) => {
 		currentUser.invites.push(msg.body.invite)
+	}
+
+	const processCancelInvite = (msg: CancelInviteResult) => {
+		currentUser.invites = currentUser.invites.filter((invite) => {
+			return invite.id !== msg.body.inviteId
+		})
 	}
 
 	return (

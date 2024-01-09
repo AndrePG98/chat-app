@@ -476,8 +476,8 @@ func (db *Database) JoinGuild(guildId string, userId string, inviteId string) ([
 		return nil, nil, fmt.Errorf("error joining guild: %v", err)
 	}
 
-	delete := `DELETE FROM invites WHERE id = $1`
-	_, err = tx.Exec(delete, inviteId)
+	delete := `DELETE FROM invites WHERE receiver_id = $1 AND guild_id = $2`
+	_, err = tx.Exec(delete, userId, guildId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting invites: %v", err)
 	}
@@ -883,6 +883,23 @@ func (db *Database) SaveInvitation(id string, msg models.InviteEvent) error {
 	_, err = tx.Exec(saveInvite, id, msg.Sender.UserId, msg.ReceiverId, msg.GuildId, msg.SendAt, msg.GuildName)
 	if err != nil {
 		return fmt.Errorf("error inserting invite: %v", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+	return nil
+}
+
+func (db *Database) DeleteInvite(inviteId string) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`DELETE FROM invites WHERE id = $1`, inviteId)
+	if err != nil {
+		return fmt.Errorf("error deleting invite: %v", err)
 	}
 	err = tx.Commit()
 	if err != nil {

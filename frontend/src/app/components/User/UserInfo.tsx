@@ -87,22 +87,32 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 				>
 					<span className="material-symbols-outlined">add</span>
 				</Button>
-				<Badge
-					content={currentUser.invites.length}
-					color="warning"
-					isInvisible={isInvisible}
-				>
-					<Button
-						className="flex justify-center items-center w-full"
-						variant="light"
-						radius="none"
-						isIconOnly
-						onPress={openUserProfileModal}
-						endContent={<div />}
+				<div className="flex justify-center items-center w-full">
+					<Badge
+						//content={currentUser.invites.length}
+						color="warning"
+						isInvisible={isInvisible}
+						variant="solid"
+						isOneChar
+						isDot
+						size="sm"
+						classNames={{
+							base: "p-0 m-0 flex-1 w-full",
+							badge: "flex justify-center items-center",
+						}}
 					>
-						<span className="material-symbols-outlined">manage_accounts</span>
-					</Button>
-				</Badge>
+						<Button
+							className="flex justify-center items-center w-full"
+							variant="light"
+							radius="none"
+							isIconOnly
+							onPress={openUserProfileModal}
+							endContent={<div />}
+						>
+							<span className="material-symbols-outlined">manage_accounts</span>
+						</Button>
+					</Badge>
+				</div>
 				<CreateGuildModal
 					isOpen={createGuildModalOpen}
 					onOpenChange={closeCreateGuildModla}

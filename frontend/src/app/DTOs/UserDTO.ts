@@ -190,6 +190,15 @@ export class InviteEvent implements IEvent {
 	}
 }
 
+export class CancelInviteEvent implements IEvent {
+	type: EventType
+	body: any
+	constructor(inviteId: string) {
+		this.type = EventType.CancelInvite
+		this.body = { inviteId }
+	}
+}
+
 export interface AccessResult {
 	type: ResultType
 	body: {
@@ -227,6 +236,13 @@ export interface InvitationResult {
 	type: ResultType
 	body: {
 		invite: Invite
+	}
+}
+
+export interface CancelInviteResult {
+	type: ResultType
+	body: {
+		inviteId: string
 	}
 }
 

@@ -20,6 +20,7 @@ const (
 	E_Deafen
 	E_FetchUsers
 	E_Invite
+	E_CancelInvite
 )
 
 const (
@@ -29,6 +30,7 @@ const (
 	R_UploadLogo
 	R_FetchUsers
 	R_Invitation
+	R_CancelInvite
 	B_Login
 	B_Logout
 	B_GuildDelete

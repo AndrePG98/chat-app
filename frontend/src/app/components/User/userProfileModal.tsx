@@ -1,4 +1,4 @@
-import { Invite, UploadLogoEvent } from "@/app/DTOs/UserDTO"
+import { Invite, SenderDTO, UploadLogoEvent } from "@/app/DTOs/UserDTO"
 import { useUserContext } from "@/app/context/UserContext"
 import {
 	Accordion,
@@ -14,7 +14,7 @@ import {
 	User,
 } from "@nextui-org/react"
 import ThemeSwitch from "./ThemeSwitch"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTheme } from "next-themes"
 import { relative } from "path"
 import InviteComponent from "../shared/InviteComponent"
@@ -33,8 +33,6 @@ export default function UserProfileModal(props: {
 			fileInputRef.current.click()
 		}
 	}
-
-	useEffect(() => {}, [currentUser.invites.length])
 
 	const changeTheme = (e: boolean) => {
 		if (e) {

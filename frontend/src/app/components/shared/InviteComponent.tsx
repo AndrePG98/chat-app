@@ -1,5 +1,5 @@
 import { JoinGuildEvent } from "@/app/DTOs/GuildDTO"
-import { Invite } from "@/app/DTOs/UserDTO"
+import { CancelInviteEvent, Invite } from "@/app/DTOs/UserDTO"
 import { useUserContext } from "@/app/context/UserContext"
 import { Avatar, Button } from "@nextui-org/react"
 
@@ -12,6 +12,11 @@ export default function InviteComponent(props: { invite: Invite }) {
 			currentUser.convert(),
 			props.invite.id
 		)
+		sendWebSocketMessage(event)
+	}
+
+	const cancelInvite = () => {
+		const event = new CancelInviteEvent(props.invite.id)
 		sendWebSocketMessage(event)
 	}
 
@@ -54,6 +59,7 @@ export default function InviteComponent(props: { invite: Invite }) {
 						variant="light"
 						disableRipple
 						color="danger"
+						onClick={cancelInvite}
 					>
 						<span className="material-symbols-outlined">close</span>
 					</Button>
