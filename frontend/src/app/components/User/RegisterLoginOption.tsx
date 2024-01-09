@@ -17,6 +17,11 @@ export default function RegisterLoginOption() {
 		setShowRegister(true)
 	}
 
+	const close = () => {
+		setShowLogin(false)
+		setShowRegister(false)
+	}
+
 	return (
 		<div>
 			<div>
@@ -38,8 +43,8 @@ export default function RegisterLoginOption() {
 						</>
 					</ModalContent>
 				</Modal>
-				{showLogin && <Login></Login>}
-				{showRegister && <Register></Register>}
+				{showLogin && <Login onClose={close} />}
+				{showRegister && <Register onClose={close} />}
 			</div>
 		</div>
 	)

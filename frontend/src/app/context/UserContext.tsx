@@ -45,6 +45,8 @@ interface UserContextProps {
 	connectToRTC: (userId: string, channelId: string, guildId: string) => void
 	disconnectRTC: () => void
 	controls: { toggleMute: () => boolean; toggleDeafen: () => boolean }
+	error: string
+	resetError: () => void
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
@@ -54,6 +56,11 @@ export const UserContextProvider = ({ children }: any) => {
 	const { connectToWs, disconnectFromWs, sendWebSocketMessage, receivedMessage } = useWebSocket() // only available inside user context
 	const { connectToRTC, disconnectRTC, controls } = useWebRTC()
 	const [isAuthenticated, setIsAuthenticated] = useState(false)
+	const [error, setError] = useState("")
+
+	const resetError = () => {
+		setError("")
+	}
 
 	const [changeFlag, setChangeFlag] = useState(false)
 
@@ -183,6 +190,8 @@ export const UserContextProvider = ({ children }: any) => {
 			}
 			setCurrentUser(user)
 			setIsAuthenticated(true)
+		} else {
+			setError(msg.body.error)
 		}
 	}
 
@@ -430,6 +439,8 @@ export const UserContextProvider = ({ children }: any) => {
 				connectToRTC,
 				disconnectRTC,
 				controls,
+				error,
+				resetError,
 			}}
 		>
 			{children}
