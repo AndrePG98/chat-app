@@ -1,2 +1,3 @@
 backend/wsServer/.env
 backend/database/.env
+frontend/.env
