@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
 
 export default function useDarkMode() {
-	const [theme, setTheme] = useState("light")
+	const [theme, setTheme] = useState('light')
 
 	const setMode = (mode: string) => {
-		window.localStorage.setItem("theme", mode)
+		window.localStorage.setItem('theme', mode)
 		setTheme(mode)
 	}
 
-	const toggleTheme = (e: boolean) => {
-		theme === "light" ? setMode("dark") : setMode("light")
+	const toggleTheme = () => {
+		theme === 'light' ? setMode('dark') : setMode('light')
 	}
 
 	useEffect(() => {
-		const localTheme = window.localStorage.getItem("theme")
-		localTheme ? setTheme(localTheme) : setTheme("light")
+		const localTheme = window.localStorage.getItem('theme')
+		localTheme ? setTheme(localTheme) : setTheme('light')
 	}, [])
 
 	return [theme, toggleTheme]

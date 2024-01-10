@@ -1,13 +1,13 @@
-import { ResultType } from "../../DTOs/Types"
-import { FetchUsersEvent, FetchUsersResult, SenderDTO, UserDTO } from "../../DTOs/UserDTO"
-import { useUserContext } from "../../context/UserContext"
-import { FetchEventResult } from "next/dist/server/web/types"
-import { useEffect, useState } from "react"
+import { ResultType } from '../../DTOs/Types'
+import { FetchUsersEvent, FetchUsersResult, SenderDTO } from '../../DTOs/UserDTO'
+import { useUserContext } from '../../context/UserContext'
+
+import { useEffect, useState } from 'react'
 
 export function useUsersList() {
 	const { receivedMessage, sendWebSocketMessage } = useUserContext()
 	const [users, setUsers] = useState<SenderDTO[]>([])
-	const [searchTerm, setSearchTerm] = useState("")
+	const [searchTerm, setSearchTerm] = useState('')
 	const [hasMore, setHasMore] = useState(true)
 	const [offset, setOffset] = useState(0)
 	const limit = 20
@@ -34,7 +34,7 @@ export function useUsersList() {
 	}, [searchTerm])
 
 	const loadUsers = async (currentOffset: number) => {
-		if (searchTerm !== "") {
+		if (searchTerm !== '') {
 			const event = new FetchUsersEvent(searchTerm, currentOffset, limit)
 			sendWebSocketMessage(event)
 		}
@@ -48,6 +48,6 @@ export function useUsersList() {
 		users,
 		hasMore,
 		onLoadMore,
-		setSearchTerm,
+		setSearchTerm
 	}
 }

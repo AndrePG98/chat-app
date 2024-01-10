@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import {
 	LoginEvent,
 	RegisterEvent,
@@ -11,13 +11,11 @@ import {
 	UploadLogoResult,
 	UserDTO,
 	InvitationResult,
-	Invite,
 	CancelInviteResult
 } from '../DTOs/UserDTO'
 import { IEvent, ResultType } from '../DTOs/Types'
 import useWebSocket from '../services/WebSocketService'
 import {
-	GuildDTO,
 	GuildDeleteBroadcast,
 	JoinGuildBroadcast,
 	JoinGuildResult,
@@ -76,14 +74,14 @@ export const UserContextProvider = ({ children }: any) => {
 		document.documentElement.classList.add('dark')
 		localStorage.setItem('theme', 'dark')
 
-		window.addEventListener('beforeunload', (event) => {
+		window.addEventListener('beforeunload', () => {
 			disconnectFromWs(currentUser.id)
 			setIsAuthenticated(false)
 			setCurrentUser(new UserDTO('', '', '', '', false, false))
 		})
 
 		return () => {
-			window.removeEventListener('beforeunload', (event) => {
+			window.removeEventListener('beforeunload', () => {
 				disconnectFromWs(currentUser.id)
 				setIsAuthenticated(false)
 				setCurrentUser(new UserDTO('', '', '', '', false, false))

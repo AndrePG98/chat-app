@@ -62,9 +62,7 @@ export class UserDTO {
 
 	leaveGuild(guildId: string) {
 		this.guilds = this.guilds.filter((guild) => {
-			if (guild.guildId !== guildId) {
-				return true
-			}
+			return guild.guildId !== guildId
 		})
 	}
 

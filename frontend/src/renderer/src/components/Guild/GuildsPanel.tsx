@@ -1,11 +1,9 @@
-"use client"
-
-import { DeleteGuildEvent, GuildDTO, LeaveGuildEvent } from "../../DTOs/GuildDTO"
-import { UserDTO } from "../../DTOs/UserDTO"
-import { useEffect, useState } from "react"
-import Guild from "./Guild"
-import GuildSelector from "./GuildSelector"
-import { useUserContext } from "../../context/UserContext"
+import { DeleteGuildEvent, GuildDTO, LeaveGuildEvent } from '../../DTOs/GuildDTO'
+import { UserDTO } from '../../DTOs/UserDTO'
+import { useEffect, useState } from 'react'
+import Guild from './Guild'
+import GuildSelector from './GuildSelector'
+import { useUserContext } from '../../context/UserContext'
 
 export default function GuildsPanel(props: { currentUser: UserDTO }) {
 	const { sendWebSocketMessage, currentUser } = useUserContext()

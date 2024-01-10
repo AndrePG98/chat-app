@@ -1,9 +1,9 @@
-import { GuildDTO } from "../../DTOs/GuildDTO"
-import GuildBtn from "./GuildBtn"
-import { ScrollShadow } from "@nextui-org/react"
-import { useEffect, useRef, useState } from "react"
-import UserInfo from "../User/UserInfo"
-import { UserDTO } from "../../DTOs/UserDTO"
+import { GuildDTO } from '../../DTOs/GuildDTO'
+import GuildBtn from './GuildBtn'
+import { ScrollShadow } from '@nextui-org/react'
+import { useEffect, useRef } from 'react'
+import UserInfo from '../User/UserInfo'
+import { UserDTO } from '../../DTOs/UserDTO'
 
 export default function GuildSelector(props: {
 	currentUser: UserDTO

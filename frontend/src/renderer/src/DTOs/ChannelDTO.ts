@@ -40,9 +40,7 @@ export class ChannelDTO {
 
 	hasMember(userId: string) {
 		let member = this.members.find((user) => {
-			if (user.userId === userId) {
-				return user
-			}
+			return user.userId === userId
 		})
 		if (member) {
 			return true

@@ -1,5 +1,5 @@
 import { ChannelDTO } from './ChannelDTO'
-import { SenderDTO, UserDTO } from './UserDTO'
+import { SenderDTO } from './UserDTO'
 import { IEvent, EventType, ResultType } from './Types'
 
 export class GuildDTO {

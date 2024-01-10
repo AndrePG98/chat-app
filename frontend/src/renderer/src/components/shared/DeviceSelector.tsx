@@ -1,5 +1,5 @@
 import { Accordion, AccordionItem, Listbox, ListboxItem, Spinner } from '@nextui-org/react'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function DeviceSelector() {
 	const [inputDevices, setInputDevices] = useState<MediaDeviceInfo[]>([])

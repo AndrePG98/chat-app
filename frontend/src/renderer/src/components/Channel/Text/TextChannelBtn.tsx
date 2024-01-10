@@ -1,12 +1,5 @@
-import { ChannelDTO } from "../../../DTOs/ChannelDTO"
-import {
-	Button,
-	Dropdown,
-	DropdownTrigger,
-	DropdownMenu,
-	DropdownItem,
-	button,
-} from "@nextui-org/react"
+import { ChannelDTO } from '../../../DTOs/ChannelDTO'
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react'
 
 export default function TextChannelBtn(props: {
 	channel: ChannelDTO

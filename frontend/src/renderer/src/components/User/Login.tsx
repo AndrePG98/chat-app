@@ -14,7 +14,7 @@ import { useUserContext } from '../../context/UserContext'
 
 export default function Login(props: { onClose: () => void }) {
 	const { login, error, resetError } = useUserContext()
-	const [isOpen, setIsOpen] = useState<boolean>(true)
+	const [isOpen] = useState<boolean>(true)
 	const [userPasswordInput, setUserPasswordInput] = useState('')
 	const [userNameInput, setUserNameInput] = useState('')
 	const [threwError, setThrewError] = useState(false)

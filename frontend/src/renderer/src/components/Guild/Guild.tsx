@@ -1,13 +1,11 @@
-"use client"
+import { useEffect, useState } from 'react'
 
-import { useEffect, useState } from "react"
-
-import { ChannelDTO, CreateChannelEvent, DeleteChannelEvent } from "../../DTOs/ChannelDTO"
-import { GuildDTO } from "../../DTOs/GuildDTO"
-import ChannelSelector from "../Channel/ChannelSelector"
-import TextChannel from "../Channel/Text/TextChannel"
-import MembersPanel from "./MembersPanel"
-import { useUserContext } from "../../context/UserContext"
+import { ChannelDTO, CreateChannelEvent, DeleteChannelEvent } from '../../DTOs/ChannelDTO'
+import { GuildDTO } from '../../DTOs/GuildDTO'
+import ChannelSelector from '../Channel/ChannelSelector'
+import TextChannel from '../Channel/Text/TextChannel'
+import MembersPanel from './MembersPanel'
+import { useUserContext } from '../../context/UserContext'
 
 export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: string) => void }) {
 	const { currentUser, sendWebSocketMessage } = useUserContext()
@@ -31,18 +29,16 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 	}
 
 	useEffect(() => {
-		const chan = props.guild.channels.find((chan) => chan.channelType === "text")
+		const chan = props.guild.channels.find((chan) => chan.channelType === 'text')
 		if (chan) {
 			setSelectedChannel(chan)
 		} else {
 			setSelectedChannel(undefined)
 		}
 		props.guild.channels.forEach((chan) => {
-			if (chan.channelType === "voice") {
+			if (chan.channelType === 'voice') {
 				let user = chan.members.find((user) => {
-					if (user.userId === currentUser.id) {
-						return user
-					}
+					return user.userId === currentUser.id
 				})
 				if (user) {
 					currentUser.currentChannel = chan
@@ -62,7 +58,7 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 				leaveGuild={() => props.leaveGuild(props.guild.guildId)}
 			></ChannelSelector>
 			<div className="selected-channel-div basis-[75%] grow-0 shrink-1">
-				{selectedChannel?.channelType === "text" && (
+				{selectedChannel?.channelType === 'text' && (
 					<TextChannel
 						channel={selectedChannel}
 						guildId={props.guild.guildId}

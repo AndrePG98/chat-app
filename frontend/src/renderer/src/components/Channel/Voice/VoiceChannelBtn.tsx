@@ -1,16 +1,14 @@
-import React, { useEffect } from "react"
 import {
-	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
 	DropdownTrigger,
 	Listbox,
 	ListboxItem,
-	User,
-} from "@nextui-org/react"
-import "./voiceChannelBtn.css"
-import { ChannelDTO } from "../../../DTOs/ChannelDTO"
+	User
+} from '@nextui-org/react'
+import './voiceChannelBtn.css'
+import { ChannelDTO } from '../../../DTOs/ChannelDTO'
 
 export default function VoiceChannelBtn(props: {
 	channel: ChannelDTO
@@ -21,7 +19,7 @@ export default function VoiceChannelBtn(props: {
 		<div className="relative flex flex-col gap-2 justify-center text-center">
 			<div
 				className={`${
-					props.channel.members.length > 0 ? "voiceChanBtn" : ""
+					props.channel.members.length > 0 ? 'voiceChanBtn' : ''
 				} flex flex-row group h-12`}
 			>
 				<button
@@ -57,12 +55,12 @@ export default function VoiceChannelBtn(props: {
 					</DropdownMenu>
 				</Dropdown>
 			</div>
-			{props.channel.channelType === "voice" && props.channel.members.length !== 0 && (
+			{props.channel.channelType === 'voice' && props.channel.members.length !== 0 && (
 				<Listbox
 					variant="light"
 					emptyContent=""
 					itemClasses={{
-						base: "w-1/2 left-[15%]",
+						base: 'w-1/2 left-[15%]'
 					}}
 				>
 					{props.channel.members.map((member, index) => (
@@ -74,14 +72,14 @@ export default function VoiceChannelBtn(props: {
 									name={member.username}
 									avatarProps={{
 										src: member.logo,
-										size: "sm",
-										className: "text-tiny w-5 h-5",
+										size: 'sm',
+										className: 'text-tiny w-5 h-5'
 									}}
 								/>
 								<div className="flex flex-row items-center gap-2">
 									{member.ismuted && (
 										<span
-											style={{ color: "red", fontSize: "16px" }}
+											style={{ color: 'red', fontSize: '16px' }}
 											className="material-symbols-outlined "
 										>
 											mic_off
@@ -89,7 +87,7 @@ export default function VoiceChannelBtn(props: {
 									)}
 									{member.isdeafen && (
 										<span
-											style={{ color: "red", fontSize: "16px" }}
+											style={{ color: 'red', fontSize: '16px' }}
 											className="material-symbols-outlined"
 										>
 											headset_off

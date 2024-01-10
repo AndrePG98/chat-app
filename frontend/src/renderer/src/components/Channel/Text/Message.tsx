@@ -1,15 +1,14 @@
-import { DeleteMessageEvent, MessageDTO } from "../../../DTOs/MessageDTO"
-import { useUserContext } from "../../../context/UserContext"
-import "./messageStyle.css"
+import { DeleteMessageEvent, MessageDTO } from '../../../DTOs/MessageDTO'
+import { useUserContext } from '../../../context/UserContext'
+import './messageStyle.css'
 import {
 	Button,
 	Dropdown,
 	DropdownItem,
 	DropdownMenu,
 	DropdownTrigger,
-	User,
-} from "@nextui-org/react"
-import React from "react"
+	User
+} from '@nextui-org/react'
 
 export default function Message(props: { message: MessageDTO }) {
 	const { sendWebSocketMessage } = useUserContext()

@@ -6,29 +6,24 @@ import {
 	Modal,
 	ModalBody,
 	ModalContent,
-	ModalFooter,
 	ModalHeader,
-	Select,
-	SelectItem,
-	User,
 	ScrollShadow,
-	Avatar,
-	Spacer,
-} from "@nextui-org/react"
+	Avatar
+} from '@nextui-org/react'
 
-import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll"
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import { useUsersList } from "../shared/useUsersList"
-import { GuildDTO } from "../../DTOs/GuildDTO"
-import { CancelInviteEvent, InviteEvent } from "../../DTOs/UserDTO"
-import { useUserContext } from "../../context/UserContext"
+import { useInfiniteScroll } from '@nextui-org/use-infinite-scroll'
+import { useCallback, useEffect, useState } from 'react'
+import { useUsersList } from '../shared/useUsersList'
+import { GuildDTO } from '../../DTOs/GuildDTO'
+import { InviteEvent } from '../../DTOs/UserDTO'
+import { useUserContext } from '../../context/UserContext'
 
 export default function InviteModal(props: {
 	guild: GuildDTO
 	isOpen: boolean
 	onOpenChange: (isOpen: boolean) => void
 }) {
-	const [input, setInput] = useState("")
+	const [input, setInput] = useState('')
 	const { users, setSearchTerm, onLoadMore, hasMore } = useUsersList()
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 
@@ -36,7 +31,7 @@ export default function InviteModal(props: {
 		hasMore,
 		isEnabled: true,
 		shouldUseLoader: false,
-		onLoadMore,
+		onLoadMore
 	})
 
 	useEffect(() => {
@@ -69,8 +64,8 @@ export default function InviteModal(props: {
 			isOpen={props.isOpen}
 			onOpenChange={(isOpen) => {
 				if (!isOpen) {
-					setInput("")
-					setSearchTerm("")
+					setInput('')
+					setSearchTerm('')
 				}
 				props.onOpenChange(isOpen)
 			}}
@@ -79,23 +74,23 @@ export default function InviteModal(props: {
 			className="bg-surface-200 shadow-lg rounded-lg overflow-visible"
 		>
 			<ModalContent>
-				{(onClose) => (
+				{() => (
 					<>
 						<ModalHeader className="px-10 py-6 border-b ">
 							<Input
 								type="name"
 								classNames={{
-									input: ["bg-transparent"],
-									innerWrapper: "bg-transparent",
+									input: ['bg-transparent'],
+									innerWrapper: 'bg-transparent',
 									inputWrapper: [
-										"bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
-										"dark:bg-surface-300 focus:bg-surface-300 active:bg-surface-300",
-										"hover:bg-surface-400 ",
-										"dark:hover:bg-surface-400",
-										"focus:bg-surface-400 active:bg-surface-400",
-										"dark:focus:bg-surface-400 active:bg-surface-300",
-										"!cursor-text",
-									],
+										'bg-surface-300 focus:bg-surface-300 active:bg-surface-300',
+										'dark:bg-surface-300 focus:bg-surface-300 active:bg-surface-300',
+										'hover:bg-surface-400 ',
+										'dark:hover:bg-surface-400',
+										'focus:bg-surface-400 active:bg-surface-400',
+										'dark:focus:bg-surface-400 active:bg-surface-300',
+										'!cursor-text'
+									]
 								}}
 								label="Search"
 								placeholder="Username"
@@ -110,7 +105,7 @@ export default function InviteModal(props: {
 								ref={scrollerRef}
 							>
 								<Listbox
-									emptyContent={"No users"}
+									emptyContent={'No users'}
 									variant="bordered"
 									color="primary"
 								>
@@ -127,11 +122,11 @@ export default function InviteModal(props: {
 														src={user.logo}
 														imgProps={{
 															style: {
-																objectFit: "cover",
-																objectPosition: "center",
-																height: "100%",
-																width: "100%",
-															},
+																objectFit: 'cover',
+																objectPosition: 'center',
+																height: '100%',
+																width: '100%'
+															}
 														}}
 													/>
 													<span className="flex-1">{user.username}</span>

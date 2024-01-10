@@ -9,22 +9,22 @@ import {
 	ModalFooter,
 	ModalHeader,
 	useDisclosure,
-	ScrollShadow,
-} from "@nextui-org/react"
-import { useEffect, useState } from "react"
+	ScrollShadow
+} from '@nextui-org/react'
+import { useEffect, useState } from 'react'
 import {
 	ChannelDTO,
 	JoinChannelEvent,
 	JoinNewChannelEvent,
-	LeaveChannelEvent,
-} from "../../DTOs/ChannelDTO"
-import TextChannelBtn from "./Text/TextChannelBtn"
-import VoiceChannelBtn from "./Voice/VoiceChannelBtn"
-import CreateChannelModal from "./CreateChannelModal"
-import { useUserContext } from "../../context/UserContext"
-import { GuildDTO } from "../../DTOs/GuildDTO"
-import { DeafenEvent, MuteEvent } from "../../DTOs/UserDTO"
-import InviteModal from "./InviteModal"
+	LeaveChannelEvent
+} from '../../DTOs/ChannelDTO'
+import TextChannelBtn from './Text/TextChannelBtn'
+import VoiceChannelBtn from './Voice/VoiceChannelBtn'
+import CreateChannelModal from './CreateChannelModal'
+import { useUserContext } from '../../context/UserContext'
+import { GuildDTO } from '../../DTOs/GuildDTO'
+import { DeafenEvent, MuteEvent } from '../../DTOs/UserDTO'
+import InviteModal from './InviteModal'
 
 export default function ChannelSelector(props: {
 	channels: ChannelDTO[]
@@ -60,13 +60,13 @@ export default function ChannelSelector(props: {
 	}, [currentUser.ismuted, currentUser.isdeafen])
 
 	useEffect(() => {
-		window.addEventListener("beforeunload", (event) => {
+		window.addEventListener('beforeunload', () => {
 			if (currentUser.currentChannel) {
 				removeChannelUser(currentUser.currentChannel)
 			}
 		})
 		return () => {
-			window.removeEventListener("beforeunload", (event) => {
+			window.removeEventListener('beforeunload', () => {
 				if (currentUser.currentChannel) {
 					removeChannelUser(currentUser.currentChannel)
 				}
@@ -119,14 +119,14 @@ export default function ChannelSelector(props: {
 			<ScrollShadow hideScrollBar size={100} className="flex-1">
 				{props.channels.map((channel) => (
 					<div key={channel.channelId}>
-						{channel.channelType === "text" && (
+						{channel.channelType === 'text' && (
 							<TextChannelBtn
 								channel={channel}
 								selectChannel={props.selectChannel}
 								deleteChannel={deleteChannel}
 							/>
 						)}
-						{channel.channelType === "voice" && (
+						{channel.channelType === 'voice' && (
 							<VoiceChannelBtn
 								channel={channel}
 								addChannelUser={addChannelUser}
@@ -239,8 +239,8 @@ export default function ChannelSelector(props: {
 								}}
 							>
 								{currentUser.id === props.guild.ownerId
-									? "Delete Guild"
-									: "Leave Guild"}
+									? 'Delete Guild'
+									: 'Leave Guild'}
 							</DropdownItem>
 						</DropdownMenu>
 					</Dropdown>
@@ -255,8 +255,8 @@ export default function ChannelSelector(props: {
 								<>
 									<ModalHeader className="flex flex-col gap-1">
 										{currentUser.id === props.guild.ownerId
-											? "Delete Guild?"
-											: "Leave Guild?"}
+											? 'Delete Guild?'
+											: 'Leave Guild?'}
 									</ModalHeader>
 									<ModalFooter>
 										<Button color="danger" variant="light" onPress={onClose}>

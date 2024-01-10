@@ -1,14 +1,14 @@
-import { GuildDTO } from "../../DTOs/GuildDTO"
-import { Button, Badge } from "@nextui-org/react"
-import React, { useEffect, useRef, useState } from "react"
-import "./guildBtn.css"
+import { GuildDTO } from '../../DTOs/GuildDTO'
+
+import { useEffect, useState } from 'react'
+import './guildBtn.css'
 
 export default function GuildBtn(props: {
 	guild: GuildDTO
 	selectGuild: (guild: GuildDTO) => void
 	selectedGuildId: string | undefined
 }) {
-	const [notifications, setNotifications] = useState(false)
+	const [notifications] = useState(false)
 	const [isSelected, setIsSelected] = useState(false)
 
 	useEffect(() => {
@@ -18,7 +18,7 @@ export default function GuildBtn(props: {
 	return (
 		<button
 			className={`${
-				isSelected ? "guildBtn selected" : "guildBtn"
+				isSelected ? 'guildBtn selected' : 'guildBtn'
 			} w-full h-[56px] min-h-[56px] flex flex-row items-center justify-center`}
 			onClick={() => props.selectGuild(props.guild)}
 		>

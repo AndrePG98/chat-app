@@ -12,7 +12,7 @@ import { useUserContext } from '../../context/UserContext'
 
 export default function Register(props: { onClose: () => void }) {
 	const { register } = useUserContext()
-	const [isOpen, setIsOpen] = useState<boolean>(true)
+	const [isOpen] = useState<boolean>(true)
 	const [userPasswordInput, setUserPasswordInput] = useState('')
 	const [userNameInput, setUserNameInput] = useState('')
 	const [userEmailInput, setUserEmailInput] = useState('')

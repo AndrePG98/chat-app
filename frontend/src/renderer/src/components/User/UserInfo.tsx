@@ -1,18 +1,18 @@
-import { CreateGuildEvent } from "../../DTOs/GuildDTO"
-import { UserDTO } from "../../DTOs/UserDTO"
-import { useUserContext } from "../../context/UserContext"
-import { Button, User, Badge } from "@nextui-org/react"
-import React, { useEffect, useState } from "react"
-import CreateGuildModal from "../Guild/CreateGuildModal"
-import "./userStyle.css"
-import UserProfileModal from "./userProfileModal"
+import { CreateGuildEvent } from '../../DTOs/GuildDTO'
+import { UserDTO } from '../../DTOs/UserDTO'
+import { useUserContext } from '../../context/UserContext'
+import { Button, User, Badge } from '@nextui-org/react'
+import { useEffect, useState } from 'react'
+import CreateGuildModal from '../Guild/CreateGuildModal'
+import './userStyle.css'
+import UserProfileModal from './userProfileModal'
 
 export default function UserInfo(props: { currentUser: UserDTO }) {
 	const { logout } = useUserContext()
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const [createGuildModalOpen, setCreateGuildModalOpen] = useState(false)
 	const [userProfileOpen, setUserProfileOpen] = useState(false)
-	const [imageSrc, setImageSrc] = useState("")
+	const [imageSrc, setImageSrc] = useState('')
 	const [isInvisible, setIsInvisible] = useState(false)
 
 	useEffect(() => {
@@ -58,12 +58,12 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 						src: imageSrc,
 						imgProps: {
 							style: {
-								objectFit: "cover",
-								objectPosition: "center",
-								height: "100%",
-								width: "100%",
-							},
-						},
+								objectFit: 'cover',
+								objectPosition: 'center',
+								height: '100%',
+								width: '100%'
+							}
+						}
 					}}
 				/>
 				<Button
@@ -97,8 +97,8 @@ export default function UserInfo(props: { currentUser: UserDTO }) {
 						isDot
 						size="sm"
 						classNames={{
-							base: "p-0 m-0 flex-1 w-full",
-							badge: "flex justify-center items-center",
+							base: 'p-0 m-0 flex-1 w-full',
+							badge: 'flex justify-center items-center'
 						}}
 					>
 						<Button
