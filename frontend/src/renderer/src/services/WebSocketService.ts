@@ -7,8 +7,7 @@ const useWebSocket = () => {
 	const socketRef = useRef<WebSocket | null>(null)
 
 	const connectToWs = async (onConnectionEstablished: (status: boolean) => void) => {
-		const socketUrl = process.env.WS || 'ws://localhost:8080/ws';
-		socketRef.current = new WebSocket(socketUrl)
+		socketRef.current = new WebSocket(import.meta.env.VITE_WS)
 
 		socketRef.current.onopen = () => {
 			onConnectionEstablished(true)

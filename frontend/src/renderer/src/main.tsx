@@ -4,7 +4,6 @@ import './assets/index.css'
 import App from './App'
 import { NextUIProvider } from '@nextui-org/react'
 import { UserContextProvider } from './context/UserContext'
-require('dotenv').config()
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<React.StrictMode>

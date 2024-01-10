@@ -17,8 +17,8 @@ const useWebRTC = () => {
     });
 
     const connectToRTC = (userId: string, channelId: string, guildId: string) => {
-        const socketUrl = process.env.RTC || 'ws://localhost:7070/rtc';
-        const socket = new WebSocket(socketUrl)
+
+        const socket = new WebSocket(import.meta.env.VITE_RTC)
         const config = {
             iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
         }
