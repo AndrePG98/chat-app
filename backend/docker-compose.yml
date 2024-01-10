@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+    postgres:
+        build:
+            context: ./database
+            dockerfile: dockerfile
+        env_file:
+            - ./database/.env
+        ports:
+            - "5432:5432"
+    wsserver:
+        build:
+            context: ./wsServer
+            dockerfile: dockerfile
+        ports:
+            - "8080:8080"
+        depends_on:
+            - postgres
+        env_file:
+            - ./wsServer/.env
+    webrtc:
+        build:
+            context: ./webrtc
+            dockerfile: dockerfile
+        ports:
+            - "7070:7070"
+        depends_on:
+            - wsserver

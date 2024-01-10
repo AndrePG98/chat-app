@@ -10,8 +10,8 @@ type User struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Logo     string `json:"logo"`
-	IsMuted  bool   `json:"isMuted"`
-	IsDeafen bool   `json:"isDeafen"`
+	IsMuted  bool   `json:"ismuted"`
+	IsDeafen bool   `json:"isdeafen"`
 }
 
 type Invite struct {
@@ -73,6 +73,10 @@ type InviteEvent struct {
 	SendAt     string `json:"sendAt"`
 }
 
+type CancelInviteEvent struct {
+	InviteId string `json:"inviteId"`
+}
+
 // ################################## EVENTS ###########################################
 
 // ################################## RESULTS ##############################################
@@ -104,6 +108,9 @@ type FetchUsersResult struct {
 
 type InvitationResult struct {
 	Invite Invite `json:"invite"`
+}
+type CancelInviteResult struct {
+	InviteId string `json:"inviteId"`
 }
 
 // ################################## BROADCASTS ##############################################

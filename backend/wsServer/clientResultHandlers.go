@@ -223,3 +223,15 @@ func invite(client *Client, msg models.InviteEvent) {
 		}
 	}
 }
+
+func cancelInvite(client *Client, msg models.CancelInviteEvent) {
+	err := client.Server.Database.DeleteInvite(msg.InviteId)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	client.Send <- &models.IMessage{
+		Type: models.R_CancelInvite,
+		Body: models.CancelInviteResult(msg),
+	}
+}

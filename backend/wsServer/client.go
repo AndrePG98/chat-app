@@ -160,6 +160,10 @@ func (client *Client) handleMessage(msg models.IMessage) {
 		var body models.InviteEvent
 		mapstructure.Decode(msg.Body, &body)
 		invite(client, body)
+	case models.E_CancelInvite:
+		var body models.CancelInviteEvent
+		mapstructure.Decode(msg.Body, &body)
+		cancelInvite(client, body)
 	}
 }
 

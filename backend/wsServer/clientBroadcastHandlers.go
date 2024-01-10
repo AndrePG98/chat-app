@@ -121,11 +121,13 @@ func broadcastChannelDelete(client *Client, msg models.DeleteChannelEvent) {
 
 func broadcastChannelJoin(client *Client, msg models.JoinChannelEvent) {
 
-	userIds, err := client.Server.Database.JoinChannel(msg.GuildId, msg.ChannelId, msg.User.UserId)
+	userIds, ismuted, isdeafen, err := client.Server.Database.JoinChannel(msg.GuildId, msg.ChannelId, msg.User.UserId)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+	msg.User.IsMuted = ismuted
+	msg.User.IsDeafen = isdeafen
 
 	for _, userId := range userIds {
 		user, isOnline := client.Server.AuthClients[userId]

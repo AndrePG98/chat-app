@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"wsServer/models"
 
@@ -33,7 +34,7 @@ func NewWsServer() *WsServer {
 
 func (server *WsServer) run() {
 	addRoutes(server)
-	go server.Database.Connect()
+	server.Database.ConnectWithRetry(20, time.Second*1)
 	defer server.Database.Disconnect()
 	go server.listenForNewConnections()
 	go server.listenForRemoves()
