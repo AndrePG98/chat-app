@@ -7,7 +7,7 @@ const useWebSocket = () => {
 	const socketRef = useRef<WebSocket | null>(null)
 
 	const connectToWs = async (onConnectionEstablished: (status: boolean) => void) => {
-		socketRef.current = new WebSocket(`ws://127.0.0.1:8080/ws`)
+		socketRef.current = new WebSocket(`ws://85.242.68.120:8080/ws`)
 
 		socketRef.current.onopen = () => {
 			onConnectionEstablished(true)

@@ -46,3 +46,12 @@ CREATE TABLE IF NOT EXISTS channel_members (
     user_id VARCHAR(255) REFERENCES users(id) NOT NULL,
     PRIMARY KEY (channel_id, guild_id, user_id)
 );
+
+CREATE TABLE invites (
+   id VARCHAR(255) PRIMARY KEY,
+   sender_id VARCHAR(255) NOT NULL REFERENCES users(id),
+   receiver_id VARCHAR(255) NOT NULL REFERENCES users(id),
+   guild_id VARCHAR(255) NOT NULL REFERENCES users(id),
+   guild_name VARCHAR(255) NOT NULL REFERENCES guilds(id),
+   send_at DATE NOT NULL
+);

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
+	"time"
 	"wsServer/models"
 
 	_ "github.com/lib/pq"
@@ -20,23 +21,35 @@ func NewDatabase() *Database {
 	return &Database{}
 }
 
-func (db *Database) Connect() {
-	connStr := "postgres://postgres:chatapp@localhost:5432/Chatapp?sslmode=disable"
-	conn, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
+func (db *Database) ConnectWithRetry(maxAttempts int, retryInterval time.Duration) {
+	connStr := "postgres://postgres:chatapp@postgres:5432/Chatapp?sslmode=disable"
+	var err error
+	var conn *sql.DB
+
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		conn, err = sql.Open("postgres", connStr)
+		if err != nil {
+			log.Printf("Attempt %d: Failed to connect to the database: %v\n", attempt, err)
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		if err := conn.Ping(); err != nil {
+			log.Printf("Attempt %d: Ping failed: %v\n", attempt, err)
+			conn.Close()
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		// Connection successful
+		fmt.Println("Connected to Database")
+		conn.SetMaxIdleConns(10)
+		conn.SetMaxOpenConns(100)
+		db.db = conn
+		return
 	}
 
-	err = conn.Ping()
-	if err != nil {
-		log.Fatal("Error connecting to the database:", err)
-	}
-
-	conn.SetMaxIdleConns(10)
-	conn.SetMaxOpenConns(100)
-	db.db = conn
-	fmt.Println("Connected to Database")
-
+	log.Fatal("Failed to connect to the database after multiple attempts")
 }
 
 func (db *Database) Disconnect() {

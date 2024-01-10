@@ -18,7 +18,7 @@ const useWebRTC = () => {
 
     const connectToRTC = (userId: string, channelId: string, guildId: string) => {
 
-        const socket = new WebSocket(`ws://127.0.0.1:7070/rtc`)
+        const socket = new WebSocket(`ws://85.242.68.120:7070/rtc`)
         const config = {
             iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
         }

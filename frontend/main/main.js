@@ -24,6 +24,7 @@ const createWindow = () => {
 	} else {
 		win.setMenu(null)
 		win.loadURL("http://localhost:3000")
+		win.webContents.openDevTools()
 		win.webContents.on("did-fail-load", (e, code, desc) => {
 			win.webContents.reloadIgnoringCache()
 		})
