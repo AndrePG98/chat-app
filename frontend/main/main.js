@@ -12,6 +12,7 @@ const createWindow = () => {
 	const win = new BrowserWindow({
 		width: 800,
 		height: 600,
+		title: "ChatApp",
 		webPreferences: {
 			preload: path.join(__dirname, "preload.js"),
 		},
