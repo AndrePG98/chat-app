@@ -51,7 +51,7 @@ CREATE TABLE invites (
    id VARCHAR(255) PRIMARY KEY,
    sender_id VARCHAR(255) NOT NULL REFERENCES users(id),
    receiver_id VARCHAR(255) NOT NULL REFERENCES users(id),
-   guild_id VARCHAR(255) NOT NULL REFERENCES users(id),
-   guild_name VARCHAR(255) NOT NULL REFERENCES guilds(id),
+   guild_id VARCHAR(255) NOT NULL REFERENCES guilds(id),
+   guild_name VARCHAR(255) NOT NULL,
    send_at DATE NOT NULL
 );

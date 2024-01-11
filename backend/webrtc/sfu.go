@@ -52,6 +52,8 @@ func NewSFU(sv *WebRTCServer, channelId, guildId string, offer webrtc.SessionDes
 }
 
 func (sfu *SFU) negotiate(wsConn *websocket.Conn, offer webrtc.SessionDescription, p *Participant) {
+	sfu.Participants[p.UserId] = p
+
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{
@@ -67,9 +69,6 @@ func (sfu *SFU) negotiate(wsConn *websocket.Conn, offer webrtc.SessionDescriptio
 
 	conn.OnConnectionStateChange(func(pcs webrtc.PeerConnectionState) {
 		log.Println("Peer Connection:", conn.ConnectionState(), "", p.UserId)
-		if conn.ConnectionState() == webrtc.PeerConnectionStateConnected {
-			sfu.Participants[p.UserId] = p
-		}
 	})
 
 	conn.OnICEConnectionStateChange(func(is webrtc.ICEConnectionState) {
@@ -106,10 +105,9 @@ func (sfu *SFU) negotiate(wsConn *websocket.Conn, offer webrtc.SessionDescriptio
 				log.Println("Error reading rtp:", err)
 				return
 			}
-
 			go func() {
 				for id, participant := range sfu.Participants {
-					if id != p.UserId && participant.LocalTrack != nil {
+					if id != p.UserId {
 						writeErr := participant.LocalTrack.WriteRTP(rtp)
 						if writeErr != nil {
 							log.Println("Error writing to track:", err)
@@ -166,5 +164,7 @@ func (sfu *SFU) negotiate(wsConn *websocket.Conn, offer webrtc.SessionDescriptio
 	}
 
 	wsConn.WriteJSON(msg)
+
+	log.Println(len(sfu.Participants))
 
 }

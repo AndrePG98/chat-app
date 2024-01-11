@@ -1,3 +1,8 @@
 backend/wsServer/.env
 backend/database/.env
 frontend/.env
+
+frontend/dist
+frontend/dist
+frontend/out
+frontend/node_modules

@@ -46,6 +46,7 @@ const useWebRTC = () => {
 
             }
 
+
             const localtrack = stream.getTracks()[0]
 
 
@@ -63,11 +64,10 @@ const useWebRTC = () => {
                     }
                 })
                 track.onunmute = async () => {
-                    document.body.appendChild(audio);
                     audio.srcObject = streams[0];
+                    document.body.appendChild(audio);
                     await (audio as any).setSinkId(savedOutputDevice)
                     audio.play();
-
                 }
             }
 

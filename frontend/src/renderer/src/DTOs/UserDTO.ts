@@ -12,6 +12,7 @@ export class UserDTO {
 	isdeafen: boolean
 	currentChannel: ChannelDTO | undefined
 	selectedGuild: GuildDTO | undefined
+	selectedTextChannel: ChannelDTO | undefined
 	peerConnection: RTCPeerConnection | undefined
 	invites: Invite[]
 

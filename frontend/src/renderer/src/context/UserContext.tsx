@@ -277,6 +277,9 @@ export const UserContextProvider = ({ children }: any) => {
 				guild.channels = guild.channels.filter((chan) => {
 					return chan.channelId != msg.body.channelId
 				})
+				if (currentUser.selectedTextChannel?.channelId === msg.body.channelId) {
+					currentUser.selectedTextChannel = undefined
+				}
 			}
 		})
 	}

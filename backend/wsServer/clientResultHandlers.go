@@ -133,7 +133,20 @@ func handleJoinGuild(client *Client, msg models.JoinGuildEvent) {
 		log.Println(err.Error())
 		return
 	}
-	log.Println(len(guild.Members))
+	_, email, logo, ismuted, isdeafen, err := client.Server.Database.FetchUserInfo(client.ID)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	base64Image := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(logo)
+	guild.Members = append(guild.Members, models.User{
+		UserId:   client.ID,
+		Username: client.Username,
+		Email:    email,
+		Logo:     base64Image,
+		IsMuted:  ismuted,
+		IsDeafen: isdeafen,
+	})
 	client.joinGuild(msg.GuildId)
 	client.Send <- &models.IMessage{
 		Type: models.R_GuildJoin,

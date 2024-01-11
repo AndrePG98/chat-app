@@ -3,9 +3,11 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+let mainWindow: BrowserWindow
+
 function createWindow(): void {
 	// Create the browser window.
-	const mainWindow = new BrowserWindow({
+	mainWindow = new BrowserWindow({
 		width: 900,
 		height: 670,
 		show: false,
@@ -33,6 +35,34 @@ function createWindow(): void {
 	} else {
 		mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
 	}
+
+	/* const mainWindow2 = new BrowserWindow({
+		width: 900,
+		height: 670,
+		show: false,
+		autoHideMenuBar: true,
+		...(process.platform === 'linux' ? { icon } : {}),
+		webPreferences: {
+			preload: join(__dirname, '../preload/index.js'),
+			sandbox: false
+		}
+	})
+
+	mainWindow2.on('ready-to-show', () => {
+		mainWindow2.show()
+	})
+
+	mainWindow2.webContents.setWindowOpenHandler((details) => {
+		shell.openExternal(details.url)
+		return { action: 'deny' }
+	})
+
+	// Load the remote URL for development or the local html file for production.
+	if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+		mainWindow2.loadURL(process.env['ELECTRON_RENDERER_URL'])
+	} else {
+		mainWindow2.loadFile(join(__dirname, '../renderer/index.html'))
+	} */
 }
 
 // This method will be called when Electron has finished

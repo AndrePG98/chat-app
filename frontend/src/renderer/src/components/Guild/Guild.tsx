@@ -11,8 +11,15 @@ export default function Guild(props: { guild: GuildDTO; leaveGuild: (guildId: st
 	const { currentUser, sendWebSocketMessage } = useUserContext()
 	const [selectedChannel, setSelectedChannel] = useState<ChannelDTO | undefined>()
 
+	useEffect(() => {
+		if (!currentUser.selectedTextChannel) {
+			setSelectedChannel(undefined)
+		}
+	}, [currentUser.selectedTextChannel])
+
 	const selectChannel = (channel: ChannelDTO | undefined) => {
 		setSelectedChannel(channel)
+		currentUser.selectedTextChannel = channel
 	}
 
 	const createNewChannel = (name: string, type: string) => {
